@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!-- these comes from whalesong server -->
+<script src="http://localhost:8081/collects/runtime.js"></script>
+<script src="http://localhost:8081/collects/library.js"></script>
+<script src="http://localhost:8081/easyXDM.js"></script>
+<script src="http://localhost:8081/repl.js"></script>
+<script src="http://localhost:8081/CodeMirror/lib/codemirror.js"></script>
+<link rel="stylesheet" href="http://localhost:8081/CodeMirror/lib/codemirror.css">
+<script src="http://localhost:8081/CodeMirror/mode/pyret/pyret.js"></script>
+<!-- <script src="http://localhost:8081/CodeMirror/mode/ruby/ruby.js"></script> -->
+
+
+<!-- captain teach js -->
+<script src="../lib/underscore-min-1.4.4.js"></script>
+<script src="../lib/backbone-min-1.0.0.js"></script>
+<script src="../lib/editor.js"></script>
+<script src="../lib/repl.js"></script>
+<script src="../models/encounter.js"></script>
+
+<script type="text/javascript">
+
+jQuery(function () {
+  var replEncounter = new ReplEncounter;
+
+  replEncounter.render(jQuery("body"));
+});
+  
+</script>
+
+</head>
+<body>
+
+</body>
+</html>
