@@ -10,7 +10,9 @@ function makeEditor(container, options) {
 
     runFun = function (cm) {};
     if (options.hasOwnProperty("run")) {
-        runFun = options.run;
+        runFun = function (cm) {
+            options.run(cm.getValue());
+        }
     }
     
     var CM = CodeMirror.fromTextArea(textarea[0], {
