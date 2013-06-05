@@ -41,7 +41,8 @@ var ReplEncounter = Encounter.extend({
 
     save: function () {
         this.code = this.editor.getValue();
-        ReplEncounter.save.apply(this);
+        // NOTE(dbp): we need to rig up persistence for this to work.
+        // Backbone.Model.prototype.save.apply(this);
     },
 
     get_results: function () {
