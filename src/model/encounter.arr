@@ -30,7 +30,7 @@ fun obj_eq(obj1, obj2):
     end
   end
   all_same(obj1, obj2).and(all_same(obj2, obj1))
-check
+check:
   eq(obj_eq({}, {}), true)
   eq(obj_eq({x : 5}, {y : 6}), false)
   eq(obj_eq({x : 5}, {x : 6}), false)
@@ -64,7 +64,7 @@ fun get_persistable(obj):
         raise("No id field on non-primitive, non-code value: " + tostring(val))
     end
   end
-check
+check:
   fun check_result(initial, expected_result):
     pred(get_persistable(initial),
          fun(persistable):
@@ -78,9 +78,9 @@ check
   check_result({o: {id : 5}}, { values_strs: ['o'], values: [5] })
 
   data TestData:
-    | tester(x :: Number) with meth(self): nothing end
-    | tester2(name :: String, field :: is-tester3) with meth(self): nothing end
-    | tester3(id :: Number) with meth(self): nothing end
+    | tester(x :: Number) with: meth(self): nothing end
+    | tester2(name :: String, field :: is-tester3) with: meth(self): nothing end
+    | tester3(id :: Number) with: meth(self): nothing end
   end
 
   check_result(tester(5), { values_strs: ['x'], values: [5] })
@@ -92,7 +92,7 @@ end
 fun mk_persist(table_name :: String):
   method(self):
   end
-check
+check:
   
 end
 
@@ -102,7 +102,7 @@ data Encounter:
       instructions :: String,
       initialCode :: String,
       reviewable :: Bool
-    ) with
+    ) with:
     persist: mk_persist("replEncounter")
   | designRecipeEncounter(
       id :: Number,
@@ -113,15 +113,15 @@ data Encounter:
       header :: is-replEncounter,
       tests :: is-replEncounter,
       function :: is-replEncounter
-    ) with
+    ) with:
     persist: mk_persist("designRecipeEncounter")
   | reviewEncounter(
       id :: Number,
       targetEncounter :: Encounter,
       review :: Review
-    ) with
+    ) with:
     persist: mk_persist("reviewEncounter")
-check
+check:
   fun check_result(initial, expected_result):
     pred(get_persistable(initial),
          fun(persistable):
