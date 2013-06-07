@@ -1,6 +1,7 @@
 #lang pyret
 
 import db as db
+provide conn end
 
 conn = db.sqlite.connect("test.db")
 eq = checkers.check-equals
@@ -58,7 +59,7 @@ fun get_persistable(obj):
               values : values.push(val) }
       | list.List(val) => raise("Lists not supported in persist " + tostring(val))
       | builtins.has-field(val, "id") =>
-        acc.{ values_strs : values_strs.push(field),
+        acc.{ values_strs : values_strs.push(field + '_id'),
               values : values.push(val.id) }
       | else =>
         raise("No id field on non-primitive, non-code value: " + tostring(val))
@@ -75,7 +76,7 @@ check:
 
   check_result({}, { values_strs: [], values: [] })
   check_result({id : 5}, { values_strs: ['id'], values: [5] })
-  check_result({o: {id : 5}}, { values_strs: ['o'], values: [5] })
+  check_result({o: {id : 5}}, { values_strs: ['o_id'], values: [5] })
 
   data TestData:
     | tester(x :: Number) with: meth(self): nothing end
@@ -85,12 +86,14 @@ check:
 
   check_result(tester(5), { values_strs: ['x'], values: [5] })
   check_result(tester2("bob", tester3(42)),
-               { values_strs: ['name', 'field'], values: ['bob', 42] })
+               { values_strs: ['name', 'field_id'], values: ['bob', 42] })
 
 end
 
 fun mk_persist(table_name :: String):
   method(self):
+    p = get_persistable(self)
+    nothing
   end
 check:
   
