@@ -32,6 +32,18 @@ group :doc do
   gem 'sdoc', require: false
 end
 
+group :development, :test do
+  gem 'rspec-rails', '~> 2.0'
+end
+
+# NOTE(joe); the ref below is from branch 'development' on 10 Jun 2013
+gem 'rugged', git: 'git://github.com/libgit2/rugged.git', ref: '35ebf0f1e56883dfbc5775fce163d2d8fa259ae6', submodules: true
+
+group :development do
+  gem 'guard-rails'
+  gem 'guard-rspec'
+end
+
 # Use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'
 
