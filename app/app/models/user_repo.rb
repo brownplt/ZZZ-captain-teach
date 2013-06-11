@@ -8,10 +8,10 @@ class UserRepo < ActiveRecord::Base
     end
   end
 
-  class NoSuchDirectory < UserRepoException
+  class DirectoryExists < UserRepoException
   end
 
-  class DirectoryExists < UserRepoException
+  class NoSuchDirectory < UserRepoException
   end
 
   class NotAGitRepo < UserRepoException
@@ -23,7 +23,7 @@ class UserRepo < ActiveRecord::Base
   class PathExists < UserRepoException
   end
 
-  class PathDoesNotExist < UserRepoException
+  class NoSuchPath < UserRepoException
   end
 
   has_many :git_ref
@@ -96,7 +96,7 @@ class UserRepo < ActiveRecord::Base
   def lookup_file(commit, path)
     existing_blob = @repo.blob_at(commit, path)
     if existing_blob.nil?
-      raise PathDoesNotExist.new(path)
+      raise NoSuchPath.new(path)
     else
       existing_blob.text()
     end

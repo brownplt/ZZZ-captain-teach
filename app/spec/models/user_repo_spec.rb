@@ -100,7 +100,7 @@ describe UserRepo do
   it "should tell you when files do not exist" do
     expect {
       @test_repo.lookup_file_head("__this_file_does_not_exist")
-    }.to(raise_error(UserRepo::PathDoesNotExist))
+    }.to(raise_error(UserRepo::NoSuchPath))
   end
 
   describe "should update and handle old versions" do
@@ -131,7 +131,7 @@ describe UserRepo do
     it "should complain when files don't exist in old versions" do
       expect {
         @test_repo.lookup_file(@first_commit, "src/outer_workings.rkt")
-      }.to(raise_error(UserRepo::PathDoesNotExist))
+      }.to(raise_error(UserRepo::NoSuchPath))
     end
   end
 end
