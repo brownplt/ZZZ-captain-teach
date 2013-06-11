@@ -27,8 +27,10 @@ describe UserRepo do
   end
 
   it "should access an existing repo" do
-    @test_repo.repo.should(be_an_instance_of(Rugged::Repository))
-    @test_repo.repo.path.should(eq(@dir_with_git))
+    urepo = UserRepo.new(:path => @dir_with_git)
+    urepo.repo.should(be_an_instance_of(Rugged::Repository))
+    urepo.repo.path.should(eq(@dir_with_git))
+    urepo.repo.last_commit.should(eq(@test_repo.repo.last_commit))
   end
 
   it "should error if the directory does not exist" do
