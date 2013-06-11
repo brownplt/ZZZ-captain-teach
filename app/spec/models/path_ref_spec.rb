@@ -13,6 +13,8 @@ describe PathRef do
     @test_file1 = "assignment1.arr"
     @test_file2 = "assignment2.arr"
     @test_file3 = "assignment3.arr"
+    @test_file4 = "assignment4.arr"
+    @test_file5 = "assignment5.arr"
     @test_file_exists = "assignment_exists.arr"
 
     @user = { :name => "Joe", :email => "joe@foobar.com" }
@@ -61,6 +63,28 @@ describe PathRef do
     expect { pr.create_file(test_str, @user) }.to(raise_error(PathRef::FileExists))
     commit_final = pr.user_repo.repo.last_commit
     commit_final.should(eq(commit_between))
+  end
+
+  it "should error when saving files that do not already exist" do
+    pr = PathRef.new(:user_repo => @test_repo, :path => @test_file4)
+    test_str = "this is my proggy"
+    expect { pr.save_file(test_str, "", @user) }.to(raise_error(PathRef::NoSuchFile))
+  end
+
+  it "should save existing files" do
+    pr = PathRef.new(:user_repo => @test_repo, :path => @test_file5)
+    test_str = "this is my first proggy"
+    test_str2 = "this is my second proggy"
+    commit1 = pr.user_repo.repo.last_commit
+    pr.create_file(test_str, @user)
+    commit2 = pr.user_repo.repo.last_commit
+    pr.save_file(test_str2, "updating for new program", @user)
+    commit3 = pr.user_repo.repo.last_commit
+    pr.contents.should(eq(test_str2))
+    commit1.should_not(eq(commit2))
+    commit2.should_not(eq(commit3))
+    commit1.should_not(eq(commit3))
+    commit3.message.should(eq("updating for new program"))
   end
 
 end

@@ -1,12 +1,19 @@
 class PathRef < ActiveRecord::Base
 
-  class FileExists < Exception
+  class PathException < Exception
     attr :path
     def initialize(path)
       super
       @path = path
     end
   end
+
+  class FileExists < PathException
+  end
+
+  class NoSuchFile < PathException
+  end
+
 
   belongs_to :user_repo, :foreign_key => :repo_id
 
@@ -23,6 +30,11 @@ class PathRef < ActiveRecord::Base
 
   def contents
     user_repo.lookup_file_head(@path)
+  end
+
+  def save_file(contents, message, user)
+    raise NoSuchFile.new(@path) unless file_exists?
+    user_repo.update_file(@path, contents, message, user)
   end
 
 end
