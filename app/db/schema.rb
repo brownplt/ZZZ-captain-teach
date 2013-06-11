@@ -11,11 +11,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130610151438) do
+ActiveRecord::Schema.define(version: 20130611002910) do
 
   create_table "git_refs", force: true do |t|
     t.integer  "repo_id"
     t.string   "hash"
+    t.string   "path"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "path_refs", force: true do |t|
+    t.integer  "repo_id"
     t.string   "path"
     t.datetime "created_at"
     t.datetime "updated_at"
