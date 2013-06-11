@@ -87,5 +87,52 @@ describe UserRepo do
       raise_error(UserRepo::BadGitRepo))
   end
 
+  it "should get files that exist" do
+    @test_repo.create_file("about/readme.txt",
+                           "Pyret roxx!",
+                           "Initial commit",
+                           {:email => "dbpatter@cs.brown.edu",
+                            :name => "DBP"})
+    contents = @test_repo.lookup_file_head("about/readme.txt")
+    expect(contents).to(eq("Pyret roxx!"))
+  end
+
+  it "should tell you when files do not exist" do
+    expect {
+      @test_repo.lookup_file_head("__this_file_does_not_exist")
+    }.to(raise_error(UserRepo::PathDoesNotExist))
+  end
+
+  describe "should update and handle old versions" do
+    before(:all) do
+      user = {:email => "mflatt@", :name => "Matthew"}
+      @first_commit = 
+        @test_repo.create_file("src/inner_workings.rkt",
+                               "(dynamic-require 'implementation)",
+                               "Initial commit",
+                               user)
+      @test_repo.update_file("src/inner_workings.rkt",
+                             "(dynamic-require 'better-implementation)",
+                             "Tweaks",
+                             user)
+      @test_repo.update_file("src/outer_workings.rkt",
+                             "(require/provide 'inner-workings.rkt')",
+                             "Interface",
+                             user)
+    end
+    it "should actually update the file" do
+      contents = @test_repo.lookup_file_head("src/inner_workings.rkt")
+      contents.should(eq("(dynamic-require 'better-implementation)")) 
+    end
+    it "should give back old versions" do
+      contents = @test_repo.lookup_file(@first_commit, "src/inner_workings.rkt")
+      contents.should(eq("(dynamic-require 'implementation)"))
+    end
+    it "should complain when files don't exist in old versions" do
+      expect {
+        @test_repo.lookup_file(@first_commit, "src/outer_workings.rkt")
+      }.to(raise_error(UserRepo::PathDoesNotExist))
+    end
+  end
 end
 

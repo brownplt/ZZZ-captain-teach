@@ -23,8 +23,11 @@ class UserRepo < ActiveRecord::Base
   class PathExists < UserRepoException
   end
 
+  class PathDoesNotExist < UserRepoException
+  end
 
   has_many :git_ref
+  has_many :path_ref
   attr_accessor :path, :repo
   after_initialize :init
 
@@ -59,13 +62,16 @@ class UserRepo < ActiveRecord::Base
 
   # Path is relative to repository for create_ and lookup_
   def create_file(path, contents, message, user)
-    @repo = Rugged::Repository.new(@path)
 
-    existing_blob = @repo.empty? ? nil : @repo.blob_at(@repo.head.target, path)
+    existing_blob = @repo.blob_at(@repo.head.target, path)
     unless existing_blob.nil?
       raise PathExists.new(path)
     end
 
+    update_file(path, contents, message, user)
+  end
+
+  def update_file(path, contents, message, user)
     oid = @repo.write(contents, :blob)
     index = @repo.index()
     tree = @repo.lookup(@repo.head.target).tree
@@ -87,7 +93,18 @@ class UserRepo < ActiveRecord::Base
     Rugged::Commit.create(@repo, options)
   end
 
-  def lookup_file(path)
+  def lookup_file(commit, path)
+    existing_blob = @repo.blob_at(commit, path)
+    if existing_blob.nil?
+      raise PathDoesNotExist.new(path)
+    else
+      existing_blob.text()
+    end
+
+  end
+
+  def lookup_file_head(path)
+    lookup_file(@repo.head.target, path)
   end
 
   def self._create_repo(where)
