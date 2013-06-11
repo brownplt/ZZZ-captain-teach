@@ -23,9 +23,9 @@ class PathRef < ActiveRecord::Base
     user_repo.has_file_head?(@path)
   end
 
-  def create_file(contents, user)
+  def create_file(contents, message, user)
     raise FileExists.new(@path) if file_exists?
-    user_repo.create_file(@path, contents, "File created", user)
+    user_repo.create_file(@path, contents, message, user)
   end
 
   def contents

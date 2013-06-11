@@ -47,20 +47,23 @@ describe PathRef do
     pr = PathRef.new(:user_repo => @test_repo, :path => @test_file2)
     test_str = "data List: | empty end"
     commit_before = pr.user_repo.repo.last_commit
-    pr.create_file(test_str, @user)
+    pr.create_file(test_str, "creating", @user)
     commit_after = pr.user_repo.repo.last_commit
     pr.contents().should(eq(test_str))
     commit_before.should_not(eq(commit_after))
+    commit_after.message.should(eq("creating"))
   end
 
   it "should error on creation if the file already exists" do
     pr = PathRef.new(:user_repo => @test_repo, :path => @test_file3)
     test_str = "data List: | empty end"
     commit_before = pr.user_repo.repo.last_commit
-    pr.create_file(test_str, @user)
+    pr.create_file(test_str, "creating", @user)
     commit_between = pr.user_repo.repo.last_commit
 
-    expect { pr.create_file(test_str, @user) }.to(raise_error(PathRef::FileExists))
+    expect {
+      pr.create_file(test_str, "creating again", @user)
+    }.to(raise_error(PathRef::FileExists))
     commit_final = pr.user_repo.repo.last_commit
     commit_final.should(eq(commit_between))
   end
@@ -76,7 +79,7 @@ describe PathRef do
     test_str = "this is my first proggy"
     test_str2 = "this is my second proggy"
     commit1 = pr.user_repo.repo.last_commit
-    pr.create_file(test_str, @user)
+    pr.create_file(test_str, "creating", @user)
     commit2 = pr.user_repo.repo.last_commit
     pr.save_file(test_str2, "updating for new program", @user)
     commit3 = pr.user_repo.repo.last_commit
