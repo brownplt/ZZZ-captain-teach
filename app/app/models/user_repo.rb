@@ -107,6 +107,14 @@ class UserRepo < ActiveRecord::Base
     lookup_file(@repo.head.target, path)
   end
 
+  def has_file?(commit, path)
+    not @repo.blob_at(commit, path).nil?
+  end
+
+  def has_file_head?(path)
+    has_file?(@repo.head.target, path)
+  end
+
   def self._create_repo(where)
     @repo = Rugged::Repository.init_at(where, :bare)
     oid = @repo.write("Master anchor", :blob)

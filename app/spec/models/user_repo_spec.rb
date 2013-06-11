@@ -134,5 +134,17 @@ describe UserRepo do
       }.to(raise_error(UserRepo::NoSuchPath))
     end
   end
+
+  it "should say files are absent when they are" do
+    @test_repo.has_file_head?("__doesnotexist").should(be_false)
+  end
+  it "should say files are present when they are" do
+    filename = "src/test_for_file_presence.rkt"
+    @test_repo.create_file(filename,
+                           "This file is certainly present",
+                           "Initial commit",
+                           { :name => "Theodore", :email => ""})
+    @test_repo.has_file_head?(filename).should(be_true)
+  end
 end
 
