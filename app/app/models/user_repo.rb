@@ -108,7 +108,6 @@ class UserRepo < ActiveRecord::Base
   end
 
   def has_file?(commit, path)
-    print(@repo.blob_at(commit, path))
     not @repo.blob_at(commit, path).nil?
   end
 

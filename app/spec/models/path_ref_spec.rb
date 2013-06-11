@@ -12,7 +12,8 @@ describe PathRef do
 
     @test_file1 = "assignment1.arr"
     @test_file2 = "assignment2.arr"
-    @test_file_exists = "assignment3.arr"
+    @test_file3 = "assignment3.arr"
+    @test_file_exists = "assignment_exists.arr"
 
     @user = { :name => "Joe", :email => "joe@foobar.com" }
     @test_repo.create_file(
@@ -41,7 +42,7 @@ describe PathRef do
   end
 
   it "should create the file if it does not exist" do
-    pr = PathRef.new(:user_repo => @test_repo, :path => @test_file1)
+    pr = PathRef.new(:user_repo => @test_repo, :path => @test_file2)
     test_str = "data List: | empty end"
     commit_before = pr.user_repo.repo.last_commit
     pr.create_file(test_str, @user)
@@ -51,7 +52,7 @@ describe PathRef do
   end
 
   it "should error on creation if the file already exists" do
-    pr = PathRef.new(:user_repo => @test_repo, :path => @test_file2)
+    pr = PathRef.new(:user_repo => @test_repo, :path => @test_file3)
     test_str = "data List: | empty end"
     commit_before = pr.user_repo.repo.last_commit
     pr.create_file(test_str, @user)
