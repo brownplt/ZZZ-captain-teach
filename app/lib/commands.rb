@@ -73,7 +73,32 @@ module Commands
         checkblock: checkblock,
         definition: definition
         }
-      
+    end
+
+    def header_given(tag)
+      if !tag.has_key?(:fun_name) or !tag[:fun_name].is_a?(String) or
+          !tag.has_key?(:instructions) or !tag[:instructions].is_a?(String) or
+          # NOTE(dbp): only checking one level right now
+          !tag.has_key?(:arguments) or !tag[:arguments].is_a?(Array) or  
+          !tag.has_key?(:return) or !tag[:return].is_a?(String) or
+          !tag.has_key?(:purpose) or !tag[:purpose].is_a?(String)
+        raise InvalidTag
+      end
+      { type: "header",
+        editable: false,
+        fun_name: tag[:fun_name],
+        instructions: tag[:instructions],
+        arguments: tag[:arguments],
+        return: tag[:return],
+        purpose: tag[:purpose] }
+    end
+
+    def check_block(tag)
+      tag
+    end
+
+    def definition(tag)
+      tag
     end
   end
 

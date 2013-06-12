@@ -404,5 +404,73 @@ describe "Commands" do
            eq({type: "test"}))
       end
     end
+    describe "header_given" do
+      before(:all) do
+        @fun_name = "bubble-sort"
+        @inst = "Write the greatest sort ever"
+        @args = [["lst","List<A>"]]
+        @ret = "List<A>"
+        @purpose = "Sort by bubbling"
+      end
+      it "should error if missing fun_name" do
+        expect{Commands::interp_tag(VERSION,
+           {tag: "header_given",
+            instructions: @inst,
+            arguments: @args,
+            return: @ret,
+            purpose: @purpose})}.to(
+        raise_error(Commands::InvalidTag))
+      end
+      it "should error if fun_name isn't string"
+      it "should error if missing instructions" do
+        expect{Commands::interp_tag(VERSION,
+           {tag: "header_given",
+            fun_name: @fun_name,
+            arguments: @args,
+            return: @ret,
+            purpose: @purpose})}.to(
+        raise_error(Commands::InvalidTag))
+      end
+      it "should error if instructions isn't string"
+      it "should error if missing arguments" do
+        expect{Commands::interp_tag(VERSION,
+           {tag: "header_given",
+            fun_name: @fun_name,
+            instructions: @inst,
+            return: @ret,
+            purpose: @purpose})}.to(
+        raise_error(Commands::InvalidTag))
+      end
+      it "should error if arguments isn't a list of lists"
+      it "should error if missing return" do
+        expect{Commands::interp_tag(VERSION,
+           {tag: "header_given",
+            fun_name: @fun_name,
+            arguments: @args,
+            return: @ret,
+          purpose: @purpose})}.to(
+        raise_error(Commands::InvalidTag))
+      end
+      it "should error if return isn't a string"
+      it "should error if missing purpose"
+      it "should error if purpose isn't a string"
+      it "should pass through all attributes and add editable" do
+        Commands::interp_tag(VERSION,
+           {tag: "header_given",
+            fun_name: @fun_name,
+            instructions: @inst,
+            arguments: @args,
+            return: @ret,
+            purpose: @purpose}).should(
+           eq({type: "header",
+               editable: false,
+               fun_name: @fun_name,
+               instructions: @inst,
+               arguments: @args,
+               return: @ret,
+               purpose: @purpose
+              }))
+      end
+    end
   end
 end
