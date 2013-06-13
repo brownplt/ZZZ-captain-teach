@@ -57,7 +57,8 @@
     'description (render-description (_function-description f))
     'instructions (render-instructions (_function-instructions f))
     'header (header/given->json (_function-header f))
-    ;; more
+    'check_block (check-block->json (_function-check-block f))
+    'definition (definition->json (_function-definition f))
     ))
 
 (define fun-name->json _fun-name-name)
@@ -73,7 +74,7 @@
     'tag "header_given"
     'name (_header-name h)
     'instructions (render-instructions (_header-instructions h))
-    'fun-name (fun-name->json (_header/given-fun-name h))
+    'fun_name (fun-name->json (_header/given-fun-name h))
     'arguments (map argument->json (_header/given-arguments h))
     'return (return->json (_header/given-return h))
     'purpose (purpose->json (_header/given-purpose h))))
@@ -82,13 +83,14 @@
 (define (assignment->json a)
   (hasheq
     'tag "assignment"
+    'name (_assignment-name a)
     'description (render-description (_assignment-description a))
     'instructions (render-instructions (_assignment-instructions a))
     'pieces (map piece->json (_assignment-pieces a))))
 
 (define (check-block->json c)
   (hasheq
-    'tag "check-block"
+    'tag "check_block"
     'name (_check-block-name c)
     'instructions (render-instructions (_check-block-instructions c))))
 (define (definition->json d)
@@ -104,6 +106,10 @@
   (first (filter _instructions? lst)))
 (define (find-header lst)
   (first (filter _header? lst)))
+(define (find-check-block lst)
+  (first (filter _check-block? lst)))
+(define (find-definition lst)
+  (first (filter _definition? lst)))
 (define (find-fun-name lst)
   (first (filter _fun-name? lst)))
 (define (find-arguments lst)
@@ -141,10 +147,8 @@
               (find-description (list id ...))
               (find-instructions (list id ...))
               (find-header (list id ...))
-              empty
-              empty
-              #;(find-check-block (list id ...))
-              #;(find-definition (list id ...))
+	      (find-check-block (list id ...))
+              (find-definition (list id ...))
               )))])))
 
 (define-syntax header/given
