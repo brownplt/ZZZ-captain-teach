@@ -1,1 +1,18 @@
-<%= @output %>
+<script type="text/javascript">
+  $.ajax("/fetch_assignments", {success: function(response, xhr) {
+  response.forEach(function (assignment) {
+    console.log(assignment);
+    console.log(assignment["description"]);
+  debugger;
+    var li = $("<li>");
+    li.text(assignment.description);
+    $("#assignments").append(li);
+  });
+  }});
+
+  
+</script>
+
+<ul id="assignments">
+  
+</ul>

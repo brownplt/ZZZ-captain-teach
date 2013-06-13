@@ -6,6 +6,7 @@ App::Application.routes.draw do
   # root 'welcome#index'
 
   get 'all_assignments' => "admin#all_assignments"
+  get 'fetch_assignments' => "admin#fetch_assignments"
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
