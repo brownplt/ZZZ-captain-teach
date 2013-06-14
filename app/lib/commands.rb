@@ -12,7 +12,7 @@ module Commands
 
   def interp_tag(version, tag)
     if !tag.is_a?(Hash) or !tag.has_key?("tag") or !tag["tag"].is_a?(String)
-      raise InvalidTag.new(tag)
+      raise InvalidTag, tag
     end
     name = tag["tag"]
     pair = [version,name]
