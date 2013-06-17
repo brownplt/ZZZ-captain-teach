@@ -1,7 +1,5 @@
 module Commands
 
-  class InvalidCommand < Exception
-  end
   class InvalidTag < Exception
     attr :tag, :msg
     def initialize(tag, msg)
@@ -12,25 +10,24 @@ module Commands
   end
 
   module Helpers
-    String_checker = lambda {|field| field.is_a?(String) }
-    Array_checker = lambda {|field| field.is_a?(Array) }
-    Hash_nil_checker = lambda {|field| field.nil? or field.is_a?(Hash)}
-
+    
     def tag_assert(tag, name, type)
       if !tag.is_a?(Hash)
         raise InvalidTag.new(tag, "Tag is not a hash")
       end
       if !tag.has_key?(name)
-        raise InvalidTag.new(tag, "Tag does not have key '#{name}'")
+        raise InvalidTag.new(tag, "Tag does not key '#{name}'")
       end
 
       case type
       when :string
-        pred = String_checker
+        pred = lambda {|field| field.is_a?(String) }
+      when :hash
+        pred = pred = lambda {|field| field.is_a?(Hash)}
       when :hash_nil
-        pred = Hash_nil_checker
+        pred = lambda {|field| field.nil? or field.is_a?(Hash)}
       when :array
-        pred = Array_checker
+        pred = lambda {|field| field.is_a?(Array) }
       end
 
       if !pred.call(tag[name])
@@ -49,7 +46,7 @@ module Commands
        @versions[version].respond_to?(name)
       @versions[version].send(name, tag, path)
     else
-      raise InvalidCommand, tag
+      raise InvalidTag.new(tag, "Tag/Version pair not valid: #{name}/#{version}")
     end
   end
   module_function :interp_tag
@@ -60,6 +57,20 @@ module Commands
       {"type" => "test",
       "resource" => path}
     end
+
+    def description(tag, path)
+      Helpers.tag_assert(tag, "body", :string)
+      { "type" => "description", "body" => tag["body"],
+        "resource" => path }
+    end
+
+    def instructions(tag, path)
+      Helpers.tag_assert(tag, "body", :string)
+      { "type" => "description", "body" => tag["body"],
+        "resource" => path }
+    end
+
+    
     def assignment(tag, path)
       Helpers.tag_assert(tag, "name", :string)
       Helpers.tag_assert(tag, "description", :string)
@@ -67,18 +78,12 @@ module Commands
       Helpers.tag_assert(tag, "pieces", :array)
 
       pieces = tag["pieces"].each_with_index.map {|t,i|
-        begin
           Commands::interp_tag(1, t, path + "/pieces/" + i.to_s)
-        rescue InvalidCommand
-          # an invalid command on a nested tag means this is
-          # an invalid tag
-          raise InvalidTag.new(tag, "Nested tag is invalid: #{t}")
-        end
       }
 
       { "type" => "assignment",
         "name" => tag["name"],
-        "description" => tag["description"],
+        "description" =>  tag["description"],
         "instructions" => tag["instructions"],
         "pieces" => pieces,
         "resource" => path}
@@ -117,23 +122,23 @@ module Commands
       Helpers.tag_assert(tag, "arguments", :array)
       Helpers.tag_assert(tag, "return", :string)
       Helpers.tag_assert(tag, "purpose", :string)
-
+      
       { "type" => "header",
         "editable" => false,
         "fun_name" => tag["fun_name"],
         "instructions" => tag["instructions"],
         # NOTE(dbp): not checking arguments, just passing through.
         "arguments" => tag["arguments"],
-        "return" => tag["return"],
+        "return" =>  tag["return"],
         "purpose" => tag["purpose"],
         "resource" => path }
     end
 
-    def check_block(tag)
+    def check_block(tag, path)
       tag
     end
 
-    def definition(tag)
+    def definition(tag, path)
       tag
     end
   end
