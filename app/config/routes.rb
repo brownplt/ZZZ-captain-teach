@@ -8,6 +8,8 @@ App::Application.routes.draw do
   get 'all_assignments' => "test#all_assignments"
   get 'fetch_assignments' => "test#fetch_assignments"
 
+  resources :function_data
+  
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
 
