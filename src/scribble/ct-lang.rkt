@@ -62,7 +62,7 @@ Possible reasons:
    description
    instructions
    header
-   check-block
+   check_block
    definition))
 
 (json-struct _header ())
@@ -71,22 +71,22 @@ Possible reasons:
   (
    name
    instructions
-   fun-name
+   fun_name
    arguments
    return
    purpose))
 
-(json-struct _check-block (name instructions))
+(json-struct _check_block (name instructions))
 (json-struct _definition (name instructions))
 
 (json-struct _description (body))
 (json-struct _instructions (body))
 
-(json-struct _fun-name (name))
+(json-struct _fun_name (name))
 (json-struct _argument (name ann))
 (json-struct _return (ann))
 (json-struct _purpose (str))
-(define fun-name _fun-name)
+(define fun-name _fun_name)
 (define argument _argument)
 (define return _return)
 (define purpose _purpose)
@@ -99,11 +99,11 @@ Possible reasons:
 (define (find-header lst)
   (first (filter _header? lst)))
 (define (find-check-block lst)
-  (first (filter _check-block? lst)))
+  (first (filter _check_block? lst)))
 (define (find-definition lst)
   (first (filter _definition? lst)))
 (define (find-fun-name lst)
-  (first (filter _fun-name? lst)))
+  (first (filter _fun_name? lst)))
 (define (find-arguments lst)
   (filter _argument? lst))
 (define (find-return lst)
@@ -158,7 +158,7 @@ Possible reasons:
             (find-purpose (list elt ...)))))])))
 
 (define (check-block . elts)
-  (_check-block
+  (_check_block
     (first elts)
     (find-instructions elts)))
 
