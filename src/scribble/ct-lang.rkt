@@ -67,7 +67,7 @@ Possible reasons:
 
 (json-struct _header ())
 
-(json-struct _header/given _header
+(json-struct _header_given _header
   (
    name
    instructions
@@ -149,7 +149,7 @@ Possible reasons:
       [(_ name elt ...)
        (with-syntax ([(id ...) (generate-temporaries #'(elt ...))])
          #'(let [(id elt) ...]
-          (_header/given
+          (_header_given
             name
             (find-instructions (list elt ...))
             (find-fun-name (list elt ...))
