@@ -30,6 +30,8 @@ Possible reasons:
    [(_ name (field ...))
     #'(json-struct name tojsonable (field ...))]
     [(_ name super (field ...))
+    (let* [(name-str (symbol->string (syntax->datum #'name)))
+           (tag-str (if (equal? (string-ref name-str 0) #\_) (substring name-str 1) name-str))]
     (with-syntax
       ([(accessor ...) (map (lambda (field)
                               (datum->syntax #'field
@@ -38,7 +40,7 @@ Possible reasons:
                                                       (syntax->datum #'name)
                                                       field))))
                             (syntax->datum #'(field ...)))]
-       [name-str (datum->syntax #'name (symbol->string (syntax->datum #'name)))])
+       [tag-str (datum->syntax #'name tag-str)])
       #'(struct name super (field ...)
         #:property prop:procedure
         (lambda (instance)
@@ -46,8 +48,8 @@ Possible reasons:
             [(name field ...)
              (apply hasheq
               (append
-                 (list 'tag name-str)
-                 (list (quote field) (to-json (accessor instance))) ...))]))))]))
+                 (list 'tag tag-str)
+                 (list (quote field) (to-json (accessor instance))) ...))])))))]))
 
 (json-struct _assignment (name description instructions pieces))
 
