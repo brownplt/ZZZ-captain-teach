@@ -1,6 +1,5 @@
 class FunctionDataController < ApplicationController
 
-
   def show
     fd = FunctionData.find(params[:id])
     render :json => fd
@@ -46,6 +45,20 @@ class FunctionDataController < ApplicationController
         :id => fd.id
       }
     end
+  end
+
+  def lookup_or_create
+    fd = FunctionData.find_by(:ref => params[:ref],
+                              :user_id => params[:user_id])
+
+    if !fd
+      fd = FunctionData.new(:ref => params[:ref],
+                            :user_id => params[:user_id])
+      # NOTE(dbp): this isn't available in user_id
+      fd.save
+    end
+    
+    render :json => fd
   end
 
 end

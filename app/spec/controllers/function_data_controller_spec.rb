@@ -32,5 +32,18 @@ describe FunctionDataController do
     @fd.reload()
     @fd.check_block.should(eq(check))
   end
+
+  it "GET lookup_or_create, with existing FD" do
+    get :lookup_or_create, :ref => @fd.ref, :user_id => @fd.user_id
+    resp = JSON::parse(response.body)
+    resp["id"].should(eq(@fd.id))
+  end
+
+  it "GET lookup_or_create, without existing FD" do
+    get :lookup_or_create, :ref => "blah bar", :user_id => @fd.user_id
+    resp = JSON::parse(response.body)
+    resp["id"].should(be_a(Integer))
+    resp["id"].should_not(eq(@fd.id))
+  end
   
 end

@@ -1,0 +1,15 @@
+<script type="text/javascript">
+  $.ajax("/fetch_assignments", {success: function(response, xhr) {
+  var fun = response[0].pieces[0];
+
+  $.ajax("/function_data/lookup_or_create?user_id=1&ref="+fun.resource,
+        {success: function(response, xhr) {
+  console.log(response);
+  }});
+}});
+  
+</script>
+
+<div id="assignment">
+  
+</div>
