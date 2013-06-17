@@ -1,6 +1,6 @@
 #lang scribble/base
 
-@(require "ct-lang.rkt")
+@(require "../scribble/ct-lang.rkt")
 
 @assignment["Bubble Sort"]{
 
