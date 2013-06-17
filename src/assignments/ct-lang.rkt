@@ -1,15 +1,61 @@
 #lang racket/base
 
-(require racket/list racket/string scribble/core json (for-syntax racket/base))
+(require
+ (only-in racket/list first)
+ racket/string
+ racket/match
+ (only-in json json-null)
+ (for-syntax racket/base)
+ (for-syntax syntax/parse))
 (provide (all-defined-out))
 
-(struct _assignment (name description instructions pieces))
+(define (to-json thing)
+  (cond
+    [(string? thing) thing]
+    [(number? thing) thing]
+    [(equal? thing (json-null)) thing]
+    [(boolean? thing) thing]
+    [(list? thing) (map to-json thing)]
+    [(tojsonable? thing) (thing)]
+    [else
+     (error (format "Not a jsonable value: ~a.
+Possible reasons:
+- You forgot to use json-struct or inherit from something that does
+- You used a symbol and need to have used a string
+- You used the wrong value for json-null (currently ~a)" thing (json-null)))]))
+
+(struct tojsonable ())
+(define-syntax (json-struct stx)
+  (syntax-case stx ()
+   [(_ name (field ...))
+    #'(json-struct name tojsonable (field ...))]
+    [(_ name super (field ...))
+    (with-syntax
+      ([(accessor ...) (map (lambda (field)
+                              (datum->syntax #'field
+                                             (string->symbol
+                                              (format "~a-~a"
+                                                      (syntax->datum #'name)
+                                                      field))))
+                            (syntax->datum #'(field ...)))]
+       [name-str (datum->syntax #'name (symbol->string (syntax->datum #'name)))])
+      #'(struct name super (field ...)
+        #:property prop:procedure
+        (lambda (instance)
+          (match instance
+            [(name field ...)
+             (apply hasheq
+              (append
+                 (list 'tag name-str)
+                 (list (quote field) (to-json (accessor instance))) ...))]))))]))
+
+(json-struct _assignment (name description instructions pieces))
 
 ;; Pieces:
 
-(struct piece ())
+(json-struct piece ())
 
-(struct _function piece
+(json-struct _function piece
   (name
    description
    instructions
@@ -17,87 +63,31 @@
    check-block
    definition))
 
-(struct _header (name instructions))
+(json-struct _header ())
 
-(struct _header/given _header
-  (fun-name
+(json-struct _header/given _header
+  (
+   name
+   instructions
+   fun-name
    arguments
    return
    purpose))
 
-(struct _check-block (name instructions))
-(struct _definition (name instructions))
+(json-struct _check-block (name instructions))
+(json-struct _definition (name instructions))
 
-(struct _description (body))
-(struct _instructions (body))
+(json-struct _description (body))
+(json-struct _instructions (body))
 
-(struct _fun-name (name))
-(struct _argument (name ann))
-(struct _return (ann))
-(struct _purpose (str))
+(json-struct _fun-name (name))
+(json-struct _argument (name ann))
+(json-struct _return (ann))
+(json-struct _purpose (str))
 (define fun-name _fun-name)
 (define argument _argument)
 (define return _return)
 (define purpose _purpose)
-
-(define (render-description d)
-  (content->string (paragraph-content (_description-body d))))
-
-(define (render-instructions i)
-  (content->string (paragraph-content (_instructions-body i))))
-
-(define (piece->json p)
-  (cond
-    [(_function? p) (function->json p)]))
-
-(define (function->json f)
-  (hasheq
-    'tag "function"
-    'name (_function-name f)
-    'description (render-description (_function-description f))
-    'instructions (render-instructions (_function-instructions f))
-    'header (header/given->json (_function-header f))
-    'check_block (check-block->json (_function-check-block f))
-    'definition (definition->json (_function-definition f))
-    ))
-
-(define fun-name->json _fun-name-name)
-(define (argument->json a)
-  (hasheq
-    'name (_argument-name a)
-    'ann (_argument-ann a)))
-(define return->json _return-ann)
-(define purpose->json _purpose-str)
-
-(define (header/given->json h)
-  (hasheq
-    'tag "header_given"
-    'name (_header-name h)
-    'instructions (render-instructions (_header-instructions h))
-    'fun_name (fun-name->json (_header/given-fun-name h))
-    'arguments (map argument->json (_header/given-arguments h))
-    'return (return->json (_header/given-return h))
-    'purpose (purpose->json (_header/given-purpose h))))
-
-
-(define (assignment->json a)
-  (hasheq
-    'tag "assignment"
-    'name (_assignment-name a)
-    'description (render-description (_assignment-description a))
-    'instructions (render-instructions (_assignment-instructions a))
-    'pieces (map piece->json (_assignment-pieces a))))
-
-(define (check-block->json c)
-  (hasheq
-    'tag "check_block"
-    'name (_check-block-name c)
-    'instructions (render-instructions (_check-block-instructions c))))
-(define (definition->json d)
-  (hasheq
-    'tag "definition"
-    'name (_definition-name d)
-    'instructions (render-instructions (_definition-instructions d))))
 
 
 (define (find-description lst)
@@ -128,13 +118,13 @@
       [(_ name elt ...)
        (with-syntax ([(id ...) (generate-temporaries #'(elt ...))])
        #'(begin
-       (display (jsexpr->string (assignment->json
-        (let [(id elt) ...]
+       (provide result)
+       (define result (let [(id elt) ...]
           (_assignment
             name
             (find-description (list id ...))
             (find-instructions (list id ...))
-            (find-pieces (list id ...)))))))))])))
+            (find-pieces (list id ...)))))))])))
 
 (define-syntax function
   (lambda (stx)
@@ -177,7 +167,7 @@
 
 
 (define-syntax-rule (description body ...)
-  (_description (paragraph (style "description" empty) (string-append* (list body ...)))))
+  (_description (string-append body ...)))
 (define-syntax-rule (instructions body ...)
-  (_instructions (paragraph (style "instructions" empty) (string-append* (list body ...)))))
+  (_instructions (string-append body ...)))
 
