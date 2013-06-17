@@ -11,7 +11,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130611002910) do
+ActiveRecord::Schema.define(version: 20130617183646) do
+
+  create_table "function_data", force: true do |t|
+    t.string   "ref"
+    t.integer  "user_id"
+    t.string   "check_block"
+    t.string   "definition"
+    t.string   "header"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "function_data", ["user_id"], name: "index_function_data_on_user_id"
 
   create_table "git_refs", force: true do |t|
     t.integer  "repo_id"
@@ -30,6 +42,11 @@ ActiveRecord::Schema.define(version: 20130611002910) do
 
   create_table "user_repos", force: true do |t|
     t.string   "path"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "users", force: true do |t|
     t.datetime "created_at"
     t.datetime "updated_at"
   end
