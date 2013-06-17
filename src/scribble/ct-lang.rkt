@@ -29,7 +29,7 @@ Possible reasons:
   (syntax-case stx ()
    [(_ name (field ...))
     #'(json-struct name tojsonable (field ...))]
-    [(_ name super (field ...))
+   [(_ name super (field ...))
     (let* [(name-str (symbol->string (syntax->datum #'name)))
            (tag-str (if (equal? (string-ref name-str 0) #\_) (substring name-str 1) name-str))]
     (with-syntax
@@ -50,6 +50,16 @@ Possible reasons:
               (append
                  (list 'tag tag-str)
                  (list (quote field) (to-json (accessor instance))) ...))])))))]))
+(define-syntax (string-struct stx)
+  (syntax-case stx ()
+   [(_ name (field))
+    (with-syntax
+      ([accessor (datum->syntax #'field (string->symbol (format "~a-~a" (syntax->datum #'name) (syntax->datum #'field))))])
+      #'(struct name tojsonable (field)
+        #:property prop:procedure
+        (lambda (instance)
+          (match instance
+            [(name field) field]))))]))
 
 (json-struct _assignment (name description instructions pieces))
 
@@ -79,13 +89,13 @@ Possible reasons:
 (json-struct _check_block (name instructions))
 (json-struct _definition (name instructions))
 
-(json-struct _description (body))
-(json-struct _instructions (body))
+(string-struct _description (body))
+(string-struct _instructions (body))
 
-(json-struct _fun_name (name))
+(string-struct _fun_name (name))
 (json-struct _argument (name ann))
-(json-struct _return (ann))
-(json-struct _purpose (str))
+(string-struct _return (ann))
+(string-struct _purpose (str))
 (define fun-name _fun_name)
 (define argument _argument)
 (define return _return)
