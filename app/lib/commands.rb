@@ -41,13 +41,13 @@ module Commands
 
   end
 
-  def interp_tag(version, tag)
+  def interp_tag(version, tag, path)
     Helpers.tag_assert(tag, "tag", :string)
     name = tag["tag"]
     pair = [version,name]
     if @versions.has_key?(version) and
        @versions[version].respond_to?(name)
-      @versions[version].send(name, tag)
+      @versions[version].send(name, tag, path)
     else
       raise InvalidCommand, tag
     end
@@ -56,18 +56,19 @@ module Commands
 
   class Version1
     # NOTE(dbp): this just used so that we can test nested constructs
-    def test(tag)
-      {"type" => "test"}
+    def test(tag, path)
+      {"type" => "test",
+      "resource" => path}
     end
-    def assignment(tag)
+    def assignment(tag, path)
       Helpers.tag_assert(tag, "name", :string)
       Helpers.tag_assert(tag, "description", :string)
       Helpers.tag_assert(tag, "instructions", :string)
       Helpers.tag_assert(tag, "pieces", :array)
 
-      pieces = tag["pieces"].collect {|t|
+      pieces = tag["pieces"].each_with_index.map {|t,i|
         begin
-          Commands::interp_tag(1, t)
+          Commands::interp_tag(1, t, path + "/pieces/" + i.to_s)
         rescue InvalidCommand
           # an invalid command on a nested tag means this is
           # an invalid tag
@@ -79,10 +80,11 @@ module Commands
         "name" => tag["name"],
         "description" => tag["description"],
         "instructions" => tag["instructions"],
-        "pieces" => pieces }
+        "pieces" => pieces,
+        "resource" => path}
     end
     
-    def function(tag)
+    def function(tag, path)
       Helpers.tag_assert(tag,"name", :string)
       Helpers.tag_assert(tag,"description", :string)
       Helpers.tag_assert(tag,"instructions", :string)
@@ -91,11 +93,11 @@ module Commands
       Helpers.tag_assert(tag,"definition", :hash_nil)
       
       header = tag["header"].nil? ? nil : 
-        Commands::interp_tag(1, tag["header"])
+        Commands::interp_tag(1, tag["header"], path + "/header")
       checkblock = tag["check_block"].nil? ? nil : 
-        Commands::interp_tag(1, tag["check_block"])
+        Commands::interp_tag(1, tag["check_block"], path + "/check_block")
       definition = tag["definition"].nil? ? nil : 
-        Commands::interp_tag(1, tag["definition"])
+        Commands::interp_tag(1, tag["definition"], path + "/definition")
       
       { "type" => "function",
         "name" => tag["name"],
@@ -103,11 +105,12 @@ module Commands
         "instructions" => tag["instructions"],
         "header" => header,
         "check_block" => checkblock,
-        "definition" => definition
+        "definition" => definition,
+        "resource" => path
         }
     end
 
-    def header_given(tag)
+    def header_given(tag, path)
       Helpers.tag_assert(tag, "fun_name", :string)
       Helpers.tag_assert(tag, "instructions", :string)
       # NOTE(dbp): only checking one level deep in arguments for now
@@ -122,7 +125,8 @@ module Commands
         # NOTE(dbp): not checking arguments, just passing through.
         "arguments" => tag["arguments"],
         "return" => tag["return"],
-        "purpose" => tag["purpose"] }
+        "purpose" => tag["purpose"],
+        "resource" => path }
     end
 
     def check_block(tag)

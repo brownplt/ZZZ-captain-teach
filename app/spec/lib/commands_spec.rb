@@ -2,38 +2,44 @@ require 'spec_helper'
 
 describe "Commands" do
   it "should explode if an invalid version/name pair is specified" do
-    expect {Commands::interp_tag(-1, {"tag" => "assignment"})}.to(
+    expect {Commands::interp_tag(-1, {"tag" => "assignment"}, "")}.to(
      raise_error(Commands::InvalidCommand)
     )
-    expect {Commands::interp_tag(1, {"tag" => "fooINVALIDTAG"})}.to(
+    expect {Commands::interp_tag(1, {"tag" => "fooINVALIDTAG"}, "")}.to(
      raise_error(Commands::InvalidCommand)
     )
   end
+
   describe "version 1" do
     VERSION = 1
+
     describe "assignment" do
       it "should error if it is missing name" do
         expect {Commands::interp_tag(VERSION,
-                                     {"tag" => "assignment"})}.to(
+                                     {"tag" => "assignment"},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
       end
       it "should error if name isn't a string" do
         expect {Commands::interp_tag(VERSION,
                                      {"tag" => "assignment",
-                                     "name" => false})}.to(
+                                     "name" => false},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
         expect {Commands::interp_tag(VERSION,
                                      {"tag" => "assignment",
-                                      "name" => {}})}.to(
+                                      "name" => {}},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
       end
       it "should error if it is missing description" do
         expect {Commands::interp_tag(VERSION,
                                      {"tag" => "assignment",
-                                     "name" => "My Assignment"})}.to(
+                                     "name" => "My Assignment"},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
       end
@@ -41,7 +47,8 @@ describe "Commands" do
         expect {Commands::interp_tag(VERSION,
                                      {"tag" => "assignment",
                                      "name" => "My Assignment",
-                                     "description" => 1})}.to(
+                                     "description" => 1},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
       end
@@ -49,7 +56,8 @@ describe "Commands" do
         expect {Commands::interp_tag(VERSION,
                                      {"tag" => "assignment",
                                      "name" => "My Assignment",
-                                     "description" => [10,10]})}.to(
+                                     "description" => [10,10]},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
       end
@@ -57,7 +65,8 @@ describe "Commands" do
         expect {Commands::interp_tag(VERSION,
                                      {"tag" => "assignment",
                                      "name" => "My Assignment",
-                                     "description" => true})}.to(
+                                     "description" => true},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
       end
@@ -66,7 +75,8 @@ describe "Commands" do
                                      {"tag" => "assignment",
                                      "name" => "My Assignment",
                                      "description" => "The greatest assignment"
-                                     })}.to(
+                                     },
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
       end
@@ -75,21 +85,24 @@ describe "Commands" do
                                      {"tag" => "assignment",
                                      "name" => "My Assignment",
                                      "description" => "The greatest assignment",
-                                     "instructions" => 10})}.to(
+                                     "instructions" => 10},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
         expect {Commands::interp_tag(VERSION,
                                      {"tag" => "assignment",
                                      "name" => "My Assignment",
                                      "description" => "The greatest assignment",
-                                     "instructions" => ["blah"]})}.to(
+                                     "instructions" => ["blah"]},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
         expect {Commands::interp_tag(VERSION,
                                      {"tag" => "assignment",
                                      "name" => "My Assignment",
                                      "description" => "The greatest assignment",
-                                     "instructions" => {"string" => "foo"}})}.to(
+                                     "instructions" => {"string" => "foo"}},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
       end
@@ -98,7 +111,8 @@ describe "Commands" do
                                      {"tag" => "assignment",
                                      "name" => "My Assignment",
                                      "description" => "The greatest assignment",
-                                     "instructions" => "Do it all!"})}.to(
+                                     "instructions" => "Do it all!"},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
       end
@@ -108,7 +122,8 @@ describe "Commands" do
                                      "name" => "My Assignment",
                                      "description" => "The greatest assignment",
                                      "instructions" => "Do it all!",
-                                     "pieces" => "foo"})}.to(
+                                     "pieces" => "foo"},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
         expect {Commands::interp_tag(VERSION,
@@ -116,7 +131,8 @@ describe "Commands" do
                                      "name" => "My Assignment",
                                      "description" => "The greatest assignment",
                                      "instructions" => "Do it all!",
-                                     "pieces" => ["foo", "bar"]})}.to(
+                                     "pieces" => ["foo", "bar"]},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
         expect {Commands::interp_tag(VERSION,
@@ -124,7 +140,8 @@ describe "Commands" do
                                      "name" => "My Assignment",
                                      "description" => "The greatest assignment",
                                      "instructions" => "Do it all!",
-                                     "pieces" => [{a:"foo"}, {b:"bar"}]})}.to(
+                                     "pieces" => [{a:"foo"}, {b:"bar"}]},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
         expect {Commands::interp_tag(VERSION,
@@ -132,10 +149,34 @@ describe "Commands" do
                                      "name" => "My Assignment",
                                      "description" => "The greatest assignment",
                                      "instructions" => "Do it all!",
-                                     "pieces" => [{"tag" =>"fooINVALIDTAG"}]})}.to(
+                                     "pieces" => [{"tag" =>"fooINVALIDTAG"}]},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
       end
+
+      it "should produce object with a resource attribute from path" do
+        Commands::interp_tag(VERSION,
+                             {"tag" => "assignment",
+                             "name" => "",
+                             "description" => "",
+                             "instructions" => "",
+                             "pieces" => [{"tag" => "test"}]},
+                             "/path/to/assignment")["resource"].should(eq("/path/to/assignment"))
+      end
+
+      
+      it "it should produce an object with nested paths to pieces" do
+        Commands::interp_tag(VERSION,
+                             {"tag" => "assignment",
+                             "name" => "",
+                             "description" => "",
+                             "instructions" => "",
+                             "pieces" => [{"tag" => "test"}]},
+                             "/path/to/assignment")["pieces"][0]["resource"].should(eq("/path/to/assignment/pieces/0"))
+      end
+
+
       it "should produce an object with the same attributes" do
         name = "My Assignment"
         description = "The greatest assignment"
@@ -145,12 +186,14 @@ describe "Commands" do
                              "name" => name,
                              "description" => description,
                              "instructions" => instructions,
-                             "pieces" => []}).should(
+                             "pieces" => []},
+                             "").should(
             eq({"type" => "assignment",
                "name" => name,
                "description" => description,
                "instructions" => instructions,
-               "pieces" => []}))
+               "pieces" => [],
+               "resource" => ""}))
       end
     end
 
@@ -158,26 +201,30 @@ describe "Commands" do
 
       it "should error if it is missing name" do
         expect {Commands::interp_tag(VERSION,
-                                     {"tag" => "function"})}.to(
+                                     {"tag" => "function"},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
       end
       it "should error if name isn't a string" do
         expect {Commands::interp_tag(VERSION,
                                      {"tag" => "function",
-                                     "name" => false})}.to(
+                                     "name" => false},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
         expect {Commands::interp_tag(VERSION,
                                      {"tag" => "function",
-                                      "name" => {}})}.to(
+                                      "name" => {}},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
       end
       it "should error if it is missing description" do
         expect {Commands::interp_tag(VERSION,
                                      {"tag" => "function",
-                                     "name" => "My Function"})}.to(
+                                     "name" => "My Function"},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
       end
@@ -185,7 +232,8 @@ describe "Commands" do
         expect {Commands::interp_tag(VERSION,
                                      {"tag" => "function",
                                      "name" => "My Function",
-                                     "description" => 1})}.to(
+                                     "description" => 1},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
       end
@@ -193,7 +241,8 @@ describe "Commands" do
         expect {Commands::interp_tag(VERSION,
                                      {"tag" => "function",
                                      "name" => "My Function",
-                                     "description" => [10,10]})}.to(
+                                     "description" => [10,10]},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
       end
@@ -201,7 +250,8 @@ describe "Commands" do
         expect {Commands::interp_tag(VERSION,
                                      {"tag" => "function",
                                      "name" => "My Function",
-                                     "description" => true})}.to(
+                                     "description" => true},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
       end
@@ -210,7 +260,8 @@ describe "Commands" do
                                      {"tag" => "function",
                                      "name" => "My Function",
                                      "description" => "The greatest function"
-                                     })}.to(
+                                     },
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
       end
@@ -219,21 +270,23 @@ describe "Commands" do
                                      {"tag" => "function",
                                      "name" => "My Function",
                                      "description" => "The greatest function",
-                                     "instructions" => 10})}.to(
+                                     "instructions" => 10},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
         expect {Commands::interp_tag(VERSION,
                                      {"tag" => "function",
                                      "name" => "My Function",
                                      "description" => "The greatest function",
-                                     "instructions" => ["blah"]})}.to(
+                                     "instructions" => ["blah"]},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
         expect {Commands::interp_tag(VERSION,
                                      {"tag" => "function",
                                      "name" => "My Function",
                                      "description" => "The greatest function",
-                                     "instructions" => {"string" => "foo"}})}.to(
+                                     "instructions" => {"string" => "foo"}}, "")}.to(
           raise_error(Commands::InvalidTag)
         )
       end
@@ -242,7 +295,8 @@ describe "Commands" do
                                      {"tag" => "function",
                                      "name" => "My Function",
                                      "description" => "The greatest function",
-                                     "instructions" => ""})}.to(
+                                     "instructions" => ""},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
       end
@@ -252,7 +306,8 @@ describe "Commands" do
                                      "name" => "My Function",
                                      "description" => "The greatest function",
                                      "instructions" => "",
-                                     "header" => "foo"})}.to(
+                                     "header" => "foo"},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
         expect {Commands::interp_tag(VERSION,
@@ -260,7 +315,8 @@ describe "Commands" do
                                      "name" => "My Function",
                                      "description" => "The greatest function",
                                      "instructions" => "",
-                                     "header" => true})}.to(
+                                     "header" => true},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
         expect {Commands::interp_tag(VERSION,
@@ -268,7 +324,8 @@ describe "Commands" do
                                      "name" => "My Function",
                                      "description" => "The greatest function",
                                      "instructions" => "",
-                                     "header" => [1]})}.to(
+                                     "header" => [1]},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
       end
@@ -278,7 +335,8 @@ describe "Commands" do
                                      "name" => "My Function",
                                      "description" => "The greatest function",
                                      "instructions" => "",
-                                     "header" => nil})}.to(
+                                     "header" => nil},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
       end
@@ -289,7 +347,8 @@ describe "Commands" do
                                      "description" => "The greatest function",
                                      "instructions" => "",
                                      "header" => nil,
-                                     "check_block" => 10})}.to(
+                                     "check_block" => 10},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
         expect {Commands::interp_tag(VERSION,
@@ -298,7 +357,8 @@ describe "Commands" do
                                      "description" => "The greatest function",
                                      "instructions" => "",
                                      "header" => nil,
-                                     "check_block" => false})}.to(
+                                     "check_block" => false},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
         expect {Commands::interp_tag(VERSION,
@@ -307,7 +367,8 @@ describe "Commands" do
                                      "description" => "The greatest function",
                                      "instructions" => "",
                                      "header" => nil,
-                                     "check_block" => "checks!"})}.to(
+                                     "check_block" => "checks!"},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
       end
@@ -318,7 +379,8 @@ describe "Commands" do
                                      "description" => "The greatest function",
                                      "instructions" => "",
                                      "header" => nil,
-                                     "check_block" => nil})}.to(
+                                     "check_block" => nil},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
       end
@@ -330,7 +392,8 @@ describe "Commands" do
                                      "instructions" => "",
                                      "header" => nil,
                                      "check_block" => nil,
-                                     "definition" => 10})}.to(
+                                     "definition" => 10},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
         expect {Commands::interp_tag(VERSION,
@@ -340,7 +403,8 @@ describe "Commands" do
                                      "instructions" => "",
                                      "header" => nil,
                                      "check_block" => nil,
-                                     "definition" => false})}.to(
+                                     "definition" => false},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
         expect {Commands::interp_tag(VERSION,
@@ -350,7 +414,8 @@ describe "Commands" do
                                      "instructions" => "",
                                      "header" => nil,
                                      "check_block" => nil,
-                                     "definition" => []})}.to(
+                                     "definition" => []},
+                                     "")}.to(
           raise_error(Commands::InvalidTag)
         )
       end
@@ -365,7 +430,8 @@ describe "Commands" do
                                "instructions" => inst,
                                "header" => nil,
                                "check_block" => nil,
-                               "definition" => nil})
+                               "definition" => nil},
+                                      "")
         newtag["name"].should(eq(name))
         newtag["description"].should(eq(desc))
         newtag["instructions"].should(eq(inst))
@@ -378,8 +444,8 @@ describe "Commands" do
             "instructions" => "",
             "header" => {"tag" => "test"},
             "check_block" => nil,
-            "definition" => nil})["header"].should(
-           eq({"type" => "test"}))
+            "definition" => nil}, "")["header"].should(
+           eq({"type" => "test", "resource" => "/header"}))
       end
       it "should interp check_block" do
         Commands::interp_tag(VERSION,
@@ -389,8 +455,8 @@ describe "Commands" do
             "instructions" => "",
             "header" => nil,
             "check_block" => {"tag" => "test"},
-            "definition" => nil})["check_block"].should(
-           eq({"type" => "test"}))
+            "definition" => nil}, "")["check_block"].should(
+           eq({"type" => "test", "resource" => "/check_block"}))
       end
       it "should interp definition" do
         Commands::interp_tag(VERSION,
@@ -400,8 +466,8 @@ describe "Commands" do
             "instructions" => "",
             "header" => nil,
             "check_block" => nil,
-            "definition" => {"tag" => "test"}})["definition"].should(
-           eq({"type" => "test"}))
+            "definition" => {"tag" => "test"}}, "")["definition"].should(
+           eq({"type" => "test", "resource" => "/definition"}))
       end
     end
     describe "header_given" do
@@ -418,7 +484,7 @@ describe "Commands" do
             "instructions" => @inst,
             "arguments" => @args,
             "return" => @ret,
-            "purpose" => @purpose})}.to(
+            "purpose" => @purpose}, "")}.to(
         raise_error(Commands::InvalidTag))
       end
       it "should error if fun_name isn't string"
@@ -428,7 +494,7 @@ describe "Commands" do
             "fun_name" => @fun_name,
             "arguments" => @args,
             "return" => @ret,
-            "purpose" => @purpose})}.to(
+            "purpose" => @purpose}, "")}.to(
         raise_error(Commands::InvalidTag))
       end
       it "should error if instructions isn't string"
@@ -438,7 +504,7 @@ describe "Commands" do
             "fun_name" => @fun_name,
             "instructions" => @inst,
             "return" => @ret,
-            "purpose" => @purpose})}.to(
+            "purpose" => @purpose}, "")}.to(
         raise_error(Commands::InvalidTag))
       end
       it "should error if arguments isn't a list of lists"
@@ -448,7 +514,7 @@ describe "Commands" do
             "fun_name" => @fun_name,
             "arguments" => @args,
             "return" => @ret,
-          "purpose" => @purpose})}.to(
+          "purpose" => @purpose}, "")}.to(
         raise_error(Commands::InvalidTag))
       end
       it "should error if return isn't a string"
@@ -461,14 +527,15 @@ describe "Commands" do
             "instructions" => @inst,
             "arguments" => @args,
             "return" => @ret,
-            "purpose" => @purpose}).should(
+            "purpose" => @purpose}, "").should(
            eq({"type" => "header",
                "editable" => false,
                "fun_name" => @fun_name,
                "instructions" => @inst,
                "arguments" => @args,
                "return" => @ret,
-               "purpose" => @purpose
+               "purpose" => @purpose,
+                "resource" => ""
               }))
       end
     end
