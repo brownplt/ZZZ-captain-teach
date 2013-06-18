@@ -12,7 +12,7 @@ class AssignmentController < ApplicationController
       render :json => {:code => 404,
         :message => "No such assignment"}, :status => 404
     else
-      scribbled = run_scribble(assignment.path_ref)
+      scribbled = Scribble::load(assignment.path_ref)
       render :json => scribbled
     end
   end

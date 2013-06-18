@@ -1,6 +1,6 @@
 <script type="text/javascript">
   
-  ct_ajax("<%= @url %>", {success: function(assignment, xhr) {
+  ct_ajax("<%=raw @url %>", {success: function(assignment, xhr) {
   var header = $("<h2>" + assignment.name + "</h2>");
   $("#assignment").append(header);
 

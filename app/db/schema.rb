@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130618174155) do
+ActiveRecord::Schema.define(version: 20130618200634) do
 
   create_table "assignments", force: true do |t|
     t.string   "uid"
@@ -41,7 +41,7 @@ ActiveRecord::Schema.define(version: 20130618174155) do
   end
 
   create_table "path_refs", force: true do |t|
-    t.integer  "repo_id"
+    t.integer  "user_repo_id"
     t.string   "path"
     t.datetime "created_at"
     t.datetime "updated_at"

@@ -90,5 +90,12 @@ describe PathRef do
     commit3.message.should(eq("updating for new program"))
   end
 
+  it "should create temporary files" do
+    pr = PathRef.new(:user_repo => @test_repo, :path => @test_file_exists)
+    tmp = pr.create_temporary
+    tmp.read(nil).should(eq(pr.contents))
+    tmp.path.should(include("exist"))
+  end
+
 end
 
