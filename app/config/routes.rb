@@ -13,10 +13,14 @@ App::Application.routes.draw do
   get 'function_data/lookup_or_create' =>
     "function_data#lookup_or_create"
   resources :function_data
+
+  get 'do_assignment/:uid' => 'assignment#do_assignment'
+  get 'lookup_assignment' => 'assignment#lookup_assignment'
+  
   
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
-
+  
   # Example of named route that can be invoked with purchase_url(id: product.id)
   #   get 'products/:id/purchase' => 'catalog#purchase', as: :purchase
 

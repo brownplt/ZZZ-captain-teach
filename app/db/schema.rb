@@ -11,7 +11,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130617183646) do
+ActiveRecord::Schema.define(version: 20130618174155) do
+
+  create_table "assignments", force: true do |t|
+    t.string   "uid"
+    t.integer  "path_ref_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "function_data", force: true do |t|
     t.string   "ref"

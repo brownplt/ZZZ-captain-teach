@@ -17,6 +17,8 @@ class PathRef < ActiveRecord::Base
 
   belongs_to :user_repo, :foreign_key => :repo_id
 
+  has_many :assignment
+  
   attr_accessor :path, :user_repo
 
   def file_exists?

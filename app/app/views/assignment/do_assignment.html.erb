@@ -1,0 +1,30 @@
+<script type="text/javascript">
+  
+  ct_ajax("<%= @url %>", {success: function(assignment, xhr) {
+  var header = $("<h2>" + assignment.name + "</h2>");
+  $("#assignment").append(header);
+
+  var description = $("<p>" + assignment.description + "</p>");
+  $("#assignment").append(description);
+
+  var instructions = $("<p>" + assignment.instructions + "</p>");
+  $("#assignment").append(instructions);
+
+  var done = false;
+  response.pieces.forEach(function (piece) {
+  if (done) {
+    stash(piece);
+  }
+  });
+  
+  ct_ajax("/function_data/lookup_or_create?user_id=1&ref="+fun.resource,
+        {success: function(response, xhr) {
+  console.log(response);
+  }});
+}});
+  
+</script>
+
+<div id="assignment">
+  
+</div>
