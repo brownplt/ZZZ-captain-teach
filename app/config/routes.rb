@@ -9,11 +9,11 @@ App::Application.routes.draw do
   get 'fetch_assignments' => "test#fetch_assignments"
   get 'test_assignment' => "test#test_assignment"
   
-  
-  get 'function_data/lookup_or_create' =>
-    "function_data#lookup_or_create"
-  resources :function_data
 
+  get 'blob' => 'blob#get'
+  put 'blob' => 'blob#put'
+  post 'blob' => 'blob#post'
+    
   get 'do_assignment/:uid' => 'assignment#do_assignment'
   get 'lookup_assignment' => 'assignment#lookup_assignment'
   

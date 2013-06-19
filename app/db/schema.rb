@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130618174155) do
+ActiveRecord::Schema.define(version: 20130619154522) do
 
   create_table "assignments", force: true do |t|
     t.string   "uid"
@@ -20,17 +20,16 @@ ActiveRecord::Schema.define(version: 20130618174155) do
     t.datetime "updated_at"
   end
 
-  create_table "function_data", force: true do |t|
+  create_table "blobs", force: true do |t|
+    t.string   "uid"
     t.string   "ref"
     t.integer  "user_id"
-    t.string   "check_block"
-    t.string   "definition"
-    t.string   "header"
+    t.string   "data"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
-  add_index "function_data", ["user_id"], name: "index_function_data_on_user_id"
+  add_index "blobs", ["user_id"], name: "index_blobs_on_user_id"
 
   create_table "git_refs", force: true do |t|
     t.integer  "repo_id"
