@@ -1,5 +1,114 @@
 <script type="text/javascript">
   
+
+  function getDataForFunction(piece, instance) {
+    function getDataForHeader(fromSpec, fromInstance) {
+      function argToString(arg) {
+        return arg.name + " :: " + arg.ann;
+      }
+      var headerStr = fromInstance ||
+             (fromSpec.fun_name + "(" +
+              fromSpec.arguments.map(argToString).join(", ") +
+              ") -> " + fromSpec.return + ":\n" +
+              "doc: \"" + fromSpec.purpose + "\"");
+      var button = BUTTON("Done with this part")
+      var editor = TEXTAREA(headerStr);
+      var instructions = P(fromSpec.instructions);
+      var dom = DIV(instructions, editor, button);
+      var timer = timerE(30000);
+      var code = extractValueB(editor, 'value');
+
+      timer.snapshotE(code).mapE(function(c) {
+        console.log("Would be saving: ", c);
+      });
+
+      return {
+        dom: dom,
+        header: code,
+        finished: clicksE(button)
+      };
+    }
+
+    var headerB = getDataForHeader(piece.header, instance.header);
+
+    function getDataForCheckBlock(fromSpec, fromInstance) {
+      return worldB({
+          name: fromSpec.name,
+          instructions: fromSpec.instructions,
+          checks: fromInstance || ""
+        },
+        [],
+        {
+          dom: function(val) {
+            var name = H3(val.name);
+            var instructions = val.instructions;
+            var functionStrB = headerB.header.liftB(function(h) {
+              return "fun " + h + "\ncheck\n" + val.checks + "\nend";
+            });
+            var editor = TEXTAREA();
+            insertValueB(functionStrB, editor, 'value');
+            return DIV(instructions, editor);
+          },
+          checks: function(val) {
+            return val.checks;
+          }
+        });
+    }
+
+    var checksB = getDataForCheckBlock(piece.check_block, instance.check_block);
+
+    function getDataForDefinition(fromSpec, fromInstance) {
+      return worldB({
+          name: fromSpec.name,
+          instructions: fromSpec.instructions,
+          definition: fromInstance || ""
+        },
+        [],
+        {
+          dom: function(val) {
+            var name = H3(val.name);
+            var instructions = val.instructions;
+            var functionStr = liftB(function(h, c) {
+              return "fun " + h + "\n" + val.definition + "\ncheck\n" + c + "\nend";
+            }, headerB.header, checksB.checks);
+            var editor = TEXTAREA(functionStr);
+            return DIV(instructions, editor);
+          }
+        });
+    }
+
+    var defsB = getDataForDefinition(piece.definition, instance.definition);
+
+    return worldB({
+        current: headerB,
+        header: headerB,
+        checks: checksB,
+        definition: defsB
+      },
+      [[headerB.finished, function(val) {
+          return {
+            current: val.checks,
+            header: val.header,
+            checks: val.checks,
+            definition: val.defs
+          }
+        }]],
+      {
+        dom: function(val) {
+          return val.current.dom;
+        }
+      });
+  }
+
+  function getDataForPiece(piece, instance) {
+    switch(piece.type) {
+      case "function":
+        return getDataForFunction(piece, instance);
+      default:
+        throw "Unknown tag type: " + piece.tag;
+    }
+  }
+
   ct_ajax("<%=raw @url %>", {success: function(assignment, xhr) {
   var header = $("<h2>" + assignment.name + "</h2>");
   $("#assignment").append(header);
@@ -12,10 +121,14 @@
 
   assignment.pieces.forEach(function(piece) {
     $('#assignment').append(piece.name);
-    ct_ajax("/function_data/lookup_or_create?user_id=1&ref="+piece.resource,
-          {success: function(response, xhr) {
-    console.log(response);
-    }});
+    ct_ajax("/function_data/lookup_or_create?user_id=1&ref="+piece.resource, {
+        success: function(response, xhr) {
+          var pieceB = getDataForPiece(piece, response);
+          console.log(pieceB.dom);
+          window.dom_for_piece = pieceB.dom;
+          insertDomB(switchB(pieceB.dom), 'assignment', 'end');
+        }
+    });
   });
  
 }});

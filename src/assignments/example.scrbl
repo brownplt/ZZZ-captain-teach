@@ -18,7 +18,7 @@
       }
       @fun-name["bubble-sort"]
       @argument["lst" "List<Number>"]
-      @return["List<Number"]
+      @return["List<Number>"]
       @purpose["Return the list of numbers sorted in ascending order"]
     }
 
@@ -45,7 +45,7 @@
       }
       @fun-name["insertion-sort"]
       @argument["lst" "List<Number>"]
-      @return["List<Number"]
+      @return["List<Number>"]
       @purpose["Return the list of numbers sorted in ascending order"]
     }
 
