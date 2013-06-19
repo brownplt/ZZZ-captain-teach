@@ -9,9 +9,13 @@ module Commands
     end
   end
 
+  R = "r"
+  RW = "rw"
+  RC = "rw"
+    
   module Helpers
     
-    def tag_assert(tag, name, type)
+    def self.tag_assert(tag, name, type)
       if !tag.is_a?(Hash)
         raise InvalidTag.new(tag, "Tag is not a hash")
       end
@@ -34,7 +38,13 @@ module Commands
         raise InvalidTag.new(tag, "Tag attribute '#{name}' is not a '#{type.to_s}'")
       end
     end
-    module_function :tag_assert
+
+    def self.resource(access, ref)
+      # NOTE(dbp): need to have user at this point.
+      # For now, just hardcode.
+      user_id = 1
+      return access + ":" + ref + ":" + user_id.to_s
+    end
 
   end
 
@@ -55,19 +65,19 @@ module Commands
     # NOTE(dbp): this just used so that we can test nested constructs
     def test(tag, path)
       {"type" => "test",
-      "resource" => path}
+      "resource" => Helpers.resource(R,path)}
     end
 
     def description(tag, path)
       Helpers.tag_assert(tag, "body", :string)
       { "type" => "description", "body" => tag["body"],
-        "resource" => path }
+        "resource" => Helpers.resource(R,path) }
     end
 
     def instructions(tag, path)
       Helpers.tag_assert(tag, "body", :string)
       { "type" => "description", "body" => tag["body"],
-        "resource" => path }
+        "resource" => Helpers.resource(R,path) }
     end
 
     
@@ -86,7 +96,7 @@ module Commands
         "description" =>  tag["description"],
         "instructions" => tag["instructions"],
         "pieces" => pieces,
-        "resource" => path}
+        "resource" => Helpers.resource(RW,path)}
     end
     
     def function(tag, path)
@@ -111,7 +121,7 @@ module Commands
         "header" => header,
         "check_block" => checkblock,
         "definition" => definition,
-        "resource" => path
+        "resource" => Helpers.resource(RW,path)
         }
     end
 
@@ -131,7 +141,7 @@ module Commands
         "arguments" => tag["arguments"],
         "return" =>  tag["return"],
         "purpose" => tag["purpose"],
-        "resource" => path }
+        "resource" => Helpers.resource(R,path) }
     end
 
     def check_block(tag, path)

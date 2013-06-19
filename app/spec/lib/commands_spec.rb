@@ -60,7 +60,7 @@ describe "Commands" do
                              "description" => "",
                              "instructions" => "",
                              "pieces" => [{"tag" => "test"}]},
-                             "/path/to/assignment")["resource"].should(eq("/path/to/assignment"))
+                             "/path/to/assignment")["resource"].should(eq("rw:/path/to/assignment:1"))
       end
 
       
@@ -71,7 +71,7 @@ describe "Commands" do
                              "description" => "",
                              "instructions" => "",
                              "pieces" => [{"tag" => "test"}]},
-                             "/path/to/assignment")["pieces"][0]["resource"].should(eq("/path/to/assignment/pieces/0"))
+                             "/path/to/assignment")["pieces"][0]["resource"].should(eq("r:/path/to/assignment/pieces/0:1"))
       end
 
 
@@ -91,7 +91,7 @@ describe "Commands" do
                "description" => description,
                "instructions" => instructions,
                "pieces" => [],
-               "resource" => ""}))
+               "resource" => "rw::1"}))
       end
     end
 
@@ -124,7 +124,7 @@ describe "Commands" do
             "header" => {"tag" => "test"},
             "check_block" => nil,
             "definition" => nil}, "")["header"].should(
-           eq({"type" => "test", "resource" => "/header"}))
+           eq({"type" => "test", "resource" => "r:/header:1"}))
       end
       it "should interp check_block" do
         Commands::interp_tag(VERSION,
@@ -135,7 +135,7 @@ describe "Commands" do
             "header" => nil,
             "check_block" => {"tag" => "test"},
             "definition" => nil}, "")["check_block"].should(
-           eq({"type" => "test", "resource" => "/check_block"}))
+           eq({"type" => "test", "resource" => "r:/check_block:1"}))
       end
       it "should interp definition" do
         Commands::interp_tag(VERSION,
@@ -146,7 +146,7 @@ describe "Commands" do
             "header" => nil,
             "check_block" => nil,
             "definition" => {"tag" => "test"}}, "")["definition"].should(
-           eq({"type" => "test", "resource" => "/definition"}))
+           eq({"type" => "test", "resource" => "r:/definition:1"}))
       end
     end
     describe "header_given" do
@@ -172,7 +172,7 @@ describe "Commands" do
                "arguments" => @args,
                "return" => @ret,
                "purpose" => @purpose,
-                "resource" => ""
+                "resource" => "r::1"
               }))
       end
     end
