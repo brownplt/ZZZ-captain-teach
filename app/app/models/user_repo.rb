@@ -28,20 +28,20 @@ class UserRepo < ActiveRecord::Base
 
   has_many :git_ref
   has_many :path_ref
-  attr_accessor :path, :repo
+  attr_accessor :repo
   after_initialize :init
 
   def init()
     begin
-      unless Dir.exists?(@path)
-        raise NoSuchDirectory.new(@path)
+      unless Dir.exists?(self.path)
+        raise NoSuchDirectory.new(self.path)
       end
-      @repo = UserRepo._get_repo(@path)
+      @repo = UserRepo._get_repo(self.path)
       if @repo.empty?
-        raise BadGitRepo.new(@path)
+        raise BadGitRepo.new(self.path)
       end
     rescue Rugged::RepositoryError => e
-      raise NotAGitRepo.new(@path)
+      raise NotAGitRepo.new(self.path)
     end
   end
 

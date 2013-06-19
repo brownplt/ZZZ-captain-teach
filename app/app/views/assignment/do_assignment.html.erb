@@ -1,6 +1,6 @@
 <script type="text/javascript">
   
-  ct_ajax("<%= @url %>", {success: function(assignment, xhr) {
+  ct_ajax("<%=raw @url %>", {success: function(assignment, xhr) {
   var header = $("<h2>" + assignment.name + "</h2>");
   $("#assignment").append(header);
 
@@ -10,17 +10,14 @@
   var instructions = $("<p>" + assignment.instructions + "</p>");
   $("#assignment").append(instructions);
 
-  var done = false;
-  response.pieces.forEach(function (piece) {
-  if (done) {
-    stash(piece);
-  }
+  assignment.pieces.forEach(function(piece) {
+    $('#assignment').append(piece.name);
+    ct_ajax("/function_data/lookup_or_create?user_id=1&ref="+piece.resource,
+          {success: function(response, xhr) {
+    console.log(response);
+    }});
   });
-  
-  ct_ajax("/function_data/lookup_or_create?user_id=1&ref="+fun.resource,
-        {success: function(response, xhr) {
-  console.log(response);
-  }});
+ 
 }});
   
 </script>

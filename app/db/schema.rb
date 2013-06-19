@@ -40,7 +40,7 @@ ActiveRecord::Schema.define(version: 20130619154522) do
   end
 
   create_table "path_refs", force: true do |t|
-    t.integer  "repo_id"
+    t.integer  "user_repo_id"
     t.string   "path"
     t.datetime "created_at"
     t.datetime "updated_at"
