@@ -100,16 +100,9 @@
       });
   }
 
-  function getDataForPiece(piece, instance) {
-    switch(piece.type) {
-      case "function":
-        return getDataForFunction(piece, instance);
-      default:
-        throw "Unknown tag type: " + piece.tag;
-    }
-  }
-
-  ct_ajax("<%=raw @url %>", {success: function(assignment, xhr) {
+  ct_ajax("<%=raw @url %>").mapE(function(evt) {
+  var assignment = evt.response;
+  var xhr = evt.xhr;
   var header = $("<h2>" + assignment.name + "</h2>");
   $("#assignment").append(header);
 
@@ -119,9 +112,87 @@
   var instructions = $("<p>" + assignment.instructions + "</p>");
   $("#assignment").append(instructions);
 
-  assignment.pieces.forEach(function(piece) {
+  function initializeFunctionData(piece) {
+    function argToString(arg) {
+      return arg.name + " :: " + arg.ann;
+    }
+    console.log(piece);
+    // NOTE(joe): This is *wrong*
+    var header = piece.header;
+    var headerStr =
+           (header.fun_name + "(" +
+            header.arguments.map(argToString).join(", ") +
+            ") -> " + header.return + ":\n" +
+            "doc: \"" + header.purpose + "\"");
+    var checksStr = "";
+    var definitionsStr = "";
+    var data = {
+          header: headerStr,
+          check_block: checksStr,
+          definitions: definitionsStr
+        };
+    return ct_ajax("/blob?resource="+piece.resource, {
+      type: 'POST',
+      dataType: 'json',
+      data: { data: JSON.stringify(data) }
+    }).mapE(function() { return data; });
+  }
+
+  function initializeUserData(piece) {
+    switch(piece.type) {
+      case "function":
+        return initializeFunctionData(piece);
+      default:
+        throw "Unknown tag type: " + piece.tag;
+    }
+  }
+
+  function afterInitialize(piece, instance) {
+    switch(piece.type) {
+      case "function":
+        return getDataForFunction(piece, instance);
+      default:
+        throw "Unknown tag type: " + piece.tag;
+    }
+  }
+
+  var NO_INSTANCE = {};
+  function handlePiece(piece) {
+    function hasInstanceData(piece) {
+      return ["function"].filter(function(s) { return s === piece.type; }).length === 1;
+    }
+    if (hasInstanceData(piece)) {
+      return ct_ajax("/blob?resource="+piece.resource, {}).mapE(function(e) {
+        console.log(e);
+        if(e.status === 200) { return afterInitialize(piece, e.response); }
+        else if(e.status === 404) {
+          return initializeUserData(piece).mapE(function(instance) {
+            afterInitialize(piece, instance)
+          });
+        }
+        else { throw "Bad status code: " + e.status; }
+      });
+    } else {
+      throw "No instanmce data";
+      // This isn't an event yet
+      return afterInitialize(piece, NO_INSTANCE);
+    }
+  }
+
+  var piecesE = assignment.pieces.map(handlePiece);
+  
+  var assignmentB = worldB(0,
+    [],
+    {
+      dom: function(index) {
+        return piecesE[index].mapE(function(p) { return p.dom; });
+      }
+    });
+  insertDomB(assignmentB.dom, 'assignment', 'end');
+  
+  /*function(piece) {
     $('#assignment').append(piece.name);
-    ct_ajax("/function_data/lookup_or_create?user_id=1&ref="+piece.resource, {
+    ct_ajax("/blob?resource="+piece.resource, {
         success: function(response, xhr) {
           var pieceB = getDataForPiece(piece, response);
           console.log(pieceB.dom);
@@ -129,9 +200,9 @@
           insertDomB(switchB(pieceB.dom), 'assignment', 'end');
         }
     });
-  });
+  });*/
  
-}});
+});
   
 </script>
 

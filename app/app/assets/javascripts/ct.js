@@ -1,10 +1,21 @@
 function ct_ajax(url, params) {
-    if (!params.hasOwnProperty("failure")) {
-        params.failure = function (error) {
+    if (typeof params === 'undefined') { params = {}; }
+    if (!params.hasOwnProperty("error")) {
+        params.error = function (error) {
             console.error(error);
         }
     }
+    var receiver = receiverE();
+    function handleSuccess(response, xhr) {
+      receiver.sendEvent({status: xhr.status, response: response, xhr: xhr});
+    }
+    function handleError(xhr, message) {
+      receiver.sendEvent({status: xhr.status, response: message, xhr: xhr});
+    }
+    params.success = handleSuccess;
+    params.error = handleError;
     $.ajax(url, params);
+    return receiver;
 }
 
 function worldB(init, handlers, transformers) 
