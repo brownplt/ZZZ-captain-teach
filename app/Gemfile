@@ -37,6 +37,8 @@ end
 
 group :development, :test do
   gem 'rspec-rails', '~> 2.0'
+  gem 'jasmine-rails'
+#  gem 'guard-jasmine'
 end
 
 # NOTE(joe); the ref below is from branch 'development' on 10 Jun 2013

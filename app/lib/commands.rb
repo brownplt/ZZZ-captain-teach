@@ -93,6 +93,7 @@ module Commands
 
       { "type" => "assignment",
         "name" => tag["name"],
+        "editable" => true,
         "description" =>  tag["description"],
         "instructions" => tag["instructions"],
         "pieces" => pieces,
@@ -116,6 +117,7 @@ module Commands
       
       { "type" => "function",
         "name" => tag["name"],
+        "editable" => true,
         "description" => tag["description"],
         "instructions" => tag["instructions"],
         "header" => header,
@@ -145,7 +147,15 @@ module Commands
     end
 
     def check_block(tag, path)
-      tag
+      Helpers.tag_assert(tag, "instructions", :string)
+      Helpers.tag_assert(tag, "name", :string)
+      { "type" => "check_block",
+        "name" => tag["name"],
+        "instructions" => tag["instructions"],
+        "editable" => true,
+        "initial_checks" => "",
+        "resource" => Helpers.resource(RW, path) }
+
     end
 
     def definition(tag, path)

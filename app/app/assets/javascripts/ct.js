@@ -1,3 +1,11 @@
+var NO_INSTANCE_DATA = {no_instance_data: true};
+
+function ct_blob(resource, params) {
+  params.dataType = 'json';
+  params.data = { data : JSON.stringify(params.blobData) };
+  return ct_ajax("/blob?resource="+resource, params);
+}
+
 function ct_ajax(url, params) {
     if (typeof params === 'undefined') { params = {}; }
     if (!params.hasOwnProperty("error")) {
@@ -6,11 +14,16 @@ function ct_ajax(url, params) {
         }
     }
     var receiver = receiverE();
-    function handleSuccess(response, xhr) {
+    function handleSuccess(response, _, xhr) {
       receiver.sendEvent({status: xhr.status, response: response, xhr: xhr});
     }
-    function handleError(xhr, message) {
-      receiver.sendEvent({status: xhr.status, response: message, xhr: xhr});
+    function handleError(xhr, _, error) {
+      try {
+        receiver.sendEvent({status: xhr.status, response: error, xhr: xhr});
+      }
+      catch(e) {
+        console.error("Failed to process error", e, url, xhr, error);
+      }
     }
     params.success = handleSuccess;
     params.error = handleError;
@@ -50,3 +63,4 @@ function worldB(init, handlers, transformers)
   });
   return facets;
 }
+

@@ -22,7 +22,7 @@ describe Blob do
   end
 
   it "should create a uid when it is created" do
-    c = Blob.new(:user => @user, :ref => @ref, :data => "")
+    c = Blob.new(:user => @user, :ref => @ref, :data => "{}")
     c.uid.should(be_nil)
     c.save!
     c.uid.should_not(be_nil)

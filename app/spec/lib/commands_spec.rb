@@ -87,6 +87,7 @@ describe "Commands" do
                              "pieces" => []},
                              "").should(
             eq({"type" => "assignment",
+               "editable" => true,
                "name" => name,
                "description" => description,
                "instructions" => instructions,

@@ -1,0 +1,8 @@
+Prerequisites:
+
+- Ruby > 1.9.3
+- Racket > 5.3.4
+- Rails > 4
+- Pyret > 0 (http://github.com/brownplt/pyret-lang)
+- PhantomJS
+

@@ -16,7 +16,9 @@ App::Application.routes.draw do
     
   get 'do_assignment/:uid' => 'assignment#do_assignment'
   get 'lookup_assignment' => 'assignment#lookup_assignment'
-  
+
+  # TESTING
+  mount JasmineRails::Engine => "/specs" if defined?(JasmineRails) 
   
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
