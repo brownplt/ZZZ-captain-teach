@@ -1,0 +1,24 @@
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+</head>
+<body>
+
+<iframe id="multiple" src="multiple-choice.html"></iframe>
+<script>
+
+  $(function() {
+    $("#multiple").on('load', function(e) {
+      var doc = $($("#multiple")[0].contentDocument.body);
+      var thediv = doc.find("[data-type='multiple-choice']");
+      if(thediv.length !== 1) {
+        console.error("Could not find multiple-choice div");
+      }
+    });
+  });
+
+</script>
+
+</body>
+
+</html>
