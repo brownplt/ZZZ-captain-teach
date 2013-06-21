@@ -10,9 +10,9 @@ App::Application.routes.draw do
   get 'test_assignment' => "test#test_assignment"
   
 
-  get 'blob' => 'blob#get'
-  put 'blob' => 'blob#put'
-  post 'blob' => 'blob#post'
+  get  'blob/lookup'        => 'blob#lookup'
+  post 'blob/lookup_create' => 'blob#lookup_create'
+  post 'blob/save'          => 'blob#save'
     
   get 'do_assignment/:uid' => 'assignment#do_assignment'
   get 'lookup_assignment' => 'assignment#lookup_assignment'
