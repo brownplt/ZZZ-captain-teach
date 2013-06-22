@@ -1,6 +1,6 @@
 #lang scribble/base
 
-@(require "../ct-lib.rkt")
+@(require ct-scribble/ct-lib)
 
 @journey["a5689901-33e3-42c6-be32-ad6eea1a1f1e"]{
   Architecture is hard:
