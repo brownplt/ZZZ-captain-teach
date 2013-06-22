@@ -2,14 +2,14 @@
 <html>
 <head>
 <!-- these comes from whalesong server -->
-<script src="@|whalesong-url|/collects/runtime.js"></script>
-<script src="@|whalesong-url|/collects/library.js"></script>
-<script src="@|whalesong-url|/easyXDM-min.js"></script>
-<script src="@|whalesong-url|/repl.js"></script>
-<script src="@|whalesong-url|/CodeMirror/lib/codemirror.js"></script>
-<link rel="stylesheet" href="http://localhost:8081/CodeMirror/lib/codemirror.css">
-<script src="@|whalesong-url|/CodeMirror/mode/pyret/pyret.js"></script>
-<!-- <script src="@|whalesong-url|/CodeMirror/mode/ruby/ruby.js"></script> -->
+<script src="http://localhost:8080/collects/runtime.js"></script>
+<script src="http://localhost:8080/collects/library.js"></script>
+<script src="http://localhost:8080/easyXDM-min.js"></script>
+<script src="http://localhost:8080/repl.js"></script>
+<script src="http://localhost:8080/CodeMirror/lib/codemirror.js"></script>
+<link rel="stylesheet" href="http://localhost:8080/CodeMirror/lib/codemirror.css">
+<script src="http://localhost:8080/CodeMirror/mode/pyret/pyret.js"></script>
+<!-- <script src="http://localhost:8080/CodeMirror/mode/ruby/ruby.js"></script> -->
 
 
 <!-- captain teach js -->
@@ -17,20 +17,49 @@
 <script src="../lib/backbone-min-1.0.0.js"></script>
 <script src="../lib/editor.js"></script>
 <script src="../lib/repl.js"></script>
-<script src="../models/encounter.js"></script>
-
+<style>
+  .CodeMirror { border: 1px solid black; background: #262626; color: #cccccc; }
+  .CodeMirror div.CodeMirror-cursor { border-left: 1px solid #cccccc; }
+  .cm-s-default .cm-builtin { color: #66cdaa; }
+  .cm-s-default .cm-comment { color: #add8e6; }
+  .cm-s-default .cm-function-name { color: #66cdaa; font-weight: bold; }
+  .cm-s-default .cm-keyword { color: #68838b; font-weight: bold; }
+  .cm-s-default .cm-string { color: #87cefa; }
+  .cm-s-default .cm-variable { color: #8b7355; font-weight: bold; }
+  .cm-s-default .cm-type { color: #87ceeb; font-weight: bold; }
+  .cptteach-fixed { background: #484848; }
+</style>
 <script type="text/javascript">
 
 jQuery(function () {
-  var replEncounter = new ReplEncounter;
+  container = jQuery("#editor");
 
-  replEncounter.render(jQuery("body"));
+  var instructions = jQuery("<div>");
+  instructions.html(this.instructions);
+   
+  var replContainer = jQuery("<div>");
+  var codeContainer = jQuery("<div>");
+  container.append(codeContainer);
+  container.append(replContainer);
+
+  var runFun = makeRepl(replContainer);
+  this.editor = makeEditor(codeContainer,
+                           { initial: this.code,
+                             run: runFun });
+
+  var doc = this.editor.getDoc();
+  doc.setValue("fun immutableHeader(aParam :: aType):\neditable text\nend");
+  doc.markText(CodeMirror.Pos(0, 0), CodeMirror.Pos(1, 0), 
+        {className: 'cptteach-fixed', readOnly: true});
+  doc.markText(CodeMirror.Pos(2, 0), CodeMirror.Pos(3, 0),
+        {className: 'cptteach-fixed', readOnly: true});
 });
   
 </script>
 
 </head>
 <body>
-
+  <div id="editor">
+  </div>
 </body>
 </html>

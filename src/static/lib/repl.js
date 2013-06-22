@@ -3,7 +3,7 @@ function makeRepl(container) {
     var promptContainer = jQuery("<div id='prompt-container'>");
     promptContainer.append("<span>&gt;&nbsp;</span>");
     var output = jQuery("<div id='output'>");
-    var breakButton = jQuery("<img id='break' src='break.png'>");
+    var breakButton = jQuery("<img id='break' src='http://localhost:8080/break.png'>");
     
     var clearDiv = jQuery("<div class='clear'>");
 
@@ -109,7 +109,7 @@ function makeRepl(container) {
       write: write,
       // TODO(joe): It's unfortunate that naming is by path here
       language: "root/src/lang/pyret-lang-whalesong.rkt",
-      compilerUrl: "http://localhost:8081/rpc.html"
+      compilerUrl: "http://localhost:8080/rpc.html"
     }, afterReplSetup);
 
     var runCode = function(src) {

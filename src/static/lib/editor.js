@@ -16,9 +16,11 @@ function makeEditor(container, options) {
     }
     
     var CM = CodeMirror.fromTextArea(textarea[0], {
-        extraKeys: {
-            "Shift-Enter": runFun
-        }
+      extraKeys: {
+        "Shift-Enter": runFun,
+        "Tab": "indentAuto"
+      },
+      indentUnit: 2
     });
 
     return CM;
