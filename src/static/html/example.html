@@ -50,9 +50,9 @@ jQuery(function () {
   var doc = this.editor.getDoc();
   doc.setValue("fun immutableHeader(aParam :: aType):\neditable text\nend");
   doc.markText(CodeMirror.Pos(0, 0), CodeMirror.Pos(1, 0), 
-        {className: 'cptteach-fixed', readOnly: true});
+        {className: 'cptteach-fixed', readOnly: true, inclusiveLeft: true});
   doc.markText(CodeMirror.Pos(2, 0), CodeMirror.Pos(3, 0),
-        {className: 'cptteach-fixed', readOnly: true});
+        {className: 'cptteach-fixed', readOnly: true, inclusiveRight: true});
 });
   
 </script>
