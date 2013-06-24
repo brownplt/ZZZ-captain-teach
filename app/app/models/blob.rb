@@ -12,7 +12,7 @@ class Blob < ActiveRecord::Base
   end
 
   def data_is_json
-    errors[:base] << "Data isn't valid JSON'" unless
+    errors[:base] << "Data isn't valid JSON: #{self.data}" unless
       JSON.is_json?(self.data)
   end
     

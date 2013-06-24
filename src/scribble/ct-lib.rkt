@@ -5,11 +5,13 @@
 (provide (all-defined-out))
 
 (define CT.JS (url #f #f #f #f #t (list (path/param "ct.js" (list))) (list) #f))
+(define JQUERY (url #f #f #f #f #t (list (path/param "jquery.js" (list))) (list) #f))
+(define FLAPJAX (url #f #f #f #f #t (list (path/param "flapjax-impl.js" (list))) (list) #f))
 
 (define current-id-prefix (make-parameter ""))
 
-(define (mk-id id)
-  (string-append* (list (current-id-prefix) "/" id)))
+(define (mk-id mode id)
+  (string-append* (list mode ":" (current-id-prefix) "/" id)))
 
 ;; TODO(joe): this is an obfuscation point
 (define-syntax-rule (choice-incorrect id str)
@@ -39,7 +41,8 @@
               (alt-tag "div")
               (attributes
                 (list
-                  (cons 'id (mk-id unique-id))
+                  (cons 'data-ct-node "1")
+                  (cons 'data-id (mk-id "rc" unique-id))
                   (cons 'data-type "multiple-choice")
                   (cons 'data-args (jsexpr->string choices))))))
       ""))))
@@ -47,6 +50,6 @@
 (define-syntax-rule (journey unique-id elt ...)
   (parameterize [(current-id-prefix unique-id)]
     (multiarg-element
-      (style #f (list (js-addition CT.JS)))
+      (style #f (list (js-addition JQUERY) (js-addition CT.JS) (js-addition FLAPJAX)))
       (list elt ...))))
 
