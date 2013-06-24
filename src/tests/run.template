@@ -29,7 +29,6 @@
 
   <!-- include spec files here... -->
   <script type="text/javascript" src="/tests/spec/SpecHelper.js"></script>
-  <script type="text/javascript" src="/tests/spec/models/encounter.js"></script>
 
   <script type="text/javascript">
     (function() {
