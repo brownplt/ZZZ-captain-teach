@@ -5,7 +5,8 @@
 (define run-compiled (open-output-file "tests/run.html" #:exists 'replace))
 
 (define TESTS-PATH-IN "tests/scribble/scribble-tests")
-(define TESTS-PATH-OUT "scribble/scribble-tests-compiled")
+(define TESTS-RELATIVE-PATH-OUT "scribble/scribble-tests-compiled")
+(define TESTS-PATH-OUT (string-append "tests/" TESTS-RELATIVE-PATH-OUT))
 (define full-tests-in (path->string (path->complete-path TESTS-PATH-IN)))
 (define full-tests-out (path->string (path->complete-path TESTS-PATH-OUT)))
 
