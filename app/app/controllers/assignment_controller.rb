@@ -1,23 +1,34 @@
+require 'nokogiri' # NOTE(dbp): may require gem install nokogiri
+
 class AssignmentController < ApplicationController
   before_action :lookup_user
-  
-  def do_assignment
-    @url = "/lookup_assignment?user_id=#{@current_user.id}&uid=#{params[:uid]}"
-  end
+ 
 
-  def lookup_assignment
+  def get_assignment
     begin
-      assignment = Assignment.find(params[:uid])
+      assignment = Assignment.find_by(:uid => params[:uid])
     rescue ActiveRecord::RecordNotFound => e
       render :json => {:code => 404,
         :message => "No such assignment"}, :status => 404
     else
-      scribbled = Scribble::load(assignment.path_ref)
-      scribbled_json = JSON::parse(scribbled)
-      assignment_json = Commands::interp_tag(1,
-                                             scribbled_json,
-                                             assignment.path_ref.path)
-      render :json => assignment_json
+      scribbled = Scribble::render(assignment.path_ref)
+      doc = Nokogiri::HTML(scribbled)
+      main = doc.css('div.main').first
+      if main.nil?
+        # TODO(dbp): better errors
+        raise Exception, scribbled
+      end
+
+      main.css("div[data-ct-node=1]").each do |node|
+        if node["data-id"]
+          # add user credentials
+          node["data-id"] = node["data-id"] + ":" + 
+            @current_user.id.to_s
+          # NOTE(dbp): encrypt here
+        end
+      end
+
+      @html = main.to_html
     end
   end
   

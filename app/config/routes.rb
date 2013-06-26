@@ -14,8 +14,8 @@ App::Application.routes.draw do
   post 'blob/lookup_create' => 'blob#lookup_create'
   post 'blob/save'          => 'blob#save'
     
-  get 'do_assignment/:uid' => 'assignment#do_assignment'
-  get 'lookup_assignment' => 'assignment#lookup_assignment'
+  #get 'do_assignment/:uid' => 'assignment#do_assignment'
+  get 'assignment/:uid' => 'assignment#get_assignment'
 
   # TESTING
   mount JasmineRails::Engine => "/specs" if defined?(JasmineRails) 

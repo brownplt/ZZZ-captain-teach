@@ -9,6 +9,7 @@
 
 if Rails.env.development?
   captain = User.create!()
+  puts ASSIGNMENTS_PATH
   captains_log = UserRepo.create!(:path => ASSIGNMENTS_PATH)
 
   path1 = PathRef.create!(:user_repo => captains_log, :path => "example.scrbl")
