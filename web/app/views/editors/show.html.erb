@@ -52,7 +52,9 @@ jQuery(function () {
   
 </script>
 
-<span>All Editors:</span>
+<%= form_tag(editor_path, method: "post", style: "display: inline") do %>
+ <%= submit_tag("Create New Editor") %>
+<% end %> | Editors:
 <% @all_editors.each do |ed| %>
 <%= link_to ed.title, editor_path(ed.uid), "data-no-turbolink" => true %>
 |
