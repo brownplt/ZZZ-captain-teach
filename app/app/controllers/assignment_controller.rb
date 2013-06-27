@@ -19,7 +19,7 @@ class AssignmentController < ApplicationController
         raise Exception, scribbled
       end
 
-      main.css("div[data-ct-node=1]").each do |node|
+      main.css("div[data-ct-node='1']").each do |node|
         if node["data-id"]
           # add user credentials
           node["data-id"] = node["data-id"] + ":" + 
