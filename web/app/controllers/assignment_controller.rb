@@ -2,7 +2,6 @@ require 'nokogiri' # NOTE(dbp): may require gem install nokogiri
 
 class AssignmentController < ApplicationController
   before_action :lookup_user
- 
 
   def get_assignment
     begin
@@ -15,8 +14,8 @@ class AssignmentController < ApplicationController
       doc = Nokogiri::HTML(scribbled)
       main = doc.css('div.main').first
       if main.nil?
-        # TODO(dbp): better errors
-        raise Exception, scribbled
+        # NOTE(dbp): a scribble doc without a main div is bad.
+        raise Scribble::ScribbleError, scribbled
       end
 
       main.css("div[data-ct-node='1']").each do |node|
