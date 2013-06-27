@@ -5,7 +5,7 @@
 <ul>
 <% @editors.each do |ed| %>
 <li>
-<%= link_to ed.title, editor_path(ed.uid) %>
+<%= link_to ed.title, editor_path(ed.uid), "data-no-turbolink" => true %>
 </li>
 <% end %>
 </ul>

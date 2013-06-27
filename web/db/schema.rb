@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130627152002) do
+ActiveRecord::Schema.define(version: 20130627184005) do
 
   create_table "assignments", force: true do |t|
     t.string   "uid"
@@ -37,13 +37,15 @@ ActiveRecord::Schema.define(version: 20130627152002) do
     t.string   "uid"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "git_ref_id"
   end
 
+  add_index "editors", ["git_ref_id"], name: "index_editors_on_git_ref_id"
   add_index "editors", ["path_ref_id"], name: "index_editors_on_path_ref_id"
 
   create_table "git_refs", force: true do |t|
-    t.integer  "repo_id"
-    t.string   "hash"
+    t.integer  "user_repo_id"
+    t.string   "git_oid"
     t.string   "path"
     t.datetime "created_at"
     t.datetime "updated_at"

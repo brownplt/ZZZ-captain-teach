@@ -6,3 +6,11 @@ test:
 	echo Remember to start whalesong on port 8080; \
 	echo See the tests at http://localhost:8000/tests/run.html; \
 	python -m SimpleHTTPServer
+
+editors:
+	mkdir editors
+	cd editors; \
+	git init; \
+	touch __blank; \
+	git add .; \
+	git commit -m "initial commit"

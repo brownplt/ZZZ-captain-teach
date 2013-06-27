@@ -17,7 +17,8 @@ App::Application.routes.draw do
   #get 'do_assignment/:uid' => 'assignment#do_assignment'
   get 'assignment/:uid' => 'assignment#get_assignment'
 
-  get 'editors' => 'editors#index'
+  get 'editors' => 'editors#index', as: :editors
+  post 'editor/:uid/switch' => 'editors#switch_version', as: :editor_switch
   resource :editor
   
   

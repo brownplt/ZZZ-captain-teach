@@ -16,6 +16,7 @@ describe PathRef do
     @test_file4 = "assignment4.arr"
     @test_file5 = "assignment5.arr"
     @test_file_exists = "assignment_exists.arr"
+    @test_file6 = "assignment6.arr"
 
     @user = { :name => "Joe", :email => "joe@foobar.com" }
     @test_repo.create_file(
@@ -41,6 +42,15 @@ describe PathRef do
     pr.path.should(eq(@test_file_exists))
     pr.user_repo.should(equal(@test_repo))
     pr.file_exists?.should(equal(true))
+  end
+
+  it "should return all of the revisions of the file" do
+    pr = PathRef.new(:user_repo => @test_repo, :path => @test_file6)
+    pr.create_file("foo", "creating", @user)
+    pr.user_repo.repo.last_commit.should(eq(pr.versions[0]))
+    pr.save_file("bar", "updating", @user)
+    pr.user_repo.repo.last_commit.should(eq(pr.versions[0]))
+    pr.versions.length.should(eq(2))
   end
 
   it "should create the file if it does not exist" do

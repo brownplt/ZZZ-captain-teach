@@ -18,7 +18,7 @@
   .cm-s-default .cm-type { color: #87ceeb; font-weight: bold; }
   .cptteach-fixed { background: #484848; }
 </style>
-<pre id="initial-code" style="display: none"><%= @editor.path_ref.contents %></pre>
+<pre id="initial-code" style="display: none"><%= if !@editor.git_ref.nil?; @editor.git_ref.contents; else @editor.path_ref.contents end %></pre>
 <script type="text/javascript">
 
   function updateCode() {
@@ -52,6 +52,7 @@ jQuery(function () {
   
 </script>
 
+<%= link_to "All Editors", editors_path %><br/>
 
 <%= form_tag(editor_path(@editor.uid), method: "put") do %>
 <%= hidden_field_tag(:code, "") %>
@@ -59,5 +60,18 @@ jQuery(function () {
 <%= text_field_tag(:title, @editor.title) %>
 <%= submit_tag("Save Editor", :onclick => "return updateCode()") %>
 <% end %>
+
+<span>Switch Version:</span>
+<% @editor.versions.each do |commit| %>
+<% if commit.oid == @editor.current_git_oid %>
+<span style="font-weight: bold"><%= commit.time %></span>
+<% else %>
+<%= form_tag(editor_switch_path(@editor.uid), method: "post", style: "display: inline") do %>
+<%= hidden_field_tag(:hash, commit.oid) %>
+<%= submit_tag("#{commit.time}") %>
+<% end %>
+<% end %>
+<% end %>
+
 
 <div id="editor"></div>
