@@ -63,7 +63,7 @@
 
 <body>
 @in[f TEST-NAMES]{
-  <iframe style="display:none;" id="@|f|" src="@(build-path TESTS-RELATIVE-PATH-OUT f).html"></iframe>
+  <iframe style="display:none;" id="@|f|" src="@(build-path TESTS-PATH-OUT f).html"></iframe>
 }
 <script type="text/javascript" src="/tests/spec/scribble/scribble.js"></script>
 </body>
