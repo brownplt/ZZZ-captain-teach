@@ -52,7 +52,12 @@ jQuery(function () {
   
 </script>
 
-<%= link_to "All Editors", editors_path %><br/>
+<span>All Editors:</span>
+<% @all_editors.each do |ed| %>
+<%= link_to ed.title, editor_path(ed.uid), "data-no-turbolink" => true %>
+|
+<% end %>
+<br/><br/>
 
 <%= form_tag(editor_path(@editor.uid), method: "put") do %>
 <%= hidden_field_tag(:code, "") %>

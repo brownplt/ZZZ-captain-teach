@@ -8,6 +8,7 @@ class EditorsController < ApplicationController
   end
 
   def show
+    @all_editors = Editor.all
     @editor = Editor.find_by(uid: params[:format])
   end
   
