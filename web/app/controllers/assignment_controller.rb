@@ -4,9 +4,8 @@ class AssignmentController < ApplicationController
   before_action :lookup_user
 
   def get_assignment
-    begin
-      assignment = Assignment.find_by(:uid => params[:uid])
-    rescue ActiveRecord::RecordNotFound => e
+    assignment = Assignment.find_by(:uid => params[:uid])
+    if assignment.nil?
       render :json => {:code => 404,
         :message => "No such assignment"}, :status => 404
     else

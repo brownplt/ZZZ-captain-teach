@@ -1,0 +1,11 @@
+<%= form_tag(editor_path, method: "post") do %>
+ <%= submit_tag("Create New Editor") %>
+<% end %>
+
+<ul>
+<% @editors.each do |ed| %>
+<li>
+<%= link_to ed.title, editor_path(ed.uid) %>
+</li>
+<% end %>
+</ul>

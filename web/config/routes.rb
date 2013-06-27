@@ -17,6 +17,10 @@ App::Application.routes.draw do
   #get 'do_assignment/:uid' => 'assignment#do_assignment'
   get 'assignment/:uid' => 'assignment#get_assignment'
 
+  get 'editors' => 'editors#index'
+  resource :editor
+  
+  
   # TESTING
   mount JasmineRails::Engine => "/specs" if defined?(JasmineRails) 
   

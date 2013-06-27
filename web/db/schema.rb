@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130619154522) do
+ActiveRecord::Schema.define(version: 20130627152002) do
 
   create_table "assignments", force: true do |t|
     t.string   "uid"
@@ -30,6 +30,16 @@ ActiveRecord::Schema.define(version: 20130619154522) do
   end
 
   add_index "blobs", ["user_id"], name: "index_blobs_on_user_id"
+
+  create_table "editors", force: true do |t|
+    t.integer  "path_ref_id"
+    t.string   "title"
+    t.string   "uid"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "editors", ["path_ref_id"], name: "index_editors_on_path_ref_id"
 
   create_table "git_refs", force: true do |t|
     t.integer  "repo_id"

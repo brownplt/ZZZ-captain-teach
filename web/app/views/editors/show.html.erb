@@ -1,0 +1,63 @@
+<script src="http://localhost:8080/collects/runtime.js"></script>
+<script src="http://localhost:8080/collects/library.js"></script>
+<script src="http://localhost:8080/easyXDM-min.js"></script>
+<script src="http://localhost:8080/repl.js"></script>
+<script src="http://localhost:8080/CodeMirror/lib/codemirror.js"></script>
+<link rel="stylesheet" href="http://localhost:8080/CodeMirror/lib/codemirror.css">
+<script src="http://localhost:8080/CodeMirror/mode/pyret/pyret.js"></script>
+
+<style>
+  .CodeMirror { border: 1px solid black; background: #262626; color: #cccccc; }
+  .CodeMirror div.CodeMirror-cursor { border-left: 1px solid #cccccc; }
+  .cm-s-default .cm-builtin { color: #66cdaa; }
+  .cm-s-default .cm-comment { color: #add8e6; }
+  .cm-s-default .cm-function-name { color: #66cdaa; font-weight: bold; }
+  .cm-s-default .cm-keyword { color: #68838b; font-weight: bold; }
+  .cm-s-default .cm-string { color: #87cefa; }
+  .cm-s-default .cm-variable { color: #8b7355; font-weight: bold; }
+  .cm-s-default .cm-type { color: #87ceeb; font-weight: bold; }
+  .cptteach-fixed { background: #484848; }
+</style>
+<pre id="initial-code" style="display: none"><%= @editor.path_ref.contents %></pre>
+<script type="text/javascript">
+
+  function updateCode() {
+  $("input[name='code']").attr("value", window.editor.getValue());
+  return true;
+  }
+  
+jQuery(function () {
+  container = jQuery("#editor");
+
+  /*var instructions = jQuery("<div>");
+  instructions.html(this.instructions);*/
+   
+  var replContainer = jQuery("<div>");
+  var codeContainer = jQuery("<div>");
+  container.append(codeContainer);
+  container.append(replContainer);
+
+  var runFun = makeRepl(replContainer);
+  window.editor = makeEditor(codeContainer,
+                           { initial: $("#initial-code").text(),
+                             run: runFun });
+
+/*  var doc = this.editor.getDoc();
+  doc.setValue("fun immutableHeader(aParam :: aType):\neditable text\nend");
+  doc.markText(CodeMirror.Pos(0, 0), CodeMirror.Pos(1, 0), 
+        {className: 'cptteach-fixed', readOnly: true, inclusiveLeft: true});
+  doc.markText(CodeMirror.Pos(2, 0), CodeMirror.Pos(3, 0),
+        {className: 'cptteach-fixed', readOnly: true, inclusiveRight: true}); */
+});
+  
+</script>
+
+
+<%= form_tag(editor_path(@editor.uid), method: "put") do %>
+<%= hidden_field_tag(:code, "") %>
+<%= label_tag(:title, "Title:") %>
+<%= text_field_tag(:title, @editor.title) %>
+<%= submit_tag("Save Editor", :onclick => "return updateCode()") %>
+<% end %>
+
+<div id="editor"></div>
