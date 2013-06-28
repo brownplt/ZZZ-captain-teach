@@ -8,16 +8,17 @@ function makeEditor(container, options) {
     textarea.val(initial);
     container.append(textarea);
 
-    runFun = function (cm) {};
+    runFun = function (code, options) {};
     if (options.hasOwnProperty("run")) {
-        runFun = function (cm) {
-            options.run(cm.getValue());
+        runFun = function (code, replOptions) {
+            options.run(code, replOptions);
         }
     }
     
     var CM = CodeMirror.fromTextArea(textarea[0], {
       extraKeys: {
-        "Shift-Enter": runFun,
+        "Shift-Enter": function(cm) { runFun(cm.getValue(), {check: true}); },
+        "Shift-Ctrl-Enter": function(cm) { runFun(cm.getValue(), {check: false}); },
         "Tab": "indentAuto"
       },
       indentUnit: 2
