@@ -47,10 +47,11 @@ describe PathRef do
   it "should return all of the revisions of the file" do
     pr = PathRef.new(:user_repo => @test_repo, :path => @test_file6)
     pr.create_file("foo", "creating", @user)
-    pr.user_repo.repo.last_commit.should(eq(pr.versions[0]))
+    pr.versions.length.should(eq(1))
+    pr.user_repo.repo.last_commit.oid.should(eq(pr.versions[0][:oid]))
     pr.save_file("bar", "updating", @user)
-    pr.user_repo.repo.last_commit.should(eq(pr.versions[0]))
     pr.versions.length.should(eq(2))
+    pr.user_repo.repo.last_commit.oid.should(eq(pr.versions[0][:oid]))
   end
 
   it "should create the file if it does not exist" do

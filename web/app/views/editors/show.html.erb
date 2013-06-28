@@ -17,6 +17,15 @@
   .cm-s-default .cm-variable { color: #8b7355; font-weight: bold; }
   .cm-s-default .cm-type { color: #87ceeb; font-weight: bold; }
   .cptteach-fixed { background: #484848; }
+
+  /* from http://codemirror.net/demo/resize.html */
+  .CodeMirror {
+  height: auto;
+}
+.CodeMirror-scroll {
+  overflow-y: hidden;
+  overflow-x: auto;
+}
 </style>
 <pre id="initial-code" style="display: none"><%= if !@editor.git_ref.nil?; @editor.git_ref.contents; else @editor.path_ref.contents end %></pre>
 <script type="text/javascript">
@@ -70,12 +79,12 @@ jQuery(function () {
 
 <span>Switch Version:</span>
 <% @editor.path_ref.versions.each do |commit| %>
-<% if commit.oid == @editor.current_git_oid %>
-<span style="font-weight: bold"><%= commit.time %></span>
+<% if commit[:oid] == @editor.current_git_oid %>
+<span style="font-weight: bold"><%= commit[:time] %></span>
 <% else %>
 <%= form_tag(editor_switch_path(@editor.uid), method: "post", style: "display: inline") do %>
-<%= hidden_field_tag(:hash, commit.oid) %>
-<%= submit_tag("#{commit.time}") %>
+<%= hidden_field_tag(:hash, commit[:oid]) %>
+<%= submit_tag("#{commit[:time]}") %>
 <% end %>
 <% end %>
 <% end %>

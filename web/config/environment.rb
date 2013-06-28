@@ -8,4 +8,3 @@ require File.expand_path('../../lib/scribble.rb', __FILE__)
 App::Application.initialize!
 
 ASSIGNMENTS_PATH = File.expand_path("../../../src/assignments/", __FILE__)
-
