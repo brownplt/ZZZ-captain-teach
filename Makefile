@@ -1,4 +1,4 @@
-scribble:
+setup:
 	raco link -n ct-scribble scribble
 test:
 	cd tests; \
