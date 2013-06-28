@@ -69,7 +69,7 @@ jQuery(function () {
 <% end %>
 
 <span>Switch Version:</span>
-<% @editor.versions.each do |commit| %>
+<% @editor.path_ref.versions.each do |commit| %>
 <% if commit.oid == @editor.current_git_oid %>
 <span style="font-weight: bold"><%= commit.time %></span>
 <% else %>
