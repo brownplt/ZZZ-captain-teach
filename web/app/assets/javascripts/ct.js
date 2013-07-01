@@ -78,8 +78,10 @@ function ct_transform(dom) {
     // but this is particularly agregious - we are just setting the
     // user id here.
     var id = jnode.attr("data-id") + ":1";
-    var newNode = builders[jnode.attr("data-type")](jnode,id,args);
-    jnode.replaceWith(newNode);
+    if (builders.hasOwnProperty(jnode.attr("data-type"))) {
+      var newNode = builders[jnode.attr("data-type")](jnode,id,args);
+      jnode.replaceWith(newNode);
+    }
   });
 }
 
