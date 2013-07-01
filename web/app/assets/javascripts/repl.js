@@ -56,7 +56,8 @@ function makeRepl(container) {
         srcElt.css('background-color', '#eee');
         breakButton.show();
         repl.compileAndExecuteProgram('interactions',
-                                      src, 
+                                      src,
+                                      {},
                                       clear,
                                       onError);
     };
@@ -94,7 +95,7 @@ function makeRepl(container) {
             case 'p-num': 
             case 'p-bool':
             case 'p-str':
-              write(jQuery("<span>").append(result._fields[2]).append("<br/>"))
+              write(jQuery("<span>").append(result._fields[3]).append("<br/>"))
               return true;       
             case 'p-nothing':
               return true;
@@ -112,12 +113,12 @@ function makeRepl(container) {
       compilerUrl: "http://localhost:8080/rpc.html"
     }, afterReplSetup);
 
-    var runCode = function(src) {
+    var runCode = function(src, options) {
         breakButton.show();
         output.empty();
         promptContainer.hide();
         promptContainer.fadeIn(100);
-        repl.compileAndExecuteProgram('main', src, clear, onError);
+        repl.compileAndExecuteProgram('main', src, options, clear, onError);
     };
 
     return runCode;

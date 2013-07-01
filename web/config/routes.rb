@@ -4,6 +4,8 @@ App::Application.routes.draw do
 
   # You can have the root of your site routed with "root"
   # root 'welcome#index'
+  # for now, editors is the most useful thing we have
+  root 'editors#index'
 
   post 'login' => 'sessions#create'
   post 'logout' => 'sessions#destroy'

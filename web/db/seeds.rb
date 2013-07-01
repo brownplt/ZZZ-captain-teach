@@ -12,9 +12,14 @@ if Rails.env.development?
   puts ASSIGNMENTS_PATH
   captains_log = UserRepo.create!(:path => ASSIGNMENTS_PATH)
 
-  path1 = PathRef.create!(:user_repo => captains_log, :path => "example.scrbl")
+  path1 = PathRef.create!(:user_repo => captains_log, :path => "multiple-choice.jrny")
   example_assignment1 = Assignment.create!({
     :path_ref => path1
+  })
+
+  path2 = PathRef.create!(:user_repo => captains_log, :path => "function.jrny")
+  example_assignment2 = Assignment.create!({
+    :path_ref => path2
   })
 end
 
