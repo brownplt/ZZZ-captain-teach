@@ -3,6 +3,48 @@ var NO_INSTANCE_DATA = {no_instance_data: true};
 var rails_host = "http://localhost:3000";
 
 var builders = {
+  "function": function (node,id,args) {
+    var header = args.header;
+    var check = args.check;
+    
+    var container = $("<div>");
+    
+    var replContainer = jQuery("<div>");
+    var codeContainer = jQuery("<div>");
+    container.append(codeContainer);
+    container.append(replContainer);
+    var runFun = makeRepl(replContainer);
+    var editor = makeEditor(codeContainer,
+                           { initial: "",
+                             run: runFun });
+
+    var doc = editor.getDoc();
+    doc.setValue(header + "\n\nend");
+    // doesn't seem to be working, probably due to the fact that
+    // it isn't in the DOM yet
+    // doc.markText(CodeMirror.Pos(0, 0), CodeMirror.Pos(1, 0), 
+    //              {className: 'cptteach-fixed',
+    //               readOnly: true,
+    //               inclusiveLeft: true});
+    // doc.markText(CodeMirror.Pos(2, 0), CodeMirror.Pos(3, 0),
+    //     {className: 'cptteach-fixed',
+    //      readOnly: true,
+    //      inclusiveRight: true});
+
+    var button = $("<button>Submit</button>");
+    button.click(function () {
+      var lastLine = doc.lineCount()-1;
+      var defn = doc.getRange(CodeMirror.Pos(1,0), CodeMirror.Pos(lastLine,0));
+      var prgm = header + "\n" + defn + "\ncheck: " +
+        check + "\nend";
+      console.log(prgm);
+      runFun(prgm, {check: true});
+    });
+
+    container.append(button);
+    
+    return container;
+  },
   "multiple-choice": function (node,id,args) {
     var form = $("<form>");
     $.ajax(rails_host + "/blob/lookup?resource="+id, {
@@ -74,17 +116,13 @@ function ct_transform(dom) {
   $("div[data-ct-node=1]").each(function (_, node) {
     var jnode = $(node);
     var args = JSON.parse(jnode.attr("data-args"));
-    // NOTE(dbp): all of this code obviously needs to be fixed,
-    // but this is particularly agregious - we are just setting the
-    // user id here.
-    var id = jnode.attr("data-id") + ":1";
-    var newNode = builders[jnode.attr("data-type")](jnode,id,args);
+    var newNode = builders[jnode.attr("data-type")](jnode,jnode.attr("data-id"),args);
     jnode.replaceWith(newNode);
   });
 }
 
 $(function() {
-    ct_transform(document.body);
+  ct_transform(document.body);
 });
 
 function ct_blob(resource, params) {

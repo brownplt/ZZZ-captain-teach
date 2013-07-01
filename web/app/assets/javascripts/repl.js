@@ -56,7 +56,8 @@ function makeRepl(container) {
         srcElt.css('background-color', '#eee');
         breakButton.show();
         repl.compileAndExecuteProgram('interactions',
-                                      src, 
+                                      src,
+                                      {},
                                       clear,
                                       onError);
     };
