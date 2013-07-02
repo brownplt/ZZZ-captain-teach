@@ -108,7 +108,7 @@ function makeRepl(container) {
       },
       write: write,
       // TODO(joe): It's unfortunate that naming is by path here
-      language: "root/src/lang/pyret-lang-whalesong.rkt",
+      language: "root/lang/pyret-lang-whalesong.rkt",
       compilerUrl: "http://localhost:8080/rpc.html"
     }, afterReplSetup);
 

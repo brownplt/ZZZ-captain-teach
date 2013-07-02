@@ -1,0 +1,3 @@
+[submodule "pyret-editor-backend"]
+	path = pyret-editor-backend
+	url = git@github.com:brownplt/pyret-editor-backend.git
