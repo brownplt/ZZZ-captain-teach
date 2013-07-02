@@ -73,5 +73,7 @@ App::Application.routes.draw do
   #   end
 
   # routing static pages, for testing currently
-  get ':action' => 'static#:action'
+  if Rails.env.development?
+    get ':action' => 'static#:action'
+  end
 end

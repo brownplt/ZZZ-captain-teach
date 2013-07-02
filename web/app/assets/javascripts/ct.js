@@ -3,11 +3,9 @@ var NO_INSTANCE_DATA = {no_instance_data: true};
 var rails_host = "http://localhost:3000";
 
 var builders = {
-  "function": function (node,id,args) {
+  "function": function (container,id,args) {
     var header = args.header;
     var check = args.check;
-    
-    var container = $("<div>");
     
     var replContainer = jQuery("<div>");
     var codeContainer = jQuery("<div>");
@@ -22,14 +20,16 @@ var builders = {
     doc.setValue(header + "\n\nend");
     // doesn't seem to be working, probably due to the fact that
     // it isn't in the DOM yet
-    // doc.markText(CodeMirror.Pos(0, 0), CodeMirror.Pos(1, 0), 
-    //              {className: 'cptteach-fixed',
-    //               readOnly: true,
-    //               inclusiveLeft: true});
-    // doc.markText(CodeMirror.Pos(2, 0), CodeMirror.Pos(3, 0),
-    //     {className: 'cptteach-fixed',
-    //      readOnly: true,
-    //      inclusiveRight: true});
+    doc.markText(CodeMirror.Pos(0, 0), CodeMirror.Pos(1, 0), 
+                 {className: 'cptteach-fixed',
+                  readOnly: true,
+                  inclusiveLeft: true, atomic: true});
+    doc.markText(CodeMirror.Pos(2, 0), CodeMirror.Pos(3, 0),
+        {className: 'cptteach-fixed',
+         readOnly: true,
+         inclusiveRight: true,
+         inclusiveLeft: true,
+         atomic: true});
 
     var button = $("<button>Submit</button>");
     button.click(function () {
@@ -43,10 +43,11 @@ var builders = {
 
     container.append(button);
     
-    return container;
+    return {container: container, activityData: {codemirror: editor}};
   },
-  "multiple-choice": function (node,id,args) {
+  "multiple-choice": function (container,id,args) {
     var form = $("<form>");
+    container.append(form);
     $.ajax(rails_host + "/blob/lookup?resource="+id, {
       success: function(response,_,xhr) {
         // in this case, there was an entry, so the choice has already
@@ -103,7 +104,7 @@ var builders = {
           console.error(error);
         }
       }})
-    return form;
+    return {container: container};
   }
 };
 
@@ -117,8 +118,9 @@ function ct_transform(dom) {
     var jnode = $(node);
     var args = JSON.parse(jnode.attr("data-args"));
     if (builders.hasOwnProperty(jnode.attr("data-type"))) {
-      var newNode = builders[jnode.attr("data-type")](jnode,jnode.attr("data-id"),args);
-      jnode.replaceWith(newNode);
+      var container = $("<div>");
+      jnode.replaceWith(container);
+      var rv = builders[jnode.attr("data-type")](container, jnode.attr("data-id"), args);
     }
   });
 }

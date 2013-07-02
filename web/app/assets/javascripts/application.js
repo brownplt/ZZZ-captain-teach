@@ -13,5 +13,9 @@
 //= require jquery
 //= require jquery_ujs
 //= require turbolinks
-//= require_tree .
 //= require browserid
+//= require ct
+//= require editor
+//= require repl
+//= require codemirror
+//= require pyret
