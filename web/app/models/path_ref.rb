@@ -48,7 +48,8 @@ class PathRef < ActiveRecord::Base
   end
 
   def versions
-    if @versions.nil?
+    vs = Rails.cache.read({:path_ref => self.id})
+    if vs.nil?
       repo = self.user_repo.repo
       walker = Rugged::Walker.new(repo)
       walker.push(repo.last_commit)
@@ -64,21 +65,22 @@ class PathRef < ActiveRecord::Base
           if diff.size != 0
             # diff between commit and prev is non-empty, so
             # prev (newer) added changes.
-            revisions.push(prev)
+            revisions.push({:oid => prev.oid, :time => prev.time})
           end
           prev = commit
         end
       end
-      @versions = revisions
+      vs = revisions
+      Rails.cache.write({:path_ref => self.id}, vs)
     end
-    @versions
+    vs
   end
 
   private
   
   # simple caching
   def dirty_versions
-    @versions = nil
+    Rails.cache.delete({:path_ref => self.id})
   end
   
 end

@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '4.0.0.rc1'
+gem 'rails', '4.0.0'
 
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3'
@@ -32,6 +32,9 @@ gem 'uuidtools'
 
 # scrape html
 gem 'nokogiri'
+
+# authentication
+gem 'browserid-rails', git: 'git://github.com/dbp/browserid-rails.git', ref: 'a3cbb2bb60a23be717b4f206c9afe75341911edb'
 
 group :doc do
   # bundle exec rake doc:rails generates the API under doc/api.

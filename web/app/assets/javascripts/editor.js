@@ -21,7 +21,8 @@ function makeEditor(container, options) {
         "Shift-Ctrl-Enter": function(cm) { runFun(cm.getValue(), {check: false}); },
         "Tab": "indentAuto"
       },
-      indentUnit: 2
+      indentUnit: 2,
+      viewportMargin: Infinity
     });
 
     return CM;

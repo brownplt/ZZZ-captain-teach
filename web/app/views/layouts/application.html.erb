@@ -2,11 +2,29 @@
 <html>
 <head>
   <title>App</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
   <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
   <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
   <%= csrf_meta_tags %>
+  <%= setup_browserid() %>
+
+  <!-- whalesong includes -->
+  <script src="http://localhost:8080/collects/runtime.js"></script>
+  <script src="http://localhost:8080/collects/library.js"></script>
+  <script src="http://localhost:8080/easyXDM-min.js"></script>
+  <script src="http://localhost:8080/repl.js"></script>
+  <script src="http://localhost:8080/CodeMirror/lib/codemirror.js"></script>
+  <link rel="stylesheet" href="http://localhost:8080/CodeMirror/lib/codemirror.css">
+  <script src="http://localhost:8080/CodeMirror/mode/pyret/pyret.js"></script>
+
+  
 </head>
 <body>
+<% if authenticated? %>
+<%= logout_link  %>
+<% else %>
+<%= login_link "Login" %>
+<% end %>
 
 <%= yield %>
 
