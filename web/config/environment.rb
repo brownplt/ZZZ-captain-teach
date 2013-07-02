@@ -7,4 +7,4 @@ require File.expand_path('../../lib/scribble.rb', __FILE__)
 # Initialize the rails application.
 App::Application.initialize!
 
-ASSIGNMENTS_PATH = File.expand_path("../../../assignments/", __FILE__)
+ASSIGNMENTS_PATH = File.expand_path("../../../ct-assignments/", __FILE__)

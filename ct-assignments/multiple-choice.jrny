@@ -1,0 +1,20 @@
+#lang scribble/base
+
+@(require ct-scribble/ct-lib)
+
+@journey["a5689901-33e3-42c6-be32-ad6eea1a1f1e"]{
+  Architecture is hard:
+  @multiple-choice["e3a5d91a-7472-4493-815f-2703f5e0a212"]{
+    @choice-correct["yes-answer"]{YES!}
+    @choice-incorrect["no-answer"]{No...}
+  }
+
+  @function["4b08e78f-cbff-47bd-87cf-b8cafa6c8a63"]{
+    @header{fun even(n):}
+    @check{
+        checkers.check-equals("0 is even", even(0), true)
+        checkers.check-equals("1 isnt even", even(1), false)
+        checkers.check-equals("2 is even", even(2), true)
+    }
+  }
+}

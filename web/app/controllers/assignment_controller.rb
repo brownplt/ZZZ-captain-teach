@@ -3,9 +3,6 @@ require 'nokogiri' # NOTE(dbp): may require gem install nokogiri
 class AssignmentController < ApplicationController
 
   def get_assignment
-    puts "HELLO"
-    puts session[:browserid_email]
-    puts "BYE"
     assignment = Assignment.find_by(:uid => params[:uid])
     if assignment.nil?
       render :json => {:code => 404,
