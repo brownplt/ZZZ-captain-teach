@@ -19,3 +19,4 @@
 //= require repl
 //= require codemirror
 //= require pyret
+//= require underscore

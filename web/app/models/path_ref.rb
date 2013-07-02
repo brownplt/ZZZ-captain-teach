@@ -30,7 +30,12 @@ class PathRef < ActiveRecord::Base
   end
 
   def contents
-    user_repo.lookup_file_head(self.path)
+    if Rails.env.development?
+      p = File.expand_path(self.path, user_repo.path)
+      File.open(p).gets(nil)
+    else
+      user_repo.lookup_file_head(self.path)
+    end
   end
 
   def save_file(contents, message, user)

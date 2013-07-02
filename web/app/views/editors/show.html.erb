@@ -4,29 +4,6 @@
 <script src="http://<%= @WHALESONG_URL %>/repl.js"></script>
 
 <style>
-  .CodeMirror { border: 1px solid black; background: #262626; color: #cccccc; }
-  .CodeMirror div.CodeMirror-cursor { border-left: 1px solid #cccccc; }
-  .cm-s-default .cm-builtin { color: #66cdaa; }
-  .cm-s-default .cm-comment { color: #add8e6; }
-  .cm-s-default .cm-function-name { color: #66cdaa; font-weight: bold; }
-  .cm-s-default .cm-keyword { color: #68838b; font-weight: bold; }
-  .cm-s-default .cm-string { color: #87cefa; }
-  .cm-s-default .cm-variable { color: #8b7355; font-weight: bold; }
-  .cm-s-default .cm-type { color: #87ceeb; font-weight: bold; }
-  .cptteach-fixed { background: #484848; }
-
-  /* from http://codemirror.net/demo/resize.html */
-  .CodeMirror {
-  height: auto;
-}
-  .CodeMirror-sizer {
-    min-height: 200px !important;
-  }
-
-.CodeMirror-scroll {
-  overflow-y: hidden;
-  overflow-x: auto;
-}
 </style>
 <pre id="initial-code" style="display: none"><%= if !@editor.git_ref.nil?; @editor.git_ref.contents; else @editor.path_ref.contents end %></pre>
 <script type="text/javascript">

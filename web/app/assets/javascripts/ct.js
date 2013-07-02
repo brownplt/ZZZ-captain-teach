@@ -2,11 +2,54 @@ var NO_INSTANCE_DATA = {no_instance_data: true};
 
 var rails_host = "http://localhost:3000";
 
+function lookupBlob(resource, present, absent, error) {
+  if (typeof error === 'undefined') {
+    error = function(xhr, e) { console.error(xhr, e); }
+  }
+  $.ajax(rails_host + '/blob/lookup?resource=' + resource, {
+    success: function(response, _, xhr) {
+      present(response);
+    },
+    error: function(xhr, error) {
+      if (xhr.status === 404) {
+        absent();
+      } else {
+        error(xhr, error);
+      }
+    }
+  });
+}
+
+function saveBlob(resource, data, success, failure) {
+  if (typeof success === 'undefined') { success = function() {}; }
+  if (typeof failure === 'undefined') { failure = function() {}; }
+  $.post(rails_host + "/blob/save?resource=" + resource, {
+    data: JSON.stringify(data),
+    success: function(_, __, response) { success(response); },
+    error: failure
+  });
+}
+
+function codeExample(container, id, args) {
+  var code = args.code;
+  var codeContainer = jQuery("<div>");
+  container.append(codeContainer);
+  var editor = makeEditor(codeContainer, {
+      cmOptions: {
+        readOnly: 'nocursor'   
+      },
+      initial: code,
+      run: function() {}
+   });
+  return { container: container, activityData: {editor: editor} };
+}
+
 var builders = {
-  "function": function (container,id,args) {
+  "code-example": codeExample,
+  "function": function (container, resourceId, args) {
     var header = args.header;
     var check = args.check;
-    
+
     var replContainer = jQuery("<div>");
     var codeContainer = jQuery("<div>");
     container.append(codeContainer);
@@ -15,11 +58,9 @@ var builders = {
     var editor = makeEditor(codeContainer,
                            { initial: "",
                              run: runFun });
-
     var doc = editor.getDoc();
+
     doc.setValue(header + "\n\nend");
-    // doesn't seem to be working, probably due to the fact that
-    // it isn't in the DOM yet
     doc.markText(CodeMirror.Pos(0, 0), CodeMirror.Pos(1, 0), 
                  {className: 'cptteach-fixed',
                   readOnly: true,
@@ -39,9 +80,16 @@ var builders = {
         check + "\nend";
       console.log(prgm);
       runFun(prgm, {check: true});
+      saveBlob(resourceId, {body: defn});
     });
 
     container.append(button);
+
+    lookupBlob(resourceId,
+      function(data) {
+        doc.replaceRange(data.body, CodeMirror.Pos(1, 0), CodeMirror.Pos(2,0));
+      },
+      function() { });
     
     return {container: container, activityData: {codemirror: editor}};
   },

@@ -1,16 +1,18 @@
-#lang racket/base
+#lang racket
 
 
 (require json net/url scribble/core scribble/html-properties racket/string racket/list)
 
-(provide (all-defined-out))
+(provide
+  (all-from-out scribble/core)
+  (all-defined-out))
 
 (define current-id-prefix (make-parameter ""))
 
 (define (mk-id mode id)
   (string-append* (list mode ":" (current-id-prefix) "/" id)))
 
-(define-struct str-holder (str))
+(define-struct holder (elt))
 
 ;; TODO(joe): this is an obfuscation point
 (define-syntax-rule (choice-incorrect id str)
@@ -48,9 +50,9 @@
 
 (define-syntax-rule (function unique-id elt ...)
    (begin
-     (letrec [(parts (filter str-holder? (list elt ...)))
-              (header (str-holder-str (first parts)))
-              (check (str-holder-str (second parts)))]
+     (letrec [(parts (filter holder? (list elt ...)))
+              (header (holder-elt (first parts)))
+              (check (holder-elt (second parts)))]
      (element
        (style #f
               (list
@@ -67,14 +69,28 @@
                       (cons 'check check)))))))))
        ""))))
 
+(define-syntax-rule (code-example elt ...)
+  (let [(code (string-append* (list elt ...)))]
+  (element
+    (style #f
+           (list
+             (alt-tag "div")
+             (attributes
+               (list
+                 (cons 'data-ct-node "1")
+                 (cons 'data-type "code-example")
+                 (cons 'data-args (jsexpr->string
+                   (make-hash
+                   (list
+                     (cons 'code code)))))))))
+    "")))
+
 (define-syntax-rule (header elt ...)
-  (str-holder (string-append* (list elt ...))))
+  (holder (string-append* (list elt ...))))
 
 (define-syntax-rule (check elt ...)
-  (str-holder (string-append* (list elt ...))))
+  (holder (string-append* (list elt ...))))
 
-(define-syntax-rule (journey unique-id elt ...)
-  (parameterize [(current-id-prefix unique-id)]
-    (multiarg-element
-      (style #f (list))
-      (list elt ...))))
+(define-syntax-rule (journey unique-id)
+  (current-id-prefix unique-id))
+

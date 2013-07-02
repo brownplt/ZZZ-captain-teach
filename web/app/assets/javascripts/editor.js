@@ -14,8 +14,8 @@ function makeEditor(container, options) {
             options.run(code, replOptions);
         }
     }
-    
-    var CM = CodeMirror.fromTextArea(textarea[0], {
+
+    var cmOptions = {
       extraKeys: {
         "Shift-Enter": function(cm) { runFun(cm.getValue(), {check: true}); },
         "Shift-Ctrl-Enter": function(cm) { runFun(cm.getValue(), {check: false}); },
@@ -23,7 +23,11 @@ function makeEditor(container, options) {
       },
       indentUnit: 2,
       viewportMargin: Infinity
-    });
+    };
+
+    cmOptions = _.extend(cmOptions, options.cmOptions);
+    
+    var CM = CodeMirror.fromTextArea(textarea[0], cmOptions);
 
     return CM;
 }
