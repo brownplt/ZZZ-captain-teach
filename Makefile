@@ -1,5 +1,9 @@
 setup:
 	raco link -n ct-scribble scribble
+
+pyret-editor-service:
+	cd pyret-editor-backend; make pyret
+
 test:
 	cd tests; \
 	racket setup.rkt --whalesong-url http://localhost:8080; \
