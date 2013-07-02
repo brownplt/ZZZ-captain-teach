@@ -23,9 +23,32 @@ guard :rspec do
 end
 
 
+module ::Guard
+  require 'open3'
+  class PyretService < Guard
+
+    def start
+      Dir.chdir("../pyret-editor-backend") do
+        Open3.popen3('make', 'run')
+      end
+    end
+
+    def run_all
+      true
+    end
+
+    def run_on_changes(paths)
+      true
+    end
+  end
+end
+
+guard 'pyretservice'
 
 guard 'rails' do
   watch('Gemfile.lock')
   watch(%r{^(config|lib)/.*})
 end
+
+require 'guard/guard'
 
