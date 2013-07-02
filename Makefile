@@ -4,8 +4,8 @@ setup:
 	raco link -n ct-scribble scribble
 
 dep:
-	git submodule init CodeMirror pyret-editor-backend
-	git submodule update CodeMirror pyret-editor-backend
+	git submodule init CodeMirror pyret-editor-backend ct-assignments
+	git submodule update CodeMirror pyret-editor-backend ct-assignments
 
 pyret-editor-service:
 	cd pyret-editor-backend; make pyret

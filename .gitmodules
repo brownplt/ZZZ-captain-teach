@@ -4,3 +4,6 @@
 [submodule "CodeMirror"]
 	path = CodeMirror
 	url = git@github.com:jpolitz/CodeMirror
+[submodule "ct-assignments"]
+	path = ct-assignments
+	url = git@github.com:jpolitz/captain-teach-assignments
