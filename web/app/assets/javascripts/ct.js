@@ -60,34 +60,41 @@ var builders = {
                              run: runFun });
     var doc = editor.getDoc();
 
-    doc.setValue(header + "\n\nend");
-    doc.markText(CodeMirror.Pos(0, 0), CodeMirror.Pos(1, 0), 
+    doc.setValue(header + "\n\ncheck:\n\nend");
+
+    function markFixed(startLine, endLine) {
+      return doc.markText(CodeMirror.Pos(startLine, 0), CodeMirror.Pos(endLine, 0),
                  {className: 'cptteach-fixed',
-                  readOnly: true,
-                  inclusiveLeft: true, atomic: true});
-    doc.markText(CodeMirror.Pos(2, 0), CodeMirror.Pos(3, 0),
-        {className: 'cptteach-fixed',
-         readOnly: true,
-         inclusiveRight: true,
-         inclusiveLeft: true,
-         atomic: true});
+                  readOnly: true, atomic: true});
+    }
+
+
+    var headerMark = markFixed(0, 1);
+    var checkMark = markFixed(2, 3);
+    var endMark = markFixed(4, 5);
 
     var button = $("<button>Submit</button>");
     button.click(function () {
       var lastLine = doc.lineCount()-1;
-      var defn = doc.getRange(CodeMirror.Pos(1,0), CodeMirror.Pos(lastLine,0));
-      var prgm = header + "\n" + defn + "\ncheck: " +
+      console.log(headerMark.find());
+      console.log(checkMark.find());
+      var defn = doc.getRange(headerMark.find().to, checkMark.find().from);
+      var userChecks = doc.getRange(checkMark.find().to, endMark.find().from);
+      var prgm = header + "\n" + defn + "\ncheck:\n" + userChecks + "\n" +
         check + "\nend";
       console.log(prgm);
       runFun(prgm, {check: true});
-      saveBlob(resourceId, {body: defn});
+      saveBlob(resourceId, { body: defn, userChecks: userChecks });
     });
 
     container.append(button);
 
     lookupBlob(resourceId,
       function(data) {
-        doc.replaceRange(data.body, CodeMirror.Pos(1, 0), CodeMirror.Pos(2,0));
+        var body = data.body || "\n";
+        var userChecks = data.userChecks || "\n";
+        doc.replaceRange(body, headerMark.find().to, checkMark.find().from);
+        doc.replaceRange(userChecks, checkMark.find().to, endMark.find().from);
       },
       function() { });
     
