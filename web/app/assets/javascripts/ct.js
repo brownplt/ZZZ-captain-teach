@@ -2,6 +2,46 @@ var NO_INSTANCE_DATA = {no_instance_data: true};
 
 var rails_host = "http://localhost:3000";
 
+function clean(str) {
+  return str.replace(/^\n+/, "").replace(/\n+$/, "");
+}
+
+function createInsertionPoint(doc, line, ch) {
+  function markReadOnly(from, to, left, right) {
+    return doc.markText(
+        from, to,
+        {className: 'cptteach-fixed',
+         inclusiveLeft: left,
+         inclusiveRight: right,
+         readOnly: true});
+  }
+  var start = doc.setBookmark({line: line, ch: ch});
+  var end = doc.setBookmark({line: line, ch: ch}, {insertLeft: true});
+  return {
+    from: function() { return start.find(); },
+    to: function() { return end.find(); },
+    get: function() {
+      return doc.getRange(start.find(), end.find());
+    },
+    insert: function(val, options) {
+      var defaults = {
+        left: false,
+        right: false,
+        readOnly: false
+      };
+      var realOptions = _.extend(defaults, options || {});
+      doc.replaceRange(val, start.find());
+      if (realOptions.readOnly) {
+        markReadOnly(
+            start.find(),
+            end.find(),
+            realOptions.left,
+            realOptions.right);
+      }
+    }
+  };
+}
+
 function lookupBlob(resource, present, absent, error) {
   if (typeof error === 'undefined') {
     error = function(xhr, e) { console.error(xhr, e); }
@@ -56,47 +96,41 @@ var builders = {
     container.append(replContainer);
     var runFun = makeRepl(replContainer);
     var editor = makeEditor(codeContainer,
-                           { initial: "",
+                           { initial: "\n\n\n\n",
                              run: runFun });
     var doc = editor.getDoc();
 
-    doc.setValue(header + "\n\ncheck:\n\nend");
+    var headerPoint = createInsertionPoint(doc, 0, 0);
+    var bodyPoint = createInsertionPoint(doc, 1, 0);
+    var checkPoint = createInsertionPoint(doc, 2, 0);
+    var userChecksPoint = createInsertionPoint(doc, 3, 0);
+    var endPoint = createInsertionPoint(doc, 4, 0);
 
-    function markFixed(startLine, endLine) {
-      return doc.markText(CodeMirror.Pos(startLine, 0), CodeMirror.Pos(endLine, 0),
-                 {className: 'cptteach-fixed',
-                  readOnly: true, atomic: true});
-    }
-
-
-    var headerMark = markFixed(0, 1);
-    var checkMark = markFixed(2, 3);
-    var endMark = markFixed(4, 5);
-
+    headerPoint.insert(header + "\n", { readOnly: true, left: true });
+    checkPoint.insert("check:\n", { readOnly: true });
+    endPoint.insert("end", { readOnly: true, right: true });
     var button = $("<button>Submit</button>");
     button.click(function () {
       var lastLine = doc.lineCount()-1;
-      console.log(headerMark.find());
-      console.log(checkMark.find());
-      var defn = doc.getRange(headerMark.find().to, checkMark.find().from);
-      var userChecks = doc.getRange(checkMark.find().to, endMark.find().from);
-      var prgm = header + "\n" + defn + "\ncheck:\n" + userChecks + "\n" +
-        check + "\nend";
-      console.log(prgm);
+      var defn = clean(doc.getRange(headerPoint.to(), checkPoint.from()));
+      var userChecks = clean(doc.getRange(checkPoint.to(), endPoint.from()));
+      var prgm = header + "\n" + defn + "\ncheck:\n" + check + "\nend";
       runFun(prgm, {check: true});
       saveBlob(resourceId, { body: defn, userChecks: userChecks });
     });
-
     container.append(button);
 
     lookupBlob(resourceId,
       function(data) {
         var body = data.body || "\n";
         var userChecks = data.userChecks || "\n";
-        doc.replaceRange(body, headerMark.find().to, checkMark.find().from);
-        doc.replaceRange(userChecks, checkMark.find().to, endMark.find().from);
+        console.log(body);
+        console.log(userChecks);
+        bodyPoint.insert(body);
+        userChecksPoint.insert(userChecks);
       },
       function() { });
+
     
     return {container: container, activityData: {codemirror: editor}};
   },
