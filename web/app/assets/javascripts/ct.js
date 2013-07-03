@@ -147,8 +147,8 @@ var builders = {
   "multiple-choice": function (container,id,args,resources) {
     var form = $("<form>");
     container.append(form);
-    $.ajax(rails_host + "/blob/lookup?resource="+id, {
-      success: function(response,_,xhr) {
+    lookupResource(id, 
+      function(response) {
         // in this case, there was an entry, so the choice has already
         // been made. we just want to display options with their choice
         // selected.
@@ -172,37 +172,34 @@ var builders = {
           form.append($("<br/>"));
         });
       },
-      error: function(xhr,_,error) {
-        window.x = xhr;
-        window.e = error;
-        if (xhr.status == 404) {
-          // no entry, so create form
-          args.forEach(function(option, index) {
-            console.log(option);
-            console.log(option.content);
-            var optNode = $("<input type='checkbox' id='option"+index+
-                            "' value='" +
-                            option.name + "'>" + "</input>");
-            var labelNode = $("<label for='option"+index+"'></label");
-            labelNode.text(option.content);
-            form.append(labelNode);
-            form.append(optNode);
-            form.append($("<br/>"));
+      function() {
+        // no entry, so create form
+        args.forEach(function(option, index) {
+          console.log(option);
+          console.log(option.content);
+          var optNode = $("<input type='checkbox' id='option"+index+
+                          "' value='" +
+                          option.name + "'>" + "</input>");
+          var labelNode = $("<label for='option"+index+"'></label");
+          labelNode.text(option.content);
+          form.append(labelNode);
+          form.append(optNode);
+          form.append($("<br/>"));
+        });
+        var button = $("<button>Submit</button>");
+        button.click(function() {
+          var selected = form.find(":checked").attr("value");
+          console.log(selected);
+          $.post(rails_host + "/resource/save?resource="+id, {
+            data: JSON.stringify({"selected": selected})
           });
-          var button = $("<button>Submit</button>");
-          button.click(function() {
-            var selected = form.find(":checked").attr("value");
-            console.log(selected);
-            $.post(rails_host + "/resource/save?resource="+id, {
-              data: JSON.stringify({"selected": selected})
-            });
-            return false;
-          });
-          form.append(button);
-        } else {
-          console.error(error);
-        }
-      }})
+          return false;
+        });
+        form.append(button);
+      },
+      function(xhr, error) {
+        console.error(error);
+      });
     return {container: container};
   }
 };
