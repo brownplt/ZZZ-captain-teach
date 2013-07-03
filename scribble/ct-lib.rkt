@@ -70,6 +70,23 @@
                       (cons 'check check)))))))))
        ""))))
 
+(define-syntax-rule (inline-example elt ...)
+  (let [(code (string-append* (list elt ...)))]
+  (element
+    (style #f
+           (list
+             (alt-tag "span")
+             (attributes
+               (list
+                 (cons 'data-ct-node "1")
+                 (cons 'data-type "inline-example")
+                 (cons 'data-args (jsexpr->string
+                   (make-hash
+                   (list
+                     (cons 'code code)))))))))
+    "")))
+
+
 (define-syntax-rule (code-example elt ...)
   (let [(code (string-append* (list elt ...)))]
   (element

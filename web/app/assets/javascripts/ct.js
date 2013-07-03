@@ -30,7 +30,12 @@ function saveResource(resource, data, success, failure) {
   });
 }
 
-function codeExample(container, id, args) {
+function inlineExample(container, id, args){
+  container.css("display", "inline-block");
+  codeExample(container, id, args);
+}
+
+function codeExample(container, _, args) {
   var code = args.code;
   var codeContainer = jQuery("<div>");
   container.append(codeContainer);
@@ -45,6 +50,7 @@ function codeExample(container, id, args) {
 }
 
 var builders = {
+  "inline-example": inlineExample,
   "code-example": codeExample,
   "function": function (container, resourceId, args) {
     var header = args.header;
@@ -170,7 +176,7 @@ var builders = {
 // itself to the builder. The builder does whatever it needs to do,
 // and eventually should replace the node with content.
 function ct_transform(dom) {
-  $("div[data-ct-node=1]").each(function (_, node) {
+  $("[data-ct-node=1]").each(function (_, node) {
     var jnode = $(node);
     var args = JSON.parse(jnode.attr("data-args"));
     if (builders.hasOwnProperty(jnode.attr("data-type"))) {
