@@ -15,10 +15,15 @@ App::Application.routes.draw do
   get 'test_assignment' => "test#test_assignment"
   
 
-  get  'blob/lookup'        => 'blob#lookup'
-  post 'blob/lookup_create' => 'blob#lookup_create'
-  post 'blob/save'          => 'blob#save'
-    
+  # get  'blob/lookup'        => 'blob#lookup'
+  # post 'blob/lookup_create' => 'blob#lookup_create'
+  # post 'blob/save'          => 'blob#save'
+
+  get  'resource/lookup'        => 'resource#lookup'
+  post 'resource/lookup_create' => 'resource#lookup_create'
+  post 'resource/save'          => 'resource#save'
+  get  'resource/versions'      => 'resource#versions'
+  
   #get 'do_assignment/:uid' => 'assignment#do_assignment'
   get 'assignment/:uid' => 'assignment#get_assignment'
 

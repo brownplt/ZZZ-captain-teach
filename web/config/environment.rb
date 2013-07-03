@@ -8,3 +8,7 @@ require File.expand_path('../../lib/scribble.rb', __FILE__)
 App::Application.initialize!
 
 ASSIGNMENTS_PATH = File.expand_path("../../../ct-assignments/", __FILE__)
+
+DEFAULT_GIT_USER = {email: "", name: "Edward Teach"}
+
+USER_GIT_REPO_PATH = File.expand_path("../../../user-repos/", __FILE__)

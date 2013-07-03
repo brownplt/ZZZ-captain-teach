@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130701212908) do
+ActiveRecord::Schema.define(version: 20130703152059) do
 
   create_table "assignments", force: true do |t|
     t.string   "uid"
@@ -68,6 +68,9 @@ ActiveRecord::Schema.define(version: 20130701212908) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "email"
+    t.integer  "user_repo_id"
   end
+
+  add_index "users", ["user_repo_id"], name: "index_users_on_user_repo_id"
 
 end

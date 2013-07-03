@@ -42,11 +42,11 @@ function createInsertionPoint(doc, line, ch) {
   };
 }
 
-function lookupBlob(resource, present, absent, error) {
+function lookupResource(resource, present, absent, error) {
   if (typeof error === 'undefined') {
     error = function(xhr, e) { console.error(xhr, e); }
   }
-  $.ajax(rails_host + '/blob/lookup?resource=' + resource, {
+  $.ajax(rails_host + '/resource/lookup?resource=' + resource, {
     success: function(response, _, xhr) {
       present(response);
     },
@@ -60,17 +60,22 @@ function lookupBlob(resource, present, absent, error) {
   });
 }
 
-function saveBlob(resource, data, success, failure) {
+function saveResource(resource, data, success, failure) {
   if (typeof success === 'undefined') { success = function() {}; }
   if (typeof failure === 'undefined') { failure = function() {}; }
-  $.post(rails_host + "/blob/save?resource=" + resource, {
+  $.post(rails_host + "/resource/save?resource=" + resource, {
     data: JSON.stringify(data),
     success: function(_, __, response) { success(response); },
     error: failure
   });
 }
 
-function codeExample(container, id, args) {
+function inlineExample(container, id, args){
+  container.css("display", "inline-block");
+  codeExample(container, id, args);
+}
+
+function codeExample(container, _, args) {
   var code = args.code;
   var codeContainer = jQuery("<div>");
   container.append(codeContainer);
@@ -85,6 +90,7 @@ function codeExample(container, id, args) {
 }
 
 var builders = {
+  "inline-example": inlineExample,
   "code-example": codeExample,
   "function": function (container, resourceId, args) {
     var header = args.header;
@@ -116,16 +122,15 @@ var builders = {
       var userChecks = clean(doc.getRange(checkPoint.to(), endPoint.from()));
       var prgm = header + "\n" + defn + "\ncheck:\n" + check + "\nend";
       runFun(prgm, {check: true});
-      saveBlob(resourceId, { body: defn, userChecks: userChecks });
+      saveResource(resourceId, { body: defn, userChecks: userChecks });
     });
     container.append(button);
 
-    lookupBlob(resourceId,
-      function(data) {
+    lookupResource(resourceId,
+      function(response) {
+        var data = JSON.parse(response.file);
         var body = data.body || "\n";
         var userChecks = data.userChecks || "\n";
-        console.log(body);
-        console.log(userChecks);
         bodyPoint.insert(body);
         userChecksPoint.insert(userChecks);
       },
@@ -183,7 +188,7 @@ var builders = {
           button.click(function() {
             var selected = form.find(":checked").attr("value");
             console.log(selected);
-            $.post(rails_host + "/blob/save?resource="+id, {
+            $.post(rails_host + "/resource/save?resource="+id, {
               data: JSON.stringify({"selected": selected})
             });
             return false;
@@ -203,7 +208,7 @@ var builders = {
 // itself to the builder. The builder does whatever it needs to do,
 // and eventually should replace the node with content.
 function ct_transform(dom) {
-  $("div[data-ct-node=1]").each(function (_, node) {
+  $("[data-ct-node=1]").each(function (_, node) {
     var jnode = $(node);
     var args = JSON.parse(jnode.attr("data-args"));
     if (builders.hasOwnProperty(jnode.attr("data-type"))) {
