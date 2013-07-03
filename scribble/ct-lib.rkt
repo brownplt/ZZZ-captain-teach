@@ -9,8 +9,9 @@
 
 (define current-id-prefix (make-parameter ""))
 
-(define (mk-id mode id)
-  (string-append* (list mode ":" (current-id-prefix) "/" id)))
+(define (mk-id type mode id)
+  (string-append* (list type ":" mode ":"
+                        (current-id-prefix) "/" id)))
 
 (define-struct holder (elt))
 
@@ -43,7 +44,7 @@
               (attributes
                 (list
                   (cons 'data-ct-node "1")
-                  (cons 'data-id (mk-id "rc" unique-id))
+                  (cons 'data-id (mk-id "b" "rc" unique-id))
                   (cons 'data-type "multiple-choice")
                   (cons 'data-args (jsexpr->string choices))))))
       ""))))
@@ -60,7 +61,7 @@
                 (attributes
                   (list
                     (cons 'data-ct-node "1")
-                    (cons 'data-id (mk-id "rw" unique-id))
+                    (cons 'data-id (mk-id "g" "rw" unique-id))
                     (cons 'data-type "function")
                     (cons 'data-args (jsexpr->string
                     (make-hash

@@ -8,8 +8,7 @@
 
 
 if Rails.env.development?
-  captain = User.create!()
-  puts ASSIGNMENTS_PATH
+  captain = User.create!(:email => "edward@captainteach.org")
   captains_log = UserRepo.create!(:path => ASSIGNMENTS_PATH)
 
   path1 = PathRef.create!(:user_repo => captains_log, :path => "multiple-choice.jrny")

@@ -3,7 +3,7 @@
 	url = git@github.com:brownplt/pyret-editor-backend.git
 [submodule "CodeMirror"]
 	path = CodeMirror
-	url = git@github.com:jpolitz/CodeMirror
+	url = git@github.com:jpolitz/CodeMirror.git
 [submodule "ct-assignments"]
 	path = ct-assignments
-	url = git@github.com:jpolitz/captain-teach-assignments
+	url = git@github.com:brownplt/captain-teach-assignments.git
