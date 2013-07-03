@@ -61,7 +61,7 @@
                 (attributes
                   (list
                     (cons 'data-ct-node "1")
-                    (cons 'data-id (mk-id "g" "rw" unique-id))
+                    (cons 'data-id (mk-id "p" "rw" unique-id))
                     (cons 'data-type "function")
                     (cons 'data-args (jsexpr->string
                     (make-hash

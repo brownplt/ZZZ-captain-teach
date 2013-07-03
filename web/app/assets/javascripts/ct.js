@@ -2,11 +2,11 @@ var NO_INSTANCE_DATA = {no_instance_data: true};
 
 var rails_host = "http://localhost:3000";
 
-function lookupBlob(resource, present, absent, error) {
+function lookupResource(resource, present, absent, error) {
   if (typeof error === 'undefined') {
     error = function(xhr, e) { console.error(xhr, e); }
   }
-  $.ajax(rails_host + '/blob/lookup?resource=' + resource, {
+  $.ajax(rails_host + '/resource/lookup?resource=' + resource, {
     success: function(response, _, xhr) {
       present(response);
     },
@@ -20,10 +20,10 @@ function lookupBlob(resource, present, absent, error) {
   });
 }
 
-function saveBlob(resource, data, success, failure) {
+function saveResource(resource, data, success, failure) {
   if (typeof success === 'undefined') { success = function() {}; }
   if (typeof failure === 'undefined') { failure = function() {}; }
-  $.post(rails_host + "/blob/save?resource=" + resource, {
+  $.post(rails_host + "/resource/save?resource=" + resource, {
     data: JSON.stringify(data),
     success: function(_, __, response) { success(response); },
     error: failure
@@ -84,13 +84,14 @@ var builders = {
         check + "\nend";
       console.log(prgm);
       runFun(prgm, {check: true});
-      saveBlob(resourceId, { body: defn, userChecks: userChecks });
+      saveResource(resourceId, { body: defn, userChecks: userChecks });
     });
 
     container.append(button);
 
-    lookupBlob(resourceId,
-      function(data) {
+    lookupResource(resourceId,
+      function(response) {
+        var data = JSON.parse(response.file);
         var body = data.body || "\n";
         var userChecks = data.userChecks || "\n";
         doc.replaceRange(body, headerMark.find().to, checkMark.find().from);
@@ -149,7 +150,7 @@ var builders = {
           button.click(function() {
             var selected = form.find(":checked").attr("value");
             console.log(selected);
-            $.post(rails_host + "/blob/save?resource="+id, {
+            $.post(rails_host + "/resource/save?resource="+id, {
               data: JSON.stringify({"selected": selected})
             });
             return false;
