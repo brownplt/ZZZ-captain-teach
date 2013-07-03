@@ -70,12 +70,12 @@ function saveResource(resource, data, success, failure) {
   });
 }
 
-function inlineExample(container, id, args){
+function inlineExample(container, id, args, resources){
   container.css("display", "inline-block");
   codeExample(container, id, args);
 }
 
-function codeExample(container, _, args) {
+function codeExample(container, _, args, resources) {
   var code = args.code;
   var codeContainer = jQuery("<div>");
   container.append(codeContainer);
@@ -92,7 +92,11 @@ function codeExample(container, _, args) {
 var builders = {
   "inline-example": inlineExample,
   "code-example": codeExample,
-  "function": function (container, resourceId, args) {
+  "function": function (container, resourceId, args, resources) {
+    var includes = args.includes;
+    var prelude = includes.map(function(i) {
+      return resources[i];
+    }).join("\n\n");
     var header = args.header;
     var check = args.check;
 
@@ -120,7 +124,8 @@ var builders = {
       var lastLine = doc.lineCount()-1;
       var defn = clean(doc.getRange(headerPoint.to(), checkPoint.from()));
       var userChecks = clean(doc.getRange(checkPoint.to(), endPoint.from()));
-      var prgm = header + "\n" + defn + "\ncheck:\n" + check + "\nend";
+      var prgm = prelude + "\n" + header + "\n" + defn + "\ncheck:\n" + check + "\nend";
+      console.log(prgm);
       runFun(prgm, {check: true});
       saveResource(resourceId, { body: defn, userChecks: userChecks });
     });
@@ -139,7 +144,7 @@ var builders = {
     
     return {container: container, activityData: {codemirror: editor}};
   },
-  "multiple-choice": function (container,id,args) {
+  "multiple-choice": function (container,id,args,resources) {
     var form = $("<form>");
     container.append(form);
     $.ajax(rails_host + "/blob/lookup?resource="+id, {
@@ -202,19 +207,32 @@ var builders = {
   }
 };
 
+var resourceBuilders = {
+  'code-library': function(args) {
+    return { key: args.name, value: args.code };
+  }
+}
+
 // ct_transform looks for elements with data-ct-node=1,
 // and then looks up their data-type in the builders hash,
 // extracts args and passes the unique id, the args, and the node
 // itself to the builder. The builder does whatever it needs to do,
 // and eventually should replace the node with content.
 function ct_transform(dom) {
+  var resources = {};
+  $("[data-ct-resource=1]").each(function (_, node) {
+    var jnode = $(node);
+    var args = JSON.parse(jnode.attr("data-args"));
+    var resource = resourceBuilders[jnode.attr("data-type")](args);
+    resources[resource.key] = resource.value;
+  });
   $("[data-ct-node=1]").each(function (_, node) {
     var jnode = $(node);
     var args = JSON.parse(jnode.attr("data-args"));
     if (builders.hasOwnProperty(jnode.attr("data-type"))) {
       var container = $("<div>");
       jnode.replaceWith(container);
-      var rv = builders[jnode.attr("data-type")](container, jnode.attr("data-id"), args);
+      var rv = builders[jnode.attr("data-type")](container, jnode.attr("data-id"), args, resources);
     }
   });
 }

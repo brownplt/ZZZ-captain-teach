@@ -53,7 +53,9 @@ class PathRef < ActiveRecord::Base
   end
 
   def versions
-    vs = Rails.cache.read({:path_ref => self.id})
+    # NOTE(joe): cache was borked on 07/03/2013
+    # vs = Rails.cache.read({:path_ref => self.id})
+    vs = nil
     if vs.nil?
       repo = self.user_repo.repo
       walker = Rugged::Walker.new(repo)

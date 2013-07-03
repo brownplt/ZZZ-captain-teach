@@ -1,3 +1,28 @@
+(function(global) {
+  var LOCKED = false;
+  var currentWhalesongWriter;
+  var globalWhalesongWriter = function(str) {
+    currentWhalesongWriter(str);
+  }
+  function setWhalesongWriteLock(f, k) {
+    if(!LOCKED) {
+      LOCKED = true;
+      currentWhalesongWriter = f;
+      k();
+    } else {
+      setTimeout(function() {
+        setWhalesongWriteLock(f, k);
+      }, 0);
+    }
+  }
+  function releaseWhalesongWriteLock() {
+    LOCKED = false;
+  }
+  global.setWhalesongWriteLock = setWhalesongWriteLock;
+  global.releaseWhalesongWriteLock = releaseWhalesongWriteLock;
+  global.globalWhalesongWriter = globalWhalesongWriter;
+}(window));
+
 //: -> (code -> printing it on the repl)
 function makeRepl(container) {
 
@@ -63,14 +88,14 @@ function makeRepl(container) {
   prompt.attr('disabled', 'true');
   prompt.val('Please wait, initializing...');
   
-  var evaluator = makeEvaluator(container, prettyPrint, write, onError, onReady);
+  var evaluator = makeEvaluator(container, prettyPrint, onError, onReady);
 
   var runCode = function (src, options) {
     breakButton.show();
     output.empty();
     promptContainer.hide();
     promptContainer.fadeIn(100);
-    evaluator.run("run",src,clear,options);
+    evaluator.run("run",src,clear,write,options);
   };
 
   var onBreak = function() { 
@@ -107,6 +132,7 @@ function makeRepl(container) {
     evaluator.run('interactions',
                   src,
                   clear,
+                  write,
                   {});
   };
 
@@ -123,11 +149,11 @@ function makeRepl(container) {
 
 }
 
-function makeEvaluator(container, handleReturnValue, writeStdout, onError, onReady) {
+function makeEvaluator(container, handleReturnValue, onError, onReady) {
   var repl;
   plt.runtime.makeRepl({
     prettyPrint: handleReturnValue,
-    write: writeStdout,
+    write: globalWhalesongWriter,
     // TODO(joe): It's unfortunate that naming is by path here
     language: "root/lang/pyret-lang-whalesong.rkt",
     compilerUrl: "http://localhost:8080/rpc.html"
@@ -136,8 +162,11 @@ function makeEvaluator(container, handleReturnValue, writeStdout, onError, onRea
     onReady();
   });
 
-  var runCode = function(name, src, afterRun, options) {
-    repl.compileAndExecuteProgram(name, src, options, afterRun, onError);
+  var runCode = function(name, src, afterRun, writer, options) {
+    setWhalesongWriteLock(writer, function() {
+      repl.compileAndExecuteProgram(name, src, options, afterRun, onError);
+      releaseWhalesongWriteLock();
+    });
   };
 
   var breakFun = function(afterBreak) {

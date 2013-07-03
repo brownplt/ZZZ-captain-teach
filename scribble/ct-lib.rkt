@@ -52,8 +52,9 @@
 (define-syntax-rule (function unique-id elt ...)
    (begin
      (letrec [(parts (filter holder? (list elt ...)))
-              (header (holder-elt (first parts)))
-              (check (holder-elt (second parts)))]
+              (include (holder-elt (first parts)))
+              (header (holder-elt (second parts)))
+              (check (holder-elt (third parts)))]
      (element
        (style #f
               (list
@@ -66,6 +67,7 @@
                     (cons 'data-args (jsexpr->string
                     (make-hash
                     (list
+                      (cons 'includes include)
                       (cons 'header header)
                       (cons 'check check)))))))))
        ""))))
@@ -102,6 +104,26 @@
                    (list
                      (cons 'code code)))))))))
     "")))
+
+(define-syntax-rule (code-library lib-name elt ...)
+  (let [(code (string-append* (list elt ...)))]
+  (element
+    (style #f
+           (list
+             (alt-tag "div")
+             (attributes
+               (list
+                 (cons 'data-ct-resource "1")
+                 (cons 'data-type "code-library")
+                 (cons 'data-args (jsexpr->string
+                   (make-hash
+                   (list
+                     (cons 'name lib-name)
+                     (cons 'code code)))))))))
+    "")))
+
+(define-syntax-rule (include elt ...)
+  (holder (list elt ...)))
 
 (define-syntax-rule (header elt ...)
   (holder (string-append* (list elt ...))))
