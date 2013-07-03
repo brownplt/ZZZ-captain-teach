@@ -5,3 +5,5 @@
    let the context figure it out (cmdline.rkt, repl.js, etc.), rather
    than printing by itself
 
+[] Figure out how pathrefs should be created in the database... so
+that caching can work (right now, we create path refs many times)
