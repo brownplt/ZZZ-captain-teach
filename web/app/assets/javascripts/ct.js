@@ -89,62 +89,60 @@ function codeExample(container, _, args, resources) {
   return { container: container, activityData: {editor: editor} };
 }
 
-var builders = {
-  "inline-example": inlineExample,
-  "code-example": codeExample,
-  "function": function (container, resourceId, args, resources) {
-    var includes = args.includes;
-    var prelude = includes.map(function(i) {
-      return resources[i];
-    }).join("\n\n");
-    var header = args.header;
-    var check = args.check;
+function functionBuilder(container, resourceId, args, resources) {
+  var includes = args.includes;
+  var prelude = includes.map(function(i) {
+    return resources[i];
+  }).join("\n\n");
+  var header = args.header;
+  var check = args.check;
 
-    var replContainer = jQuery("<div>");
-    var codeContainer = jQuery("<div>");
-    container.append(codeContainer);
-    container.append(replContainer);
-    var runFun = makeRepl(replContainer);
-    var editor = makeEditor(codeContainer,
-                           { initial: "\n\n\n\n",
-                             run: runFun });
-    var doc = editor.getDoc();
+  var replContainer = jQuery("<div>");
+  var codeContainer = jQuery("<div>");
+  container.append(codeContainer);
+  container.append(replContainer);
+  var runFun = makeRepl(replContainer);
+  var editor = makeEditor(codeContainer,
+                         { initial: "\n\n\n\n",
+                           run: runFun });
+  var doc = editor.getDoc();
 
-    var headerPoint = createInsertionPoint(doc, 0, 0);
-    var bodyPoint = createInsertionPoint(doc, 1, 0);
-    var checkPoint = createInsertionPoint(doc, 2, 0);
-    var userChecksPoint = createInsertionPoint(doc, 3, 0);
-    var endPoint = createInsertionPoint(doc, 4, 0);
+  var headerPoint = createInsertionPoint(doc, 0, 0);
+  var bodyPoint = createInsertionPoint(doc, 1, 0);
+  var checkPoint = createInsertionPoint(doc, 2, 0);
+  var userChecksPoint = createInsertionPoint(doc, 3, 0);
+  var endPoint = createInsertionPoint(doc, 4, 0);
 
-    headerPoint.insert(header + "\n", { readOnly: true, left: true });
-    checkPoint.insert("check:\n", { readOnly: true });
-    endPoint.insert("end", { readOnly: true, right: true });
-    var button = $("<button>Submit</button>");
-    button.click(function () {
-      var lastLine = doc.lineCount()-1;
-      var defn = clean(doc.getRange(headerPoint.to(), checkPoint.from()));
-      var userChecks = clean(doc.getRange(checkPoint.to(), endPoint.from()));
-      var prgm = prelude + "\n" + header + "\n" + defn + "\ncheck:\n" + check + "\nend";
-      console.log(prgm);
-      runFun(prgm, {check: true});
-      saveResource(resourceId, { body: defn, userChecks: userChecks });
-    });
-    container.append(button);
+  headerPoint.insert(header + "\n", { readOnly: true, left: true });
+  checkPoint.insert("check:\n", { readOnly: true });
+  endPoint.insert("end", { readOnly: true, right: true });
+  var button = $("<button>Submit</button>");
+  button.click(function () {
+    var lastLine = doc.lineCount()-1;
+    var defn = clean(doc.getRange(headerPoint.to(), checkPoint.from()));
+    var userChecks = clean(doc.getRange(checkPoint.to(), endPoint.from()));
+    var prgm = prelude + "\n" + header + "\n" + defn + "\ncheck:\n" + check + "\nend";
+    console.log(prgm);
+    runFun(prgm, {check: true});
+    saveResource(resourceId, { body: defn, userChecks: userChecks });
+  });
+  container.append(button);
 
-    lookupResource(resourceId,
-      function(response) {
-        var data = JSON.parse(response.file);
-        var body = data.body || "\n";
-        var userChecks = data.userChecks || "\n";
-        bodyPoint.insert(body);
-        userChecksPoint.insert(userChecks);
-      },
-      function() { });
+  lookupResource(resourceId,
+    function(response) {
+      var data = JSON.parse(response.file);
+      var body = data.body || "\n";
+      var userChecks = data.userChecks || "\n";
+      bodyPoint.insert(body);
+      userChecksPoint.insert(userChecks);
+    },
+    function() { });
 
-    
-    return {container: container, activityData: {codemirror: editor}};
-  },
-  "multiple-choice": function (container,id,args,resources) {
+  
+  return {container: container, activityData: {codemirror: editor}};
+}
+
+function multipleChoice(container, id, args, resources)  {
     function optionId(option) {
       return args.id + option.name;
     }
@@ -156,10 +154,12 @@ var builders = {
           optNode.prop('checked',true);
           if(option.type === "choice-incorrect") {
             labelNode.css("background-color", "red");
+            optNode.css("background-color", "red");
           }
         }
         if(option.type === "choice-correct") {
           labelNode.css("background-color", "green");
+          optNode.css("background-color", "green");
         }
         optNode.attr("disabled", true);
       });
@@ -168,7 +168,10 @@ var builders = {
       var form = $("<form>");
       args.choices.forEach(function(option) {
         var optDiv = container.find("#" + option.name);
-        var optNode = $("<input type='radio'>").attr('id', optionId(option));
+        var optNode = $("<input type='radio'>").
+          attr('id', optionId(option)).
+          attr('data-name', option.name).
+          attr('name', args.id);
         var labelNode = $("<label>").attr("for", optionId(option));
         form.append(optNode).append(labelNode).append($("<br>"));
         labelNode.append(optDiv.contents());
@@ -183,8 +186,15 @@ var builders = {
       function() {
         addElements();
         var button = $("<button>Submit</button>");
+        button.attr("disabled", true);
+        container.find("input[type=radio]").click(function() {
+          button.attr("disabled", false);
+        });
         button.click(function() {
-          var selected = container.find(":checked").attr("id");
+          // NOTE(joe): Early return to simulate real mouse clicks on
+          // disabled buttons when clicks sent programatically
+          if (button.attr("disabled") === "disabled") return false;
+          var selected = container.find(":checked").attr("data-name");
           var data = {"selected": selected};
           saveResource(id, data, function() {
               button.hide();
@@ -197,58 +207,17 @@ var builders = {
         });
         container.append(button);
       },
-        /*
-        args.forEach(function(option, index) {
-          console.log(option);
-          var optNode = $("<input type='checkbox' id='option"+index+
-                          "' value='" +
-                          option.name + "'>" + "</input>");
-          
-          var labelNode = $("<label for='option"+index+"'></label");
-          labelNode.text(option.content);
-          if (response.selected === option.name) {
-            optNode.prop('checked',true);
-          }
-          if (option.type === "choice-correct") {
-            labelNode.css("background-color", "green");
-          }
-          optNode.attr("disabled", true);
-          form.append(labelNode);
-          form.append(optNode);
-          form.append($("<br/>"));
-        });
-      },
-      function() {
-        // no entry, so create form
-        args.forEach(function(option, index) {
-          console.log(option);
-          console.log(option.content);
-          var optNode = $("<input type='checkbox' id='option"+index+
-                          "' value='" +
-                          option.name + "'>" + "</input>");
-          var labelNode = $("<label for='option"+index+"'></label");
-          labelNode.text(option.content);
-          form.append(labelNode);
-          form.append(optNode);
-          form.append($("<br/>"));
-        });
-        var button = $("<button>Submit</button>");
-        button.click(function() {
-          var selected = form.find(":checked").attr("value");
-          console.log(selected);
-          $.post(rails_host + "/resource/save?resource="+id, {
-            data: JSON.stringify({"selected": selected})
-          });
-          return false;
-        });
-        form.append(button);
-      },
-        */
       function(xhr, error) {
         console.error(error);
       });
     return {container: container};
   }
+
+var builders = {
+  "inline-example": inlineExample,
+  "code-example": codeExample,
+  "function": functionBuilder,
+  "multiple-choice": multipleChoice
 };
 
 var resourceBuilders = {
