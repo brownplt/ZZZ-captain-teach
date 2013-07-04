@@ -1,0 +1,9 @@
+@media print {
+  .CodeMirror {
+    page-break-inside: avoid;
+  }
+
+  button {
+    display: none
+  }
+}

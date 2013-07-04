@@ -145,13 +145,59 @@ var builders = {
     return {container: container, activityData: {codemirror: editor}};
   },
   "multiple-choice": function (container,id,args,resources) {
-    var form = $("<form>");
-    container.append(form);
+    function optionId(option) {
+      return args.id + option.name;
+    }
+    function colorify(data) {
+      args.choices.forEach(function(option) {
+        var optNode = container.find("#" + optionId(option));
+        var labelNode = container.find("[for=" + optionId(option) + "]");
+        if(data.selected === option.name) {
+          optNode.prop('checked',true);
+          if(option.type === "choice-incorrect") {
+            labelNode.css("background-color", "red");
+          }
+        }
+        if(option.type === "choice-correct") {
+          labelNode.css("background-color", "green");
+        }
+        optNode.attr("disabled", true);
+      });
+    }
+    function addElements() {
+      var form = $("<form>");
+      args.choices.forEach(function(option) {
+        var optDiv = container.find("#" + option.name);
+        var optNode = $("<input type='radio'>").attr('id', optionId(option));
+        var labelNode = $("<label>").attr("for", optionId(option));
+        form.append(optNode).append(labelNode).append($("<br>"));
+        labelNode.append(optDiv.contents());
+      });
+      container.append(form);
+    }
     lookupResource(id, 
       function(response) {
-        // in this case, there was an entry, so the choice has already
-        // been made. we just want to display options with their choice
-        // selected.
+        addElements();
+        colorify(response);
+      },
+      function() {
+        addElements();
+        var button = $("<button>Submit</button>");
+        button.click(function() {
+          var selected = container.find(":checked").attr("id");
+          var data = {"selected": selected};
+          saveResource(id, data, function() {
+              button.hide();
+              colorify(data);
+            },
+            function(xhr, error) {
+              console.error("Save failed: ", xhr, error); 
+            });
+          return false;
+        });
+        container.append(button);
+      },
+        /*
         args.forEach(function(option, index) {
           console.log(option);
           var optNode = $("<input type='checkbox' id='option"+index+
@@ -197,6 +243,7 @@ var builders = {
         });
         form.append(button);
       },
+        */
       function(xhr, error) {
         console.error(error);
       });
@@ -217,25 +264,31 @@ var resourceBuilders = {
 // and eventually should replace the node with content.
 function ct_transform(dom) {
   var resources = {};
-  $("[data-ct-resource=1]").each(function (_, node) {
+  dom.find("[data-ct-resource=1]").each(function (_, node) {
     var jnode = $(node);
     var args = JSON.parse(jnode.attr("data-args"));
     var resource = resourceBuilders[jnode.attr("data-type")](args);
     resources[resource.key] = resource.value;
   });
-  $("[data-ct-node=1]").each(function (_, node) {
+  dom.find("[data-ct-node=1]").each(function (_, node) {
     var jnode = $(node);
     var args = JSON.parse(jnode.attr("data-args"));
-    if (builders.hasOwnProperty(jnode.attr("data-type"))) {
-      var container = $("<div>");
-      jnode.replaceWith(container);
-      var rv = builders[jnode.attr("data-type")](container, jnode.attr("data-id"), args, resources);
+    var type = jnode.attr("data-type");
+    var id = jnode.attr("data-id");
+    function clean(node) {
+      node.removeAttr("data-id").removeAttr("data-type").removeAttr("data-args").removeAttr("data-ct-node");
+    }
+    if (builders.hasOwnProperty(type)) {
+      clean(jnode);
+      var rv = builders[type](jnode, id, args, resources);
+    } else {
+      console.error("Unknown builder type: ", type);
     }
   });
 }
 
 $(function() {
-  ct_transform(document.body);
+  ct_transform($(document.body));
 });
 
 function ct_blob(resource, params) {

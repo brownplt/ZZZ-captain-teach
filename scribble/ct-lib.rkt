@@ -15,28 +15,63 @@
 
 (define-struct holder (elt))
 
-;; TODO(joe): this is an obfuscation point
-(define-syntax-rule (choice-incorrect id str)
-  (make-hash
-    (list
-      (cons 'type "choice-incorrect")
-      (cons 'name id)
-      (cons 'content str))))
+(define-struct choice (data html))
 
+(define current-choice-id (make-parameter ""))
 
-;; TODO(joe): this is an obfuscation point
-(define-syntax-rule (choice-correct id str)
-  (begin
+(define (create-choice id type contents)
+  (choice
     (make-hash
       (list
-        (cons 'type "choice-correct")
-        (cons 'name id)
-        (cons 'content str)))))
+        (cons 'type type)
+        (cons 'name id)))
+    (element
+      (style #f
+             (list
+              (alt-tag "div")
+              (attributes
+                (list
+                  (cons 'id id)))))
+       contents)))
+       #|
+    (element
+      (style #f
+             (list
+               (alt-tag "input")
+               (attributes
+                (list
+                  (cons 'type "radio")
+                  (cons 'id id)
+                  (cons 'name (current-choice-id))))))
+      (list
+        (element
+          (style #f
+                 (list
+                  (alt-tag "label")
+                  (attributes
+                    (list
+                      (cons 'for id)))))
+          contents)
+        (element
+          (style #f
+                 (list
+                  (alt-tag "br")
+                  (attributes empty)))
+           "")))))
+           |#
 
+;; TODO(joe): this is an obfuscation point
+(define-syntax-rule (choice-incorrect id content ...)
+  (create-choice id "choice-incorrect" content ...))
+
+;; TODO(joe): this is an obfuscation point
+(define-syntax-rule (choice-correct id content ...)
+  (create-choice id "choice-correct" content ...))
 
 (define-syntax-rule (multiple-choice unique-id elt ...)
   (begin
-    (let [(choices (filter hash? (list elt ...)))]
+    (let [(choices (parameterize [(current-choice-id unique-id)]
+                                  (filter choice? (list elt ...))))]
     (element
       (style #f
              (list
@@ -46,8 +81,12 @@
                   (cons 'data-ct-node "1")
                   (cons 'data-id (mk-id "b" "rc" unique-id))
                   (cons 'data-type "multiple-choice")
-                  (cons 'data-args (jsexpr->string choices))))))
-      ""))))
+                  (cons 'data-args (jsexpr->string
+                    (make-hash
+                      (list
+                        (cons 'choices (map choice-data choices))
+                        (cons 'id unique-id)))))))))
+      (map choice-html choices)))))
 
 (define-syntax-rule (function unique-id elt ...)
    (begin
