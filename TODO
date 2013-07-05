@@ -4,6 +4,12 @@
 [] Have check mode just return the data structure of check results and
    let the context figure it out (cmdline.rkt, repl.js, etc.), rather
    than printing by itself
+[] Make CodeMirror behave with respect to zooming
 
 [] Figure out how pathrefs should be created in the database... so
 that caching can work (right now, we create path refs many times)
+
+[] Libraries
+[] Versions
+[] Reviews
+[] Design recipe step
