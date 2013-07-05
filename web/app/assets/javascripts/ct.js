@@ -97,14 +97,11 @@ function functionBuilder(container, resourceId, args, resources) {
   var header = args.header;
   var check = args.check;
 
-  var replContainer = jQuery("<div>");
   var codeContainer = jQuery("<div>");
   container.append(codeContainer);
-  container.append(replContainer);
-  var runFun = makeRepl(replContainer);
   var editor = makeEditor(codeContainer,
                          { initial: "\n\n\n\n",
-                           run: runFun });
+                           run: RUN_CODE });
   var doc = editor.getDoc();
 
   var headerPoint = createInsertionPoint(doc, 0, 0);
@@ -123,7 +120,7 @@ function functionBuilder(container, resourceId, args, resources) {
     var userChecks = clean(doc.getRange(checkPoint.to(), endPoint.from()));
     var prgm = prelude + "\n" + header + "\n" + defn + "\ncheck:\n" + check + "\nend";
     console.log(prgm);
-    runFun(prgm, {check: true});
+    RUN_CODE(prgm, {check: true});
     saveResource(resourceId, { body: defn, userChecks: userChecks });
   });
   container.append(button);
@@ -257,6 +254,18 @@ function ct_transform(dom) {
 }
 
 $(function() {
+  var repl = $("<div>");
+  repl.css({
+    position: "fixed",
+    right: "2em",
+    bottom: "2em",
+    width: "40%",
+    height: "90%",
+    "border": "1px solid #333",
+    "background-color": "white"
+  });
+  window.RUN_CODE = makeRepl(repl);
+  $(document.body).append(repl);
   ct_transform($(document.body));
 });
 
