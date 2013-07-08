@@ -6,6 +6,29 @@ function clean(str) {
   return str.replace(/^\n+/, "").replace(/\n+$/, "");
 }
 
+// global used for walking page finding pieces of code
+var ASSIGNMENT_PIECES = [];
+
+function getPreludeFor(id) {
+  var prelude = "";
+  for (var i = 0; i < ASSIGNMENT_PIECES.length; i++) {
+    if (ASSIGNMENT_PIECES[i].id === id) {
+      break;
+    }
+    var piece = ASSIGNMENT_PIECES[i];
+    if (piece.mode === "include" || piece.mode === "include-run") {
+      if (piece.code) {
+        prelude += piece.code;
+      } else if (piece.editor) {
+        prelude += piece.editor.getValue();
+      }
+      prelude += "\n\n";
+    }
+  }
+
+  return prelude;
+}
+
 function createInsertionPoint(doc, line, ch) {
   function markReadOnly(from, to, left, right) {
     return doc.markText(
@@ -70,12 +93,13 @@ function saveResource(resource, data, success, failure) {
   });
 }
 
-function inlineExample(container, id, args, resources){
+function inlineExample(container, id, args){
   container.css("display", "inline-block");
+  args.mode = "inert";
   codeExample(container, id, args);
 }
 
-function codeExample(container, _, args, resources) {
+function codeExample(container, resourceId, args) {
   var code = args.code;
   var codeContainer = jQuery("<div>");
   container.append(codeContainer);
@@ -86,14 +110,14 @@ function codeExample(container, _, args, resources) {
       initial: code,
       run: function() {}
    });
+
+  ASSIGNMENT_PIECES.push({id: resourceId, editor: editor, mode: args.mode});
+  
   return { container: container, activityData: {editor: editor} };
 }
 
-function functionBuilder(container, resourceId, args, resources) {
-  var includes = args.includes;
-  var prelude = includes.map(function(i) {
-    return resources[i];
-  }).join("\n\n");
+function functionBuilder(container, resourceId, args) {
+
   var header = args.header;
   var check = args.check;
 
@@ -101,8 +125,17 @@ function functionBuilder(container, resourceId, args, resources) {
   container.append(codeContainer);
   var editor = makeEditor(codeContainer,
                          { initial: "\n\n\n\n",
-                           run: RUN_CODE });
+                           run: function(src, uiOpts, replOpts) {
+                             console.log("running from editor for: ", header);
+                             console.log("code: ", src);
+                             var prelude = getPreludeFor(resourceId);
+                             // console.log(prelude + src);
+                             RUN_CODE(prelude + src, uiOpts, replOpts);
+                           }});
+  
   var doc = editor.getDoc();
+
+  ASSIGNMENT_PIECES.push({id: resourceId, editor: editor, mode: args.mode});
 
   var headerPoint = createInsertionPoint(doc, 0, 0);
   var bodyPoint = createInsertionPoint(doc, 1, 0);
@@ -116,6 +149,7 @@ function functionBuilder(container, resourceId, args, resources) {
   var button = $("<button>Submit</button>");
   button.click(function () {
     var lastLine = doc.lineCount()-1;
+    var prelude = getPreludeFor(resourceId);
     var defn = clean(doc.getRange(headerPoint.to(), checkPoint.from()));
     var userChecks = clean(doc.getRange(checkPoint.to(), endPoint.from()));
     var prgm = prelude + "\n" + header + "\n" + defn + "\ncheck:\n" + check + "\nend";
@@ -166,7 +200,7 @@ function functionBuilder(container, resourceId, args, resources) {
   return {container: container, activityData: {codemirror: editor}};
 }
 
-function multipleChoice(container, id, args, resources)  {
+function multipleChoice(container, id, args)  {
     function optionId(option) {
       return args.id + option.name;
     }
@@ -241,14 +275,13 @@ var builders = {
   "inline-example": inlineExample,
   "code-example": codeExample,
   "function": functionBuilder,
-  "multiple-choice": multipleChoice
+  "multiple-choice": multipleChoice,
+  "code-library": function(container, id, args) {
+    ASSIGNMENT_PIECES.push({id: id, code: args.code, mode: args.mode});
+    return $("<div>");
+  }
 };
 
-var resourceBuilders = {
-  'code-library': function(args) {
-    return { key: args.name, value: args.code };
-  }
-}
 
 // ct_transform looks for elements with data-ct-node=1,
 // and then looks up their data-type in the builders hash,
@@ -256,13 +289,6 @@ var resourceBuilders = {
 // itself to the builder. The builder does whatever it needs to do,
 // and eventually should replace the node with content.
 function ct_transform(dom) {
-  var resources = {};
-  dom.find("[data-ct-resource=1]").each(function (_, node) {
-    var jnode = $(node);
-    var args = JSON.parse(jnode.attr("data-args"));
-    var resource = resourceBuilders[jnode.attr("data-type")](args);
-    resources[resource.key] = resource.value;
-  });
   dom.find("[data-ct-node=1]").each(function (_, node) {
     var jnode = $(node);
     var args = JSON.parse(jnode.attr("data-args"));
@@ -273,7 +299,7 @@ function ct_transform(dom) {
     }
     if (builders.hasOwnProperty(type)) {
       clean(jnode);
-      var rv = builders[type](jnode, id, args, resources);
+      var rv = builders[type](jnode, id, args);
     } else {
       console.error("Unknown builder type: ", type);
     }

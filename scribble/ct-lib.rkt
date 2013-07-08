@@ -17,6 +17,15 @@
 
 (define-struct choice (data html))
 
+(define (validate-mode mode)
+  (symbol->string
+   (match mode
+     ['include mode]
+     ['include-run mode]
+     ['run mode]
+     ['inert mode]
+     [else (error (format "Invalid mode for code component: ~a" mode))])))
+
 (define current-choice-id (make-parameter ""))
 
 (define (create-choice id type contents)
@@ -88,12 +97,13 @@
                         (cons 'id unique-id)))))))))
       (map choice-html choices)))))
 
-(define-syntax-rule (function unique-id elt ...)
+(define-syntax-rule (function mode1 unique-id elt ...)
    (begin
-     (letrec [(parts (filter holder? (list elt ...)))
-              (include (holder-elt (first parts)))
-              (header (holder-elt (second parts)))
-              (check (holder-elt (third parts)))]
+     (letrec [(mode (validate-mode mode1))
+              (parts (filter holder? (list elt ...)))
+              ;;(include (holder-elt (first parts)))
+              (header (holder-elt (first parts)))
+              (check (holder-elt (second parts)))]
      (element
        (style #f
               (list
@@ -106,7 +116,7 @@
                     (cons 'data-args (jsexpr->string
                     (make-hash
                     (list
-                      (cons 'includes include)
+                      (cons 'mode mode)
                       (cons 'header header)
                       (cons 'check check)))))))))
        ""))))
@@ -128,8 +138,9 @@
     "")))
 
 
-(define-syntax-rule (code-example elt ...)
-  (let [(code (string-append* (list elt ...)))]
+(define-syntax-rule (code-example mode1 elt ...)
+  (let [(mode (validate-mode mode1))
+        (code (string-append* (list elt ...)))]
   (element
     (style #f
            (list
@@ -141,6 +152,7 @@
                  (cons 'data-args (jsexpr->string
                    (make-hash
                    (list
+                     (cons 'mode mode)
                      (cons 'code code)))))))))
     "")))
 
@@ -152,11 +164,12 @@
              (alt-tag "div")
              (attributes
                (list
-                 (cons 'data-ct-resource "1")
+                 (cons 'data-ct-node "1")
                  (cons 'data-type "code-library")
                  (cons 'data-args (jsexpr->string
                    (make-hash
                    (list
+                     (cons 'mode "include")
                      (cons 'name lib-name)
                      (cons 'code code)))))))))
     "")))
