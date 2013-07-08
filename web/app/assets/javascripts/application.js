@@ -20,3 +20,5 @@
 //= require codemirror
 //= require pyret
 //= require underscore
+
+"use strict";
