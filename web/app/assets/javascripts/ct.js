@@ -125,12 +125,12 @@ function functionBuilder(container, resourceId, args) {
   container.append(codeContainer);
   var editor = makeEditor(codeContainer,
                          { initial: "\n\n\n\n",
-                           run: function(src) {
+                           run: function(src, uiOpts, replOpts) {
                              console.log("running from editor for: ", header);
                              console.log("code: ", src);
                              var prelude = getPreludeFor(resourceId);
                              // console.log(prelude + src);
-                             RUN_CODE(prelude + src);
+                             RUN_CODE(prelude + src, uiOpts, replOpts);
                            }});
   
   var doc = editor.getDoc();

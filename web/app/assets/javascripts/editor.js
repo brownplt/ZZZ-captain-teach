@@ -8,11 +8,10 @@ function makeEditor(container, options) {
   textarea.val(initial);
   container.append(textarea);
 
-    var runFun = function (code, options) {};
-    if (options.hasOwnProperty("run")) {
-        runFun = function (code, replOptions) {
-            options.run(code, {}, replOptions);
-        }
+  var runFun = function (code, options) {};
+  if (options.hasOwnProperty("run")) {
+    runFun = function (code, replOptions) {
+      options.run(code, {}, replOptions);
     }
   }
 
