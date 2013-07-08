@@ -11,7 +11,7 @@ function makeEditor(container, options) {
     runFun = function (code, options) {};
     if (options.hasOwnProperty("run")) {
         runFun = function (code, replOptions) {
-            options.run(code, replOptions);
+            options.run(code, {}, replOptions);
         }
     }
 
