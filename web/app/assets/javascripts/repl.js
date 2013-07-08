@@ -155,6 +155,7 @@ function makeRepl(container) {
     evaluator.run('interactions',
                   src,
                   clear,
+                  prettyPrint,
                   write,
                   {});
   };

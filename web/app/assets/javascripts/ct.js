@@ -123,6 +123,7 @@ function functionBuilder(container, resourceId, args, resources) {
     RUN_CODE(prgm, {
         write: function(str) { /* Intentional no-op */ },
         handleReturn: function(obj) {
+        console.log("My handler");
           function drawSuccess(message) {
             $('<span>').innerText(message).css({
               "background-color": "green",
@@ -137,8 +138,13 @@ function functionBuilder(container, resourceId, args, resources) {
               "border-radius": "3px"
             });
           }
-          var dict = pyretValueToDictionary(obj);
+          var dict = pyretMaps.toDictionary(obj);
           console.log(dict);
+          var results = pyretMaps.toDictionary(pyretMaps.get(dict, "results"));
+          console.log(results);
+          pyretMaps.map(results, function(result) {
+            console.log("One result is: ", result);
+          });
         }
       },
       {check: true});
