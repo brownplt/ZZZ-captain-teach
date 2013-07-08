@@ -120,7 +120,28 @@ function functionBuilder(container, resourceId, args, resources) {
     var userChecks = clean(doc.getRange(checkPoint.to(), endPoint.from()));
     var prgm = prelude + "\n" + header + "\n" + defn + "\ncheck:\n" + check + "\nend";
     console.log(prgm);
-    RUN_CODE(prgm, {check: true});
+    RUN_CODE(prgm, {
+        write: function(str) { /* Intentional no-op */ },
+        handleReturn: function(obj) {
+          function drawSuccess(message) {
+            $('<span>').innerText(message).css({
+              "background-color": "green",
+              "border": "1px solid black",
+              "border-radius": "3px"
+            });
+          }
+          function drawFailure(message) {
+            $('<span>').innerText(message).css({
+              "background-color": "green",
+              "border": "1px solid black",
+              "border-radius": "3px"
+            });
+          }
+          var dict = pyretValueToDictionary(obj);
+          console.log(dict);
+        }
+      },
+      {check: true});
     saveResource(resourceId, { body: defn, userChecks: userChecks });
   });
   container.append(button);
@@ -252,22 +273,6 @@ function ct_transform(dom) {
     }
   });
 }
-
-$(function() {
-  var repl = $("<div>");
-  repl.css({
-    position: "fixed",
-    right: "2em",
-    bottom: "2em",
-    width: "40%",
-    height: "90%",
-    "border": "1px solid #333",
-    "background-color": "white"
-  });
-  window.RUN_CODE = makeRepl(repl);
-  $(document.body).append(repl);
-  ct_transform($(document.body));
-});
 
 function ct_blob(resource, params) {
   params.dataType = 'json';

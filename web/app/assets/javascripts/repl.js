@@ -18,9 +18,30 @@
   function releaseWhalesongWriteLock() {
     LOCKED = false;
   }
+  var currentWhalesongReturnHandler;
+  var globalWhalesongReturnHandler = function(str) {
+    currentWhalesongReturnHandler(str);
+  }
+  function setWhalesongReturnHandlerLock(f, k) {
+    if(!LOCKED) {
+      LOCKED = true;
+      currentWhalesongReturnHandler = f;
+      k();
+    } else {
+      setTimeout(function() {
+        setWhalesongReturnHandlerLock(f, k);
+      }, 0);
+    }
+  }
+  function releaseWhalesongReturnHandlerLock() {
+    LOCKED = false;
+  }
   global.setWhalesongWriteLock = setWhalesongWriteLock;
   global.releaseWhalesongWriteLock = releaseWhalesongWriteLock;
   global.globalWhalesongWriter = globalWhalesongWriter;
+  global.setWhalesongReturnHandlerLock = setWhalesongReturnHandlerLock;
+  global.releaseWhalesongReturnHandlerLock = releaseWhalesongReturnHandlerLock;
+  global.globalWhalesongReturnHandler = globalWhalesongReturnHandler;
 }(window));
 
 //: -> (code -> printing it on the repl)
@@ -58,7 +79,7 @@ function makeRepl(container) {
     }
     clear();
   };
-  
+
   var prettyPrint = function(result) {
     if (result.hasOwnProperty('_constructorName')) {
       switch(result._constructorName.val) {
@@ -90,12 +111,14 @@ function makeRepl(container) {
   
   var evaluator = makeEvaluator(container, prettyPrint, onError, onReady);
 
-  var runCode = function (src, options) {
+  var runCode = function (src, uiOptions, options) {
     breakButton.show();
     output.empty();
     promptContainer.hide();
     promptContainer.fadeIn(100);
-    evaluator.run("run",src,clear,write,options);
+    var thisReturnHandler = uiOptions.handleReturn || prettyPrint;
+    var thisWrite = uiOptions.write || write;
+    evaluator.run("run", src, clear, thisReturnHandler, thisWrite, options);
   };
 
   var onBreak = function() { 
@@ -151,21 +174,27 @@ function makeRepl(container) {
 
 function makeEvaluator(container, handleReturnValue, onError, onReady) {
   var repl;
-  plt.runtime.makeRepl({
-    prettyPrint: handleReturnValue,
-    write: globalWhalesongWriter,
-    // TODO(joe): It's unfortunate that naming is by path here
-    language: "root/lang/pyret-lang-whalesong.rkt",
-    compilerUrl: "http://localhost:8080/rpc.html"
-  }, function (theRepl) {
-    repl = theRepl;
-    onReady();
-  });
+  setWhalesongReturnHandlerLock(handleReturnValue, function() {
+    plt.runtime.makeRepl({
+      prettyPrint: globalWhalesongReturnHandler,
+      write: globalWhalesongWriter,
+      // TODO(joe): It's unfortunate that naming is by path here
+      language: "root/lang/pyret-lang-whalesong.rkt",
+      compilerUrl: "http://localhost:8080/rpc.html"
+    }, function (theRepl) {
+      repl = theRepl;
+      onReady();
+    });
+    releaseWhalesongReturnHandlerLock();
+  })
 
-  var runCode = function(name, src, afterRun, writer, options) {
-    setWhalesongWriteLock(writer, function() {
-      repl.compileAndExecuteProgram(name, src, options, afterRun, onError);
-      releaseWhalesongWriteLock();
+  var runCode = function(name, src, afterRun, returnHandler, writer, options) {
+    setWhalesongReturnHandlerLock(returnHandler, function() {
+      setWhalesongWriteLock(writer, function() {
+        repl.compileAndExecuteProgram(name, src, options, afterRun, onError);
+        releaseWhalesongWriteLock();
+      });
+      releaseWhalesongReturnHandlerLock();
     });
   };
 

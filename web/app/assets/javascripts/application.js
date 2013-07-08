@@ -14,6 +14,7 @@
 //= require jquery_ujs
 //= require turbolinks
 //= require browserid
+//= require pyretMaps
 //= require ct
 //= require editor
 //= require repl
