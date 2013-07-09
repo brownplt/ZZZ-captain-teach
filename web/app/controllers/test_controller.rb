@@ -15,6 +15,17 @@ class TestController < ApplicationController
   def test_assignment
   end
 
+  def masquerade
+    fake_user = User.create!
+    session[:masquerade_user] = fake_user.id
+    redirect_to :back
+  end
+
+  def end_masquerade
+    User.find(session[:masquerade_user]).destroy
+    session.delete(:masquerade_user)
+    redirect_to :back
+  end
 
   private
 
