@@ -1,5 +1,7 @@
 mockServerTable = {};
 
+AUTOSAVE_ENABLED = false;
+
 function setMockServerTable(table) {
   mockServerTable = table || {};
 }
@@ -14,6 +16,11 @@ window.lookupResource = function(resource, present, absent, error) {
   }
 };
 
+window.lookupVersions = function(resource, callback, error) {
+  // TODO(dbp): make this actually do something?
+  callback([]);
+}
+
 window.saveResource = function(resource, data, success, failure) {
   console.log("Mock server saving, ", resource, data, mockServerTable);
   mockServerTable[resource] = data;
@@ -24,7 +31,7 @@ describe("function activities", function() {
   var functionData;
   var functionArgs = {includes: [], check: "checkers.check-equals(my_foo(),...)", header: "fun my_foo():"};
   beforeEach(function() {
-    functionData = builders["function"]($("<div>"), "rw:my-id:1", functionArgs);
+    functionData = builders["function"]($("<div>"), {path: "p:rw:my-id:1", blob: "b:rw:my-id:1"}, functionArgs);
   });
   
   it("should create codemirror", function () {
@@ -38,7 +45,7 @@ describe("function activities", function() {
   });
 
   it("should have a submit button", function () {
-    expect(functionData.container.find("button").length).toEqual(1);
+    expect(functionData.container.find("button").length).toBeGreaterThan(0);
   });
   
 });
@@ -65,7 +72,7 @@ describe("multiple-choice activities", function() {
     option1 = $("<div>").attr("id", id1);
     option2 = $("<div>").attr("id", id2);
     preDiv.append(option1).append(option2);
-    mc = multipleChoice(preDiv, rcId, {
+    mc = multipleChoice(preDiv, {blob: rcId}, {
         choices: [{type: "choice-correct", name: id1},
                   {type: "choice-incorrect", name: id2}],
         id: "mc-id"

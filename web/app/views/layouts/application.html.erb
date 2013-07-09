@@ -24,6 +24,12 @@
 <%= login_link "Login" %>
 <% end %>
 
+<% if masquerading? %>
+<%= link_to "End Masquerade", "/end_masquerade" %>
+<% else %>
+<%= link_to "Begin Masquerade", "/begin_masquerade" %>
+<% end %>
+
 <%= yield %>
 
 </body>

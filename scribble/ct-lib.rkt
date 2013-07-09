@@ -28,6 +28,11 @@
 
 (define current-choice-id (make-parameter ""))
 
+(define (single-resource n r)
+  (jsexpr->string
+   (make-hash
+    (list (cons n r)))))
+
 (define (create-choice id type contents)
   (choice
     (make-hash
@@ -88,7 +93,7 @@
               (attributes
                 (list
                   (cons 'data-ct-node "1")
-                  (cons 'data-id (mk-id "b" "rc" unique-id))
+                  (cons 'data-resources (single-resource 'blob (mk-id "b" "rc" unique-id)))
                   (cons 'data-type "multiple-choice")
                   (cons 'data-args (jsexpr->string
                     (make-hash
@@ -111,7 +116,10 @@
                 (attributes
                   (list
                     (cons 'data-ct-node "1")
-                    (cons 'data-id (mk-id "p" "rw" unique-id))
+                    (cons 'data-resources (jsexpr->string
+                                           (make-hash
+                                            (list (cons 'path (mk-id "p" "rw" unique-id))
+                                                  (cons 'blob (mk-id "b" "rw" unique-id))))))
                     (cons 'data-type "function")
                     (cons 'data-args (jsexpr->string
                     (make-hash

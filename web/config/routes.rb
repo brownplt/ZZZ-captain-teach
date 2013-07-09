@@ -30,6 +30,9 @@ App::Application.routes.draw do
   get 'editors' => 'editors#index', as: :editors
   post 'editor/:uid/switch' => 'editors#switch_version', as: :editor_switch
   resource :editor
+
+  get 'begin_masquerade' => 'test#masquerade'
+  get 'end_masquerade' => 'test#end_masquerade'
   
   
   # TESTING

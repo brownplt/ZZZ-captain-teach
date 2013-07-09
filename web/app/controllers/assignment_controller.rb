@@ -20,11 +20,14 @@ class AssignmentController < ApplicationController
         end
         
         main.css("[data-ct-node='1']").each do |node|
-          if node["data-id"]
-            # add user credentials
-            node["data-id"] = node["data-id"] + ":" + 
-              current_user.id.to_s
-            # NOTE(dbp): encrypt here
+          if node["data-resources"]
+            resources = JSON.parse(node["data-resources"])
+            resources.keys.each do |k|
+              # add user credentials
+              resources[k] = resources[k] + ":" + ct_current_user.id.to_s
+              # NOTE(dbp): encrypt here
+            end
+            node["data-resources"] = resources.to_json
           end
         end
         
