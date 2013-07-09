@@ -25,9 +25,9 @@
 <% end %>
 
 <% if masquerading? %>
-<%= link_to "End Masquerade", "/end_masquerade" %>
+<%= link_to "End Masquerade", "/end_masquerade", "data-no-turbolink" => true %>
 <% else %>
-<%= link_to "Begin Masquerade", "/begin_masquerade" %>
+<%= link_to "Begin Masquerade", "/begin_masquerade", "data-no-turbolink" => true %>
 <% end %>
 
 <%= yield %>
