@@ -11,3 +11,8 @@
  *= require_self
  *= require_tree .
  */
+
+
+.clearfix {
+    clear: both;
+}
