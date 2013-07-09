@@ -2,7 +2,7 @@
   var LOCKED = false;
   var currentWhalesongWriter;
   var globalWhalesongWriter = function(str) {
-    currentWhalesongWriter(str);
+    return currentWhalesongWriter(str);
   }
   function setWhalesongWriteLock(f, k) {
     if(!LOCKED) {
@@ -20,7 +20,7 @@
   }
   var currentWhalesongReturnHandler;
   var globalWhalesongReturnHandler = function(str) {
-    currentWhalesongReturnHandler(str);
+    return currentWhalesongReturnHandler(str);
   }
   function setWhalesongReturnHandlerLock(f, k) {
     if(!LOCKED) {
@@ -86,7 +86,8 @@ function makeRepl(container) {
       case 'p-num': 
       case 'p-bool':
       case 'p-str':
-        write(jQuery("<span>").append(result._fields[3]).append("<br/>"))
+        write(jQuery("<span class='repl-output'>").append(pyretMaps.getPrim(result)));
+        write(jQuery('<br/>'));
         return true;       
       case 'p-nothing':
         return true;
@@ -98,6 +99,77 @@ function makeRepl(container) {
       return false;
     }
   };
+
+  var checkModePrettyPrint = function(obj) {
+    var resultCss = {
+      "border": "1px solid black",
+      "border-radius": "3px",
+      "padding": "10px",
+      "margin": "10px"
+    };
+    function drawSuccess(name, message) {
+      return $('<div>').text(name +  ": " + message)
+        .css(resultCss)
+        .css({ "background-color": "green" })
+        .append("<br/>");
+    }
+    function drawFailure(name, message) {
+      return $('<div>').text(name + ": " + message)
+        .css(resultCss)
+        .css({ "background-color": "red" })
+        .append("<br/>");
+    }
+    var dict = pyretMaps.toDictionary(obj);
+    var blockResults = pyretMaps.toDictionary(pyretMaps.get(dict, "results"));
+    function getPrimField(v, field) {
+      return pyretMaps.getPrim(pyretMaps.get(pyretMaps.toDictionary(v), field));
+    }
+
+    pyretMaps.map(blockResults, function(result) {
+      pyretMaps.map(pyretMaps.toDictionary(result), function(checkBlockResult) {
+        var cbDict = pyretMaps.toDictionary(checkBlockResult);
+        var container = $("<div>");
+        var message = $("<p>");
+        var name = getPrimField(checkBlockResult, "name");
+        container.append("<p>").text(name);
+        container.append(message);
+        container.css({
+          "background-color": "gray",
+          "border": "1px solid black",
+          "border-radius": "3px",
+          "margin": "5px",
+          "padding": "5px"
+        });
+        if (pyretMaps.hasKey(cbDict, "err")) {
+          var messageText = pyretMaps.get(cbDict, "err");
+          if (pyretMaps.hasKey(pyretMaps.toDictionary(messageText), "message")) {
+            messageText = getPrimField(pyretMaps.get(cbDict, "err"), "message");
+          } else {
+            messageText = pyretMaps.getPrim(pyretMaps.get(cbDict, "err"));
+          }
+          message.text("Check block ended in error: " + messageText);
+          container.css({
+            "background-color": "red"
+          });
+        }
+
+
+        pyretMaps.map(pyretMaps.toDictionary(pyretMaps.get(pyretMaps.toDictionary(checkBlockResult), "results")), function(individualResult) {
+          if (pyretMaps.hasKey(pyretMaps.toDictionary(individualResult), "reason")) {
+            container.append(drawFailure(
+                getPrimField(individualResult, "name"),
+                getPrimField(individualResult, "reason")));
+          } else {
+            container.append(drawSuccess(
+                getPrimField(individualResult, "name"),
+                "Success!"));
+          }
+        });
+        output.append(container);
+      });
+    });
+    return true;
+  }
 
   var onReady = function () {
     prompt.val('');
@@ -116,7 +188,8 @@ function makeRepl(container) {
     output.empty();
     promptContainer.hide();
     promptContainer.fadeIn(100);
-    var thisReturnHandler = uiOptions.handleReturn || prettyPrint;
+    var defaultReturnHandler = options.check ? checkModePrettyPrint : prettyPrint;
+    var thisReturnHandler = uiOptions.handleReturn || defaultReturnHandler;
     var thisWrite = uiOptions.write || write;
     evaluator.run("run", src, clear, thisReturnHandler, thisWrite, options);
   };

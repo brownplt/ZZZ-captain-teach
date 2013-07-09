@@ -313,31 +313,7 @@ function functionBuilder(container, resources, args) {
     var userChecks = work.userChecks;
     var prgm = prelude + "\n" + header + "\n" + defn + "\ncheck:\n" + check + "\nend";
     RUN_CODE(prgm, {
-        write: function(str) { /* Intentional no-op */ },
-        handleReturn: function(obj) {
-        console.log("My handler");
-          function drawSuccess(message) {
-            $('<span>').innerText(message).css({
-              "background-color": "green",
-              "border": "1px solid black",
-              "border-radius": "3px"
-            });
-          }
-          function drawFailure(message) {
-            $('<span>').innerText(message).css({
-              "background-color": "green",
-              "border": "1px solid black",
-              "border-radius": "3px"
-            });
-          }
-          var dict = pyretMaps.toDictionary(obj);
-          console.log(dict);
-          var results = pyretMaps.toDictionary(pyretMaps.get(dict, "results"));
-          console.log(results);
-          pyretMaps.map(results, function(result) {
-            console.log("One result is: ", result);
-          });
-        }
+        write: function(str) { /* Intentional no-op */ }
       },
       {check: true});
   });
