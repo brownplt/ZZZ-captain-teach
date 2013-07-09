@@ -15,6 +15,10 @@ window.pyretMaps = (function() {
     return plt.runtime.jsMap.getKeys(dict);
   }
 
+  function getPrim(pyretValue) {
+    return pyretValue._fields[3];
+  }
+
   function map(dict, f) {
     console.log("Mapping over ", dict);
     if(hasKey(dict, "first")) {
@@ -27,6 +31,7 @@ window.pyretMaps = (function() {
   return {
     toDictionary: toDictionary,
     get: get,
+    getPrim: getPrim,
     hasKey: hasKey,
     getKeys: getKeys,
     map: map
