@@ -1,6 +1,7 @@
 class User < ActiveRecord::Base
 
   belongs_to :user_repo
+  has_many :notifications
 
   after_create :create_user_repo
   before_destroy :delete_user_repo
