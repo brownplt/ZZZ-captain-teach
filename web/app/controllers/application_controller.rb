@@ -18,5 +18,9 @@ class ApplicationController < ActionController::Base
   end
 
   helper_method :masquerading?
+
+  def application_not_found
+    raise ActionController::RoutingError.new('Not Found')
+  end
   
 end

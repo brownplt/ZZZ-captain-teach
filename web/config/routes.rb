@@ -25,7 +25,7 @@ App::Application.routes.draw do
   get  'resource/versions'      => 'resource#versions'
   
   #get 'do_assignment/:uid' => 'assignment#do_assignment'
-  get 'assignment/:uid' => 'assignment#get_assignment'
+  get 'assignment/:uid' => 'assignment#get_assignment', as: :assignment
 
   get 'editors' => 'editors#index', as: :editors
   post 'editor/:uid/switch' => 'editors#switch_version', as: :editor_switch
@@ -33,6 +33,11 @@ App::Application.routes.draw do
 
   get 'begin_masquerade' => 'test#masquerade'
   get 'end_masquerade' => 'test#end_masquerade'
+
+  resources :course
+
+  post 'course/:id/add_teacher' => 'course#add_teacher', as: :add_teacher
+  post 'course/:id/add_student' => 'course#add_student', as: :add_student
   
   
   # TESTING

@@ -1,0 +1,35 @@
+<h2><%= @course.title %></h2>
+
+<h3>Staff</h3>
+<ul>
+  <% @course.teachers.each do |u| %>
+  <li><%= u.email %></li>
+  <% end %>
+</ul>
+
+<%= form_tag(add_teacher_path) do %>
+<%= label_tag(:email, "Email:") %>
+<%= text_field_tag(:email) %>
+<%= submit_tag("Add Teacher") %>
+<% end %>
+
+
+<h3>Enrollment</h3>
+<ul>
+  <% @course.students.each do |u| %>
+  <li><%= u.email %></li>
+  <% end %>
+</ul>
+
+<%= form_tag(add_student_path) do %>
+<%= label_tag(:email, "Email:") %>
+<%= text_field_tag(:email) %>
+<%= submit_tag("Add Student") %>
+<% end %>
+
+<h3>Assignments</h3>
+<ul>
+  <% @course.assignments.each do |a| %>
+  <li><%= link_to a.path_ref.path, assignment_path(a.uid) %></li>
+  <% end %>
+</ul>

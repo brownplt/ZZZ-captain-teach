@@ -25,5 +25,11 @@ if Rails.env.development?
   example_assignment3 = Assignment.create!({
     :path_ref => path3
   })
+
+  path4 = PathRef.create!(:user_repo => captains_log, :path => "tutorial.jrny")
+  example_assignment4 = Assignment.create!({
+    :path_ref => path4
+  })
+
 end
 

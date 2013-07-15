@@ -176,12 +176,12 @@ class ResourceController < ApplicationController
       if b.nil?
         not_found
       else
-        render :json => [params[:resource]]
+        render :json => [{time: "", resource: params[:resource]}]
       end
     elsif type == 'g'
       path,commit = get_commit(ref)
       if user.user_repo.has_file?(commit,path)
-        render :json => [params[:resource]]
+        render :json => [{time: "", resource: params[:resource]}]
       else
         not_found
       end

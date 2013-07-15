@@ -11,14 +11,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130703152059) do
+ActiveRecord::Schema.define(version: 20130715153215) do
 
   create_table "assignments", force: true do |t|
     t.string   "uid"
     t.integer  "path_ref_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "course_id"
   end
+
+  add_index "assignments", ["course_id"], name: "index_assignments_on_course_id"
 
   create_table "blobs", force: true do |t|
     t.string   "uid"
@@ -30,6 +33,12 @@ ActiveRecord::Schema.define(version: 20130703152059) do
   end
 
   add_index "blobs", ["user_id"], name: "index_blobs_on_user_id"
+
+  create_table "courses", force: true do |t|
+    t.string   "title"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "editors", force: true do |t|
     t.integer  "path_ref_id"
@@ -58,6 +67,16 @@ ActiveRecord::Schema.define(version: 20130703152059) do
     t.datetime "updated_at"
   end
 
+  create_table "students_courses", id: false, force: true do |t|
+    t.integer "user_id"
+    t.integer "course_id"
+  end
+
+  create_table "teachers_courses", id: false, force: true do |t|
+    t.integer "user_id"
+    t.integer "course_id"
+  end
+
   create_table "user_repos", force: true do |t|
     t.string   "path"
     t.datetime "created_at"
@@ -69,6 +88,7 @@ ActiveRecord::Schema.define(version: 20130703152059) do
     t.datetime "updated_at"
     t.string   "email"
     t.integer  "user_repo_id"
+    t.boolean  "is_test"
   end
 
   add_index "users", ["user_repo_id"], name: "index_users_on_user_repo_id"

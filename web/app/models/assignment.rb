@@ -7,6 +7,8 @@ class Assignment < ActiveRecord::Base
   
   belongs_to :path_ref
 
+  belongs_to :course
+
   validates_presence_of :path_ref
   
   private
