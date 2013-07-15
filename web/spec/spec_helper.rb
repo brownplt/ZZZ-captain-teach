@@ -16,6 +16,16 @@ RSpec.configure do |config|
   # NOTE(dbp): this is to get rspec to pick up tests in spec/lib
   config.pattern = "**/*_spec.rb"
 
+  USER_GIT_REPO_PATH = "/tmp/ct-user-repos/"
+
+  config.before(:all) {
+    Dir.mkdir(USER_GIT_REPO_PATH)
+  }
+
+  config.after(:all) {
+    FileUtils.rm_rf(USER_GIT_REPO_PATH)
+  }
+
   # ## Mock Framework
   #
   # If you prefer to use mocha, flexmock or RR, uncomment the appropriate line:

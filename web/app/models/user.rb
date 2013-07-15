@@ -1,6 +1,7 @@
 class User < ActiveRecord::Base
 
   belongs_to :user_repo
+  has_many :notifications
 
   has_and_belongs_to_many :teacher_courses,
     :class_name => "Course",

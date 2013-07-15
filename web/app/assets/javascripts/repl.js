@@ -101,22 +101,14 @@ function makeRepl(container) {
   };
 
   var checkModePrettyPrint = function(obj) {
-    var resultCss = {
-      "border": "1px solid black",
-      "border-radius": "3px",
-      "padding": "10px",
-      "margin": "10px"
-    };
     function drawSuccess(name, message) {
-      return $('<div>').text(name +  ": " + message)
-        .css(resultCss)
-        .css({ "background-color": "green" })
+      return $("<div>").text(name +  ": " + message)
+        .addClass("check check-success")
         .append("<br/>");
     }
     function drawFailure(name, message) {
       return $('<div>').text(name + ": " + message)
-        .css(resultCss)
-        .css({ "background-color": "red" })
+        .addClass("check check-failure")
         .append("<br/>");
     }
     var dict = pyretMaps.toDictionary(obj);
@@ -133,13 +125,7 @@ function makeRepl(container) {
         var name = getPrimField(checkBlockResult, "name");
         container.append("<p>").text(name);
         container.append(message);
-        container.css({
-          "background-color": "gray",
-          "border": "1px solid black",
-          "border-radius": "3px",
-          "margin": "5px",
-          "padding": "5px"
-        });
+        container.addClass("check-block");
         if (pyretMaps.hasKey(cbDict, "err")) {
           var messageText = pyretMaps.get(cbDict, "err");
           if (pyretMaps.hasKey(pyretMaps.toDictionary(messageText), "message")) {
