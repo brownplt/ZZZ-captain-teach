@@ -33,7 +33,7 @@ describe("repls", function() {
     });
   });
 
-  it("should create a red div for an failure with the function name", function() {
+  it("should create a check-failure div for a failure with the function name", function() {
     var prompt = $("#prompt");
     var output = $("#output");
     var code = "fun foo(): nothing check:" +
@@ -42,16 +42,16 @@ describe("repls", function() {
       window.RUN_CODE(code, {}, {check:true});
     });
     waitsFor(function() {
-      return output.find("div[style*='red']").length > 0;
+      return output.find("div.check-failure").length > 0;
     });
     runs(function() {
-      expect(output.find("div[style*='gray']").text().indexOf("foo"))
+      expect(output.find("div.check-block").text().indexOf("foo"))
         .toBeGreaterThan(-1);
 
-      expect(output.find("div[style*='red']").text().indexOf("foo"))
+      expect(output.find("div.check-failure").text().indexOf("foo"))
         .toBe(-1);
 
-      expect(output.find("div[style*='red']").text().indexOf("Values not equal"))
+      expect(output.find("div.check-failure").text().indexOf("Values not equal"))
         .toBeGreaterThan(-1);
       finish();
     });
@@ -66,16 +66,16 @@ describe("repls", function() {
       window.RUN_CODE(code, {}, {check:true});
     });
     waitsFor(function() {
-      return output.find("div[style*='green']").length > 0;
+      return output.find("div.check-success").length > 0;
     });
     runs(function() {
-      expect(output.find("div[style*='gray']").text().indexOf("bar"))
+      expect(output.find("div.check-block").text().indexOf("bar"))
         .toBeGreaterThan(-1);
 
-      expect(output.find("div[style*='green']").text().indexOf("bar"))
+      expect(output.find("div.check-success").text().indexOf("bar"))
         .toBe(-1);
 
-      expect(output.find("div[style*='green']").text().indexOf("returns 5"))
+      expect(output.find("div.check-success").text().indexOf("returns 5"))
         .toBeGreaterThan(-1);
       finish();
     });

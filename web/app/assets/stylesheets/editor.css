@@ -18,3 +18,26 @@
   overflow-y: hidden;
   overflow-x: auto;
 }
+
+.check {
+  border: 1px solid black;
+  border-radius: 3px;
+  padding: 10px;
+  margin: 10px;
+}
+
+.check-success {
+  background-color: green;
+}
+
+.check-failure {
+  background-color: red;
+}
+
+.check-block {
+  background-color: gray;
+  border: 1px solid black;
+  border-radius: 3px;
+  margin: 5px;
+  padding: 5px;
+}
