@@ -16,7 +16,7 @@ window.pyretMaps = (function() {
   }
 
   function getPrim(pyretValue) {
-    return pyretValue._fields[3];
+    return pyretValue._fields[4];
   }
 
   function map(dict, f) {
