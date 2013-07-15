@@ -2,8 +2,6 @@ require 'spec_helper'
 
 describe ResourceController do
   before(:all) do
-    USER_GIT_REPO_PATH = "/tmp/ct-user-repos"
-    Dir.mkdir(USER_GIT_REPO_PATH)
     @user = User.create!(email: "edward@captainteach.org")
     @b = Blob.new(:ref => "foo", :user => @user, :data => "{}")
     @b.save!()
@@ -13,10 +11,6 @@ describe ResourceController do
                                 "message", DEFAULT_GIT_USER)
   end
 
-  after(:all) do
-    FileUtils.rm_rf(USER_GIT_REPO_PATH)
-  end
-  
   describe "Blobs" do
 
     it "GET lookup with r, rw, or rc should succeed" do
