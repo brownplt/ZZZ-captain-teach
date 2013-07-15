@@ -34,7 +34,7 @@ describe ResourceController do
       get :lookup, :resource => "b:rw:bazfoo:#{@user.id}", :format => :json
       response.response_code.should(eq(404))
 
-      get :lookup, :resource => "b:rw:bazfoo:100", :format => :json
+      get :lookup, :resource => "b:rw:bazfoo:not-an-id", :format => :json
       response.response_code.should(eq(404))
       
     end
@@ -88,7 +88,7 @@ describe ResourceController do
       response.response_code.should(eq(200))
       v = JSON::parse(response.body)
       v.should(be_a(Array))
-      v.should(eq([resource]))
+      v.should(eq([{"time"=>"", "resource"=>resource}]))
     end
 
     it "GET versions should 404 on non-existent blob" do
@@ -116,7 +116,7 @@ describe ResourceController do
       get :lookup, :resource => "p:rw:bazfoo:#{@user.id}", :format => :json
       response.response_code.should(eq(404))
 
-      get :lookup, :resource => "p:rw:foo:100", :format => :json
+      get :lookup, :resource => "p:rw:foo:not-an-id", :format => :json
       response.response_code.should(eq(404))
     end
 

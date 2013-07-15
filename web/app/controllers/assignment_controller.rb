@@ -24,8 +24,7 @@ class AssignmentController < ApplicationController
             resources = JSON.parse(node["data-resources"])
             resources.keys.each do |k|
               # add user credentials
-              resources[k] = resources[k] + ":" + ct_current_user.id.to_s
-              # NOTE(dbp): encrypt here
+              resources[k] = Resource::mk_user_resource(resources[k], ct_current_user.id)
             end
             node["data-resources"] = resources.to_json
           end

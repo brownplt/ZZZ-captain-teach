@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130715153215) do
+ActiveRecord::Schema.define(version: 20130715185017) do
 
   create_table "assignments", force: true do |t|
     t.string   "uid"
@@ -76,6 +76,30 @@ ActiveRecord::Schema.define(version: 20130715153215) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  create_table "review_assignments", force: true do |t|
+    t.integer  "reviewer_id"
+    t.integer  "reviewee_id"
+    t.string   "activity_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "resource"
+  end
+
+  add_index "review_assignments", ["activity_id"], name: "index_review_assignments_on_activity_id"
+  add_index "review_assignments", ["reviewee_id"], name: "index_review_assignments_on_reviewee_id"
+  add_index "review_assignments", ["reviewer_id"], name: "index_review_assignments_on_reviewer_id"
+
+  create_table "reviews", force: true do |t|
+    t.integer  "review_assignment_id"
+    t.boolean  "done"
+    t.integer  "path_ref_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "reviews", ["path_ref_id"], name: "index_reviews_on_path_ref_id"
+  add_index "reviews", ["review_assignment_id"], name: "index_reviews_on_review_assignment_id"
 
   create_table "students_courses", id: false, force: true do |t|
     t.integer "user_id"
