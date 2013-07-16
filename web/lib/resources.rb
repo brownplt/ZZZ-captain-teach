@@ -70,6 +70,16 @@ module Resource
     mk_user_resource("#{type}:#{perm}:#{ref}", uid)
   end
 
+  def read_only(resource)
+    parsed = parse(resource)
+    if parsed
+      type, perm, ref, uid = parsed
+      mk_resource(type, 'r', ref, uid.id)
+    else
+      false
+    end
+  end
+
   def get_commit(ref)
     # TODO(dbp): error handling...
     path,commit = ref.split("@")
@@ -227,5 +237,5 @@ module Resource
     end
   end
 
-  module_function :mk_resource, :mk_user_resource, :get_commit, :parse, :lookup, :lookup_create, :save, :versions
+  module_function :mk_resource, :mk_user_resource, :read_only, :get_commit, :parse, :lookup, :lookup_create, :save, :versions
 end

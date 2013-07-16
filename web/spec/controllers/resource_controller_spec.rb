@@ -192,7 +192,6 @@ describe ResourceController do
       :format => :json
 
       get :versions, :resource => "p:rw:bar4:#{@user.id}", :format => :json
-      puts response.body
       resp = JSON::parse(response.body)
       resp.should(be_a(Array))
       resp.length.should(eq(3))
@@ -219,6 +218,18 @@ describe ResourceController do
       resp1 = JSON::parse(response.body)
       resp1["file"].should(eq(data1))
     end
+  end
+
+  it "should create read-only references from other references" do
+    resource = "p:rw:to-be-read-only:#{@user.id}"
+    post :save, :resource => resource, :data => "some allowed stuff", :format => :json
+    response.response_code.should(eq(200))
+
+    read_only = Resource::read_only(resource)
+
+    post :save, :resource => read_only, :data => "some stuff", :format => :json
+    response.response_code.should(eq(405))
+
   end
   
 end
