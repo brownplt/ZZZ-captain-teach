@@ -49,11 +49,12 @@ class AssignmentController < ApplicationController
         resources = JSON.parse(node["data-resources"])
         resources.keys.each do |k|
           # add user credentials and encrypt
-          resources[k] = Resource::read_only(Resource::mk_user_resource(resources[k], user.id))
+          resources[k] = Resource::mk_user_resource(resources[k], user.id)
         end
         node["data-resources"] = resources.to_json
       end
     end
+    main.to_html
   end
   
 end
