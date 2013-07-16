@@ -88,6 +88,8 @@ App::Application.routes.draw do
 
   # routing static pages, for testing currently
   if Rails.env.development?
+    post 'become_user/:uid' => "awesome#become_user"
+    get 'all_users' => "awesome#all_users"
     get ':action' => 'static#:action'
   end
 end

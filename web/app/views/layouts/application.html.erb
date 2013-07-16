@@ -8,7 +8,9 @@
   <%= stylesheet_link_tag    "print", media: "print", "data-turbolinks-track" => true %>
   <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
   <%= csrf_meta_tags %>
-  <%= setup_browserid() %>
+  <% if not (Rails.env.development?) %>
+    <%= setup_browserid() %>
+  <% end %>
 
   <!-- whalesong includes -->
   <script src="http://localhost:8080/collects/runtime.js"></script>
@@ -18,6 +20,13 @@
   
 </head>
 <body>
+<% if Rails.env.development? %>
+  <div id="awesome-panel">
+  <%= javascript_include_tag "awesome" %>
+  <%= stylesheet_link_tag "awesome" %>
+  </div>
+<% end %>
+
 <% if authenticated? %>
 <%= logout_link  %>
 <% else %>

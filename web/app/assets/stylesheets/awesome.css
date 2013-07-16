@@ -1,0 +1,14 @@
+div#awesome-panel {
+  position: fixed;
+  right: 0;
+  top: 0;
+  background-color: #eee;
+  border: 2px solid black;
+  z-index: 10000;
+}
+
+a.awesome-toggle {
+  width: 100%;
+  text-align: right;
+  font-weight: bold;
+}
