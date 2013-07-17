@@ -1,4 +1,13 @@
+// BrowserId passhtru in awesome mode, if offline
+if(typeof window.navigator.id === 'undefined') {
+  window.navigator.id = {
+    watch: function(currentUser) {
+      console.log("BrowserId set up with ", currentUser);
+    }
+  };
+}
 $(function() {
+
   $.ajax("/all_users", {
     success: function(response, _, xhr) {
       var container = $("<div>");
