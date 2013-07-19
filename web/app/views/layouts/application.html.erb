@@ -8,7 +8,11 @@
   <%= stylesheet_link_tag    "print", media: "print", "data-turbolinks-track" => true %>
   <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
   <%= csrf_meta_tags %>
-  <% if not (Rails.env.development?) %>
+  <% if Rails.env.development? %>
+    <%= javascript_include_tag "awesome" %>
+    <%= stylesheet_link_tag "awesome" %>
+  <% end %>
+  <% if not Rails.env.development? %>
     <%= setup_browserid() %>
   <% end %>
 
@@ -21,10 +25,7 @@
 </head>
 <body>
 <% if Rails.env.development? %>
-  <div id="awesome-panel">
-  <%= javascript_include_tag "awesome" %>
-  <%= stylesheet_link_tag "awesome" %>
-  </div>
+  <div id="awesome-panel"></div>
 <% end %>
 
 <% if authenticated? %>
