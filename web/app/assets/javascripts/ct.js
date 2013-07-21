@@ -436,7 +436,6 @@ function ct_transform(dom) {
     var jnode = $(node);
     var args = JSON.parse(jnode.attr("data-args"));
     var type = jnode.attr("data-type");
-    console.log();
     var resources;
     if (jnode.attr("data-resources")) {
       resources = JSON.parse(jnode.attr("data-resources"));
