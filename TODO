@@ -13,3 +13,7 @@ that caching can work (right now, we create path refs many times)
 [] Versions
 [] Reviews
 [] Design recipe step
+
+[] Remove every hardcoded localhost
+[] Get names for users? (or find something other than their email for Git
+   commits in the name field)
