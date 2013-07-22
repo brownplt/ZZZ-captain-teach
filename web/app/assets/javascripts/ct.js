@@ -1,3 +1,11 @@
+var LOG = true;
+function ct_log(/* varargs */) {
+  if (window.console && LOG) {
+    console.log("Applying...", arguments);
+    console.log(arguments);
+  }
+}
+
 var NO_INSTANCE_DATA = {no_instance_data: true};
 
 var rails_host = "http://localhost:3000";
@@ -178,10 +186,7 @@ function functionBuilder(container, resources, args) {
   var editor = makeEditor(codeContainer,
                          { initial: "\n\n\n\n",
                            run: function(src, uiOpts, replOpts) {
-                             console.log("running from editor for: ", header);
-                             console.log("code: ", src);
                              var prelude = getPreludeFor(pathId);
-                             // console.log(prelude + src);
                              RUN_CODE(prelude + src, uiOpts, replOpts);
                            }});
 
@@ -339,6 +344,18 @@ function functionBuilder(container, resources, args) {
     }
   }, 30000);
   
+
+  var reviews = resources.reviews;
+  if (typeof reviews !== 'undefined') {
+    var showReview = $("<button>").css({float: "right"}).text("Reviews");
+    var reviewContainer = $("<div>");
+    var reviewText = $("<textarea>").css({width: "100%"});
+    reviewContainer.append(reviewText);
+    container.append(showReview).append(reviewContainer);
+    reviewContainer.hide();
+    showReview.on("click", function(_) { reviewContainer.show(); });
+  }
+
   return {container: container, activityData: {codemirror: editor}};
 }
 
@@ -450,37 +467,6 @@ function ct_transform(dom) {
       console.error("Unknown builder type: ", type);
     }
   });
-}
-
-function ct_blob(resource, params) {
-  params.dataType = 'json';
-  params.data = { data : JSON.stringify(params.blobData) };
-  return ct_ajax("/blob?resource="+resource, params);
-}
-
-function ct_ajax(url, params) {
-    if (typeof params === 'undefined') { params = {}; }
-    if (!params.hasOwnProperty("error")) {
-        params.error = function (error) {
-            console.error(error);
-        }
-    }
-    var receiver = receiverE();
-    function handleSuccess(response, _, xhr) {
-      receiver.sendEvent({status: xhr.status, response: response, xhr: xhr});
-    }
-    function handleError(xhr, _, error) {
-      try {
-        receiver.sendEvent({status: xhr.status, response: error, xhr: xhr});
-      }
-      catch(e) {
-        console.error("Failed to process error", e, url, xhr, error);
-      }
-    }
-    params.success = handleSuccess;
-    params.error = handleError;
-    $.ajax(url, params);
-    return receiver;
 }
 
 function worldB(init, handlers, transformers) 

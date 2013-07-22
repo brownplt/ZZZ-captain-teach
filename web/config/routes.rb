@@ -19,6 +19,9 @@ App::Application.routes.draw do
   # post 'blob/lookup_create' => 'blob#lookup_create'
   # post 'blob/save'          => 'blob#save'
 
+  post 'review/save/:rid'   => 'review#save'
+  get  'review/lookup/:rid' => 'review#lookup'
+
   get  'resource/lookup'        => 'resource#lookup'
   post 'resource/lookup_create' => 'resource#lookup_create'
   post 'resource/save'          => 'resource#save'

@@ -74,8 +74,6 @@ class AssignmentController < ApplicationController
           # add user credentials and encrypt
           resources[k] = Resource::read_only(Resource::mk_user_resource(resources[k], user.id))
           review = Review.setup_review(node["data-activity-id"], resources[k], current_user, user)
-          print("\n\nkey: #{k}\n\n")
-          print("\n\nreviews: #{resources[:reviews]}\n\n")
           reviews[k] = ReviewController.reviewer_links(review)
         end
         resources[:reviews] = reviews
