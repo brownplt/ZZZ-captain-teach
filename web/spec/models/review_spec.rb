@@ -63,5 +63,16 @@ describe Review do
     expect(r.contents).to(eq("Some reviewing content"))
   end
 
+  it "should return the same review if it exists in setup" do
+
+    r1 = Review.setup_review(@activity_id, "resource-1", @reviewer, @reviewee)
+    count_before = Review.count
+    r2 = Review.setup_review(@activity_id, "resource-1", @reviewer, @reviewee)
+    count_after = Review.count
+
+    expect(r1.id).to(eq(r2.id))
+    expect(count_before).to(eq(count_after))
+  end
+
 end
 

@@ -32,7 +32,11 @@ class PathRef < ActiveRecord::Base
   def contents
     if Rails.env.development?
       p = File.expand_path(self.path, user_repo.path)
-      File.open(p).gets(nil)
+      if File.exists?(p)
+        File.open(p).gets(nil)
+      else
+        user_repo.lookup_file_head(self.path)
+      end
     else
       user_repo.lookup_file_head(self.path)
     end

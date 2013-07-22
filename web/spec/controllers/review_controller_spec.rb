@@ -49,7 +49,7 @@ describe ReviewController do
     r = Review.setup_review(@activity_id, res, @reviewer, @reviewee)
     review = '{"review":"This one too!"}'
 
-    post :save, :rid => r.id, :review => review
+    post :save, :rid => r.id, :data => review
     response.status.should eq 200
     response.body.should eq review
 

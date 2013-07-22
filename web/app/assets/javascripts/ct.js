@@ -112,12 +112,42 @@ function lookupVersions(resource, callback, error) {
   });
 }
 
+function lookupReview(lookupLink, success, error) {
+  if (typeof error === 'undefined') {
+    error = function(xhr, e) { console.error(xhr, e); }
+  }
+  $.ajax(lookupLink, {
+    success: function(response, _, xhr) {
+      success(response);
+    },
+    error: error
+  });
+}
+
 function saveResource(resource, data, success, failure) {
   if (typeof success === 'undefined') { success = function() {}; }
-  if (typeof failure === 'undefined') { failure = function() {}; }
+  if (typeof failure === 'undefined') {
+    failure = function(xhr, e) {
+      console.error(xhr, e);
+    };
+  }
   $.ajax(rails_host + "/resource/save?resource=" + resource, {
          data: {data: JSON.stringify(data)},
-         success: function(response, statis, xhr) { success(response); },
+         success: function(response, status, xhr) { success(response); },
+         error: failure,
+         type: "POST"});
+}
+
+function saveReview(saveLink, data, success, failure) {
+  if (typeof success === 'undefined') { success = function() {}; }
+  if (typeof failure === 'undefined') {
+    failure = function(xhr, e) {
+      console.error(xhr, e);
+    };
+  }
+  $.ajax(rails_host + saveLink, {
+         data: {data: JSON.stringify(data)},
+         success: function(response, status, xhr) { success(response); },
          error: failure,
          type: "POST"});
 }
@@ -154,6 +184,8 @@ function functionBuilder(container, resources, args) {
 
   var codeContainer = jQuery("<div>");
   container.append(codeContainer);
+
+  var gradeMode = typeof resources.reviews !== 'undefined';
   
   var versionsButton = jQuery("<button>+</button>");
   versionsButton.css({float: "right", padding: "0", width: "20px", height: "20px"});
@@ -185,6 +217,7 @@ function functionBuilder(container, resources, args) {
   
   var editor = makeEditor(codeContainer,
                          { initial: "\n\n\n\n",
+                           cmOptions: { readOnly: gradeMode },
                            run: function(src, uiOpts, replOpts) {
                              var prelude = getPreludeFor(pathId);
                              RUN_CODE(prelude + src, uiOpts, replOpts);
@@ -228,8 +261,11 @@ function functionBuilder(container, resources, args) {
   
   var button = $("<button>Save and Submit</button>");
 
-  
-  function handleResponse(data) {
+  if (gradeMode) {
+    button.hide();
+  }
+
+  function handleResponse(data, version) {
     // NOTE(dbp): cache it so our changes don't count
     var oc = onChangeVersionsCreateRevision;
     
@@ -269,25 +305,25 @@ function functionBuilder(container, resources, args) {
   function loadVersions() {
     versionsList.text("");
     lookupVersions(pathId, function (versions) {
-    if (versions.length == 0) {
-      versionsList.append(jQuery("<span>No versions</span>"));
-    }
-    versions.forEach(function (v) {
-      var b = jQuery("<button>");
-      b.text(v.time);
-      b.click(function () {
-        if (onChangeVersionsCreateRevision) {
-          saveVersion();
-        }
-        lookupResource(v.resource, function (response) {
-          loadVersions();
-          handleResponse(JSON.parse(response.file))
-        },
-         function () { console.error("Couldn't find resource from version. This is bad!"); });
+      if (versions.length == 0) {
+        versionsList.append(jQuery("<span>No versions</span>"));
+      }
+      versions.forEach(function (v) {
+        var b = jQuery("<button>");
+        b.text(v.time);
+        b.click(function () {
+          if (onChangeVersionsCreateRevision) {
+            saveVersion();
+          }
+          lookupResource(v.resource, function (response) {
+            loadVersions();
+            handleResponse(JSON.parse(response.file));
+          },
+           function () { console.error("Couldn't find resource from version. This is bad!"); });
+        });
+        versionsList.append(b);
+        versionsList.append(jQuery("<br>"));
       });
-      versionsList.append(b);
-      versionsList.append(jQuery("<br>"));
-    });
     });
   }
 
@@ -347,13 +383,93 @@ function functionBuilder(container, resources, args) {
 
   var reviews = resources.reviews;
   if (typeof reviews !== 'undefined') {
-    var showReview = $("<button>").css({float: "right"}).text("Reviews");
-    var reviewContainer = $("<div>");
-    var reviewText = $("<textarea>").css({width: "100%"});
-    reviewContainer.append(reviewText);
+    function radios(name, labels, values) {
+      var radioContainer = $("<div>");
+      var id;
+      for(var i = 0; i < labels.length; i++) {
+        id = name + i;
+        radioContainer.append($("<label for='" + id + "'>")
+          .text(labels[i])
+          .append($("<input type='radio' id='" + id + "' name='" + name + "'>")
+          .attr("value", values[i])));
+      }
+      return radioContainer;
+    }
+
+    var showReview = $("<button>").css({float: "right"}).text("Review");
+    var reviewContainer = $("<div>").addClass("reviewContainer");
+
+    function setupReview() {
+      var submitReviewButton = $("<button>")
+        .text("Save this review")
+        .css({float: 'right'})
+        .on("click", function(e) {
+          console.log("Clicking on submit", e);
+          var designScore = reviewContainer.find("input[name=design]:checked").val();
+          var correctScore = reviewContainer.find("input[name=correct]:checked").val();
+          console.log("Clicking on submit after scores", designScore, correctScore);
+          if (designScore === undefined) {
+            designRadios.css({'background-color': 'red'});
+          }
+          if (correctScore === undefined) {
+            correctRadios.css({'background-color': 'red'});
+          }
+          if (designScore && correctScore) {
+            designRadios.css({'background-color': 'transparent'});
+            correctRadios.css({'background-color': 'transparent'});
+            saveReview(reviews.path.versions[0].save, {
+              review: {
+                comments: reviewText.val(),
+                design: designScore,
+                correct: correctScore
+              }
+            }, function() {
+              // TODO(joe 22 July 2013): Give some feedback
+            });
+          }
+        });
+      var designRadios = radios(
+          "design",
+          ["(Worst design) 1", 2, 3, 4, 5, 6, 7, 8, 9, "10 (Best design)"],
+          [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+        .addClass("reviewDesignScore");
+      var correctRadios = radios(
+          "correct",
+          ["(Completely incorrect) 1", 2, 3, 4, 5, 6, 7, 8, 9, "10 (Completely correct)"],
+          [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+        .addClass("reviewCorrectScore");
+      var reviewText = $("<textarea>").css({width: "100%"}).addClass("reviewText");
+
+      reviewText.prop("disabled", true);
+      if (reviews.path.versions.length === 0) {
+        designRadios.hide();
+        correctRadios.hide();
+        reviewText.val("No versions to review");
+      } else {
+        lookupReview(reviews.path.versions[0].lookup, function(rev) {
+            reviewText.prop("disabled", false);
+            if (rev !== null) {
+              reviewText.val(rev.review.comments);
+              designRadios.find("input[value=" + rev.review.design + "]").click();
+              correctRadios.find("input[value=" + rev.review.correct + "]").click();
+            }
+          },
+          function(e) {
+            console.error(e);
+          });
+      }
+
+      reviewContainer.append(designRadios)
+        .append(correctRadios)
+        .append(reviewText)
+        .append(submitReviewButton);
+    }
+    setupReview();
     container.append(showReview).append(reviewContainer);
     reviewContainer.hide();
-    showReview.on("click", function(_) { reviewContainer.show(); });
+
+
+    showReview.on("click", function(_) { reviewContainer.toggle(); })
   }
 
   return {container: container, activityData: {codemirror: editor}};

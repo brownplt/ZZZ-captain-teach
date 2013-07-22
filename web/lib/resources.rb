@@ -56,6 +56,7 @@ module Resource
     def respond(renderer)
       renderer.render :json => @data
     end
+    attr_accessor :data
     def initialize(data)
       @data = data
     end

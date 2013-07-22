@@ -3,22 +3,34 @@ class Review < ActiveRecord::Base
   belongs_to :path_ref
 
   def self.setup_review(activity_id, resource, reviewer, reviewee)
-    review_assignment = ReviewAssignment.create!(
+    existing_ra = ReviewAssignment.find_by(
       :activity_id => activity_id,
       :resource => resource,
       :reviewer => reviewer,
       :reviewee => reviewee
     )
-    path_ref_for_review = PathRef.create!(
-      :user_repo => reviewer.user_repo,
-      :path => "#{REVIEWS_SUBPATH}/#{activity_id}/#{resource}/#{reviewee.id}/#{review_assignment.id}"
-    )
-    review = Review.create!(
-      :review_assignment => review_assignment,
-      :path_ref => path_ref_for_review,
-      :done => false
-    )
-    review
+    existing_review = existing_ra.review if existing_ra
+
+    if existing_ra.nil? or existing_review.nil?
+      review_assignment = ReviewAssignment.create!(
+        :activity_id => activity_id,
+        :resource => resource,
+        :reviewer => reviewer,
+        :reviewee => reviewee
+      )
+      path_ref_for_review = PathRef.create!(
+        :user_repo => reviewer.user_repo,
+        :path => "#{REVIEWS_SUBPATH}/#{activity_id}/#{resource}/#{reviewee.id}/#{review_assignment.id}"
+      )
+      review = Review.create!(
+        :review_assignment => review_assignment,
+        :path_ref => path_ref_for_review,
+        :done => false
+      )
+      review
+    else
+      existing_review
+    end
   end
 
   def update_or_start(new_review)

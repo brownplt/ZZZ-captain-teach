@@ -73,13 +73,24 @@ class AssignmentController < ApplicationController
         resources.keys.each do |k|
           # add user credentials and encrypt
           resources[k] = Resource::read_only(Resource::mk_user_resource(resources[k], user.id))
+          type, perm, ref, uid = Resource::parse(resources[k])
+          versions = Resource::versions(type, perm, ref, uid, resources[k])
+          versionsResources = []
+          if versions.instance_of?(Resource::Normal)
+            versionsResources = versions.data
+          end
+          versionsReviews = versionsResources.map { |v|
+            versionReview = Review.setup_review(node["data-activity-id"], v[:resource], current_user, user)
+            ReviewController.reviewer_links(versionReview)
+          }
           review = Review.setup_review(node["data-activity-id"], resources[k], current_user, user)
-          reviews[k] = ReviewController.reviewer_links(review)
+          reviews[k] = {}
+          reviews[k][:review] = ReviewController.reviewer_links(review)
+          reviews[k][:versions] = versionsReviews
         end
         resources[:reviews] = reviews
         node["data-resources"] = resources.to_json
-        # TODO(joe): how to remove?
-        node["data-activity-id"] = "_"
+        node.delete("data-activity-id")
       end
     end
     main.to_html

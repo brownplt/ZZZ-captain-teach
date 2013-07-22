@@ -1,6 +1,6 @@
 class ReviewController < ApplicationController
 
-
+  # NOTE(joe, 22 July 2013): Currently used in Scribble/HTML pathway
   def self.reviewer_links(r)
     {
       save: "/review/save/#{r.id}",
@@ -18,7 +18,7 @@ class ReviewController < ApplicationController
     if current_user.id != r.review_assignment.reviewer.id
       application_not_found
     else
-      review = params[:review]
+      review = params[:data]
       # Stored XSS point, make sure it parses as JSON with 'review', escaping
       # needs to happen on the other end
       parsed = nil

@@ -1,9 +1,13 @@
 mockServerTable = {};
+mockReviewTable = {};
 
 AUTOSAVE_ENABLED = false;
 
 function setMockServerTable(table) {
   mockServerTable = table || {};
+}
+function setMockReviewTable(table) {
+  mockReviewTable = table || {};
 }
 
 window.lookupResource = function(resource, present, absent, error) {
@@ -21,9 +25,29 @@ window.lookupVersions = function(resource, callback, error) {
   callback([]);
 }
 
+function getReviewId(review) { return review.substr(review.lastIndexOf("/")); }
+
+window.lookupReview = function(review, present, error) {
+  var reviewId = getReviewId(review);
+  if (mockReviewTable.hasOwnProperty(reviewId)) {
+    console.log("Mock server fetching review, ", reviewId, mockReviewTable);
+    present(mockReviewTable[reviewId]);
+  } else {
+    console.log("Mock server missed review, ", reviewId, mockReviewTable);
+    present(null);
+  }
+};
+
 window.saveResource = function(resource, data, success, failure) {
   console.log("Mock server saving, ", resource, data, mockServerTable);
   mockServerTable[resource] = data;
+  success();
+};
+
+window.saveReview = function(review, data, success, failure) {
+  var reviewId = getReviewId(review);
+  console.log("Mock server saving review, ", reviewId, data, mockReviewTable);
+  mockReviewTable[reviewId] = data;
   success();
 };
 
@@ -47,7 +71,66 @@ describe("function activities", function() {
   it("should have a submit button", function () {
     expect(functionData.container.find("button").length).toBeGreaterThan(0);
   });
-  
+
+  describe("grading activities", function() {
+    var functionData, c, reviewContainer;
+    beforeEach(function() {
+      setMockReviewTable();
+      functionData = builders["function"]($("<div>"), {
+          path: "p:rw:my-id:1",
+          blob: "b:rw:my-id:1",
+          reviews: {
+            path: {
+              versions: [{ save: "save/42", lookup: "lookup/42" }],
+              review: { save: "save/47", lookup: "lookup/47" }
+            }
+          }
+        }, functionArgs)
+      c = functionData.container;
+      reviewContainer = c.find(".reviewContainer");
+    });
+
+    it("should add a review div if versions present to review", function () {
+      expect(reviewContainer.css("display")).toEqual("none");
+
+      var reviewText = c.find(".reviewText");
+      expect(reviewText.text()).toEqual("");
+
+      var reviewButton = c.find("button:contains(Review)");
+      reviewButton.click();
+
+      expect(reviewContainer.css("display")).not.toEqual("none");
+    });
+
+    it("should save a review", function() {
+      var reviewText = c.find(".reviewText");
+      var comments = "My review body"
+      reviewText.text(comments);
+
+      var reviewButton = c.find("button:contains(Review)");
+      reviewButton.click();
+
+      var dScore = '5';
+      var cScore = '7';
+      var revD = c.find(".reviewDesignScore");
+      var revC = c.find(".reviewCorrectScore");
+      console.log("Input for revD: ", revD.find("input[value=" + dScore + "]"));
+      revD.find("input[value=" + dScore + "]").click();
+      revC.find("input[value=" + cScore + "]").click();
+
+      var submitButton = c.find("button:contains(Save this review)");
+      console.log("Submit: ", submitButton);
+      submitButton.click();
+
+      lookupReview("lookup/42", function(r) {
+        expect(r.review.comments).toEqual(comments);
+        expect(r.review.design).toEqual(dScore);
+        expect(r.review.correct).toEqual(cScore);
+      });
+      
+    });
+  });
+    
 });
 
 describe("multiple-choice activities", function() {
@@ -119,4 +202,5 @@ describe("multiple-choice activities", function() {
     
   });
 });
+
 
