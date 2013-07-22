@@ -17,3 +17,5 @@ that caching can work (right now, we create path refs many times)
 [] Remove every hardcoded localhost
 [] Get names for users? (or find something other than their email for Git
    commits in the name field)
+[] How will we show reviews that students did for one another in the grading
+   interface?
