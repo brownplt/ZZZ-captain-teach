@@ -43,6 +43,12 @@ if Rails.env.development?
     :course => course
   })
 
+  user1 = User.create!(:email => "henry@cs.brown.edu")
+  course.students << user1
+
+  user2 = User.create!(:email => "cedric@cs.brown.edu")
+  course.students << user2
+
   print("Visit the demo course at: #{APP_URL}/course/#{course.id}\n")
 
 end

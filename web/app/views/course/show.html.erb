@@ -31,5 +31,11 @@
 <ul>
   <% @course.assignments.each do |a| %>
   <li><%= link_to a.path_ref.path, assignment_path(a.uid) %></li>
+    <ul>
+    <% @course.students.each do |u| %>
+
+      <li><%= link_to "Grade for #{u.email}", :controller => "assignment", :action => "grade_assignment", :uid => a.uid, :user_id => u.id %></li>
+    <% end %>
+    </ul>
   <% end %>
 </ul>

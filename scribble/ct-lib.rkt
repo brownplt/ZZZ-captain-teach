@@ -93,6 +93,7 @@
               (attributes
                 (list
                   (cons 'data-ct-node "1")
+                  (cons 'data-activity-id unique-id)
                   (cons 'data-resources (single-resource 'blob (mk-id "b" "rc" unique-id)))
                   (cons 'data-type "multiple-choice")
                   (cons 'data-args (jsexpr->string
@@ -116,6 +117,7 @@
                 (attributes
                   (list
                     (cons 'data-ct-node "1")
+                    (cons 'data-activity-id unique-id)
                     (cons 'data-resources (jsexpr->string
                                            (make-hash
                                             (list (cons 'path (mk-id "p" "rw" unique-id))
