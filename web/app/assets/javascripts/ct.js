@@ -315,7 +315,7 @@ function functionBuilder(container, resources, args) {
       versions.forEach(function (v) {
         var b = jQuery("<button>").addClass("switch-version");
         b.text(v.time);
-        b.click(function () {
+        b.on('click', function () {
           if (onChangeVersionsCreateRevision) {
             saveVersion();
           }

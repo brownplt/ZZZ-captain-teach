@@ -5,11 +5,14 @@
 describe("repls", function() {
   var done = true;
   var finish = function() { done = true; };
+  var CM;
   beforeEach(function() {
+    CM = $(".repl div.CodeMirror")[0].CodeMirror;
     if (done) {
       done = false;
     } else {
-      waitsFor(function() { return done; }, "Waiting to be done", 1000);
+      waitsFor(function() { return done; },
+               "Waiting to be done", 1000);
     }
   });
 
@@ -19,10 +22,8 @@ describe("repls", function() {
     console.log(prompt);
     console.log(output);
     runs(function() {
-      prompt.val("5");
-      var e = $.Event("keypress");
-      e.which = 13;
-      prompt.trigger(e);
+      CM.setValue("5");
+      CM.options.extraKeys['Shift-Enter'](CM);
     });
     waitsFor(function() {
       return output.find(".repl-output").length > 0;

@@ -160,14 +160,14 @@ describe("function activities", function() {
 
   it("when you switch to a version, it should put the contents in the editor", function () {
     resetMockServer();
-    mockPathTable[functionPathRef] = [["g:r:0:1", {body: 'my cool program', userChecks: ''}]];
+    mockPathTable[functionPathRef] = [["g:r:1:1", {body: 'my new program', userChecks: ''}],["g:r:0:1", {body: 'my cool program', userChecks: ''}]];
     
     var container = $("<div>");
     container.hide();
     $("body").append(container);
     functionData = builders["function"](container, {path: functionPathRef, blob: functionBlobRef}, functionArgs);
-    
-    functionData.container.find("button.switch-version").click();
+
+    functionData.container.find("button.switch-version")[1].click();
     expect(functionData.activityData
            .codemirror.getDoc().getValue())
       .toContainStr("my cool program");
