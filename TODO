@@ -19,3 +19,5 @@ that caching can work (right now, we create path refs many times)
    commits in the name field)
 [] How will we show reviews that students did for one another in the grading
    interface?
+
+[] Consistent on("event") vs .event()

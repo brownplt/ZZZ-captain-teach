@@ -184,29 +184,12 @@ function functionBuilder(container, resources, args) {
 
   var codeContainer = jQuery("<div>");
   container.append(codeContainer);
+  codeContainer.css("position", "relative");
 
   var gradeMode = typeof resources.reviews !== 'undefined';
   
-  var versionsButton = jQuery("<button>+</button>")
-    .addClass("versions");
-  versionsButton.css({float: "right", padding: "0", width: "20px", height: "20px"});
-  codeContainer.css("position", "relative");
-  var versionsContainer = jQuery("<div>");
-  var versionsList = jQuery("<div>");
-  versionsContainer.append(versionsButton);
-  versionsContainer.append("<div>").addClass("clearfix");
-  versionsContainer.append(versionsList);
-  versionsContainer.css({position: "absolute",
-                         top: "0",
-                         right: "0",
-                         "background-color": "white",
-                         "z-index": "10"});
-  versionsList.css("display","none");
-
-  codeContainer.append(versionsContainer);
-  
   var versionsShown = false;
-  versionsButton.click(function () {
+  var versionsButton = drawVersionsButton(function () {
     if (versionsShown) {
       versionsList.css("display", "none");
       versionsShown = false;
@@ -215,10 +198,14 @@ function functionBuilder(container, resources, args) {
       versionsShown = true;
     }
   });
+  var versionsList = drawVersionsList(false, []);
+  var versionsContainer = drawVersionsContainer(versionsButton, versionsList);
+
+  codeContainer.append(versionsContainer);
   
   var editor = makeEditor(codeContainer,
                          { initial: "\n\n\n\n",
-                           cmOptions: { readOnly: gradeMode },
+                           cmOptions: { readOnly: gradeMode, lineNumbers: true },
                            run: function(src, uiOpts, replOpts) {
                              var prelude = getPreludeFor(pathId);
                              RUN_CODE(prelude + src, uiOpts, replOpts);
@@ -295,11 +282,10 @@ function functionBuilder(container, resources, args) {
   }
 
   function saveWork() {
-    var spinnerId = "spinner-" + COUNTER++;
-    versionsButton.html("<img src='/assets/spinner.gif'/>");
+    setVersionsButtonPending(versionButton);
     saveResource(blobId, getWork(), function () {
       setTimeout(function () {
-        versionsButton.text("+");
+        setVersionsButtonReady(versionButton);
       }, 1000);
     }, function (xhr, response) {
       console.error("Saving failed.");
@@ -310,17 +296,15 @@ function functionBuilder(container, resources, args) {
     versionsList.text("");
     lookupVersions(pathId, function (versions) {
       if (versions.length == 0) {
-        versionsList.append(jQuery("<span>No versions</span>"));
+        versionsList.append(drawNoVersions());
       }
       versions.forEach(function (v) {
-        var b = jQuery("<button>").addClass("switch-version");
-        b.text(v.time);
-        b.on('click', function () {
+        var b = drawVersionButton(v.time);
+        b.on("click", function () {
           if (onChangeVersionsCreateRevision) {
             saveVersion();
           }
           lookupResource(v.resource, function (response) {
-            console.log("got: ", response);
             loadVersions();
             handleResponse(JSON.parse(response.file));
           },
@@ -337,11 +321,10 @@ function functionBuilder(container, resources, args) {
   
   function saveVersion() {
     onChangeVersionsCreateRevision = false;
-    var spinnerId = "spinner-" + COUNTER++;
-    versionsButton.html("<img src='/assets/spinner.gif'/>");
+    setVersionsButtonPending(versionButton);
     saveResource(pathId, getWork(), function () {
       setTimeout(function () {
-        versionsButton.text("+");
+        setVersionsButtonReady(versionButton);
         loadVersions();
       }, 1000);
     }, function (xhr, response) {

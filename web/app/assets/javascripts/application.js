@@ -15,6 +15,7 @@
 //= require turbolinks
 //= require browserid
 //= require pyretMaps
+//= require ui
 //= require ct
 //= require editor
 //= require repl
