@@ -6,3 +6,4 @@ src/tests/run.html
 src/tests/scribble/scribble-tests-compiled/
 \.#*
 \#*
+user-repos
