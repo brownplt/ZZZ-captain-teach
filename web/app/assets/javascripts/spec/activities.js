@@ -216,8 +216,8 @@ describe("function activities", function() {
 
       var dScore = '5';
       var cScore = '7';
-      var revD = c.find(".reviewDesignScore");
-      var revC = c.find(".reviewCorrectScore");
+      var revD = c.find(".reviewScore-design");
+      var revC = c.find(".reviewScore-correct");
       console.log("Input for revD: ", revD.find("input[value=" + dScore + "]"));
       revD.find("input[value=" + dScore + "]").click();
       revC.find("input[value=" + cScore + "]").click();

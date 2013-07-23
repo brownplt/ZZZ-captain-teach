@@ -16,3 +16,11 @@
 .versionButton {
   
 }
+
+.invalidScore {
+  background-color: red;
+}
+
+.reviewText {
+  width: 80%;
+}

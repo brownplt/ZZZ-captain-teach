@@ -64,3 +64,74 @@ function versions(container, options) {
     saveVersion: saveVersion
   }
 }
+
+function teacherReviews(container, options) {
+
+  var showReview = drawShowReview();
+  var reviewContainer = drawReviewContainer();
+
+  showReview.on("click", function(_) { reviewContainer.toggle(); })
+
+  var designScores = drawReviewScore(
+      "design",
+      ["(Worst design) 1", 2, 3, 4, 5, 6, 7, 8, 9, "10 (Best design)"],
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  var correctScores = drawReviewScore(
+      "correct",
+      ["(Completely incorrect) 1", 2, 3, 4, 5, 6, 7, 8, 9, "10 (Completely correct)"],
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+
+  var submitReviewButton = drawSubmitReviewButton()
+    .on("click", function(e) {
+      var currentDesignScore = getScore(designScores);
+      var currentCorrectScore = getScore(correctScores);
+      if (currentDesignScore === undefined) {
+        markInvalidReviewScore(designScores);
+      }
+      if (currentCorrectScore === undefined) {
+        markInvalidReviewScore(correctScores);
+      }
+      if (currentDesignScore && currentCorrectScore) {
+        markOkReviewScore(designScores);
+        markOkReviewScore(correctScores);
+        options.reviews.save({
+            review: {
+              comments: reviewText.val(),
+              design: currentDesignScore,
+              correct: currentCorrectScore
+            }
+          },
+          function() {
+            // TODO(joe 22 July 2013): Give some feedback
+          });
+      }
+    });
+
+  var reviewText = drawReviewText(false);
+
+  if (!options.hasReviews) {
+    designScores.hide();
+    correctScores.hide();
+    setReviewText(rt, "No versions to review");
+  } else {
+    options.reviews.lookup(function(rev) {
+        enableReviewText(reviewText);
+        if (rev !== null) {
+          setReviewText(rev.review.comments);
+          selectReviewScore(designScores, rev.review.design);
+          selectReviewScore(correctScores, rev.review.correct);
+        }
+      },
+      function(e) {
+        console.error(e);
+      });
+  }
+
+  reviewContainer.append(designScores)
+    .append(correctScores)
+    .append(reviewText)
+    .append(submitReviewButton);
+
+  container.append(showReview).append(reviewContainer);
+  reviewContainer.hide();
+}

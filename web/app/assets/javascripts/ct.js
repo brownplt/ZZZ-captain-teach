@@ -328,94 +328,27 @@ function functionBuilder(container, resources, args) {
   
 
   var reviews = resources.reviews;
-  if (typeof reviews !== 'undefined') {
-    function radios(name, labels, values) {
-      var radioContainer = $("<div>");
-      var id;
-      for(var i = 0; i < labels.length; i++) {
-        id = name + i;
-        radioContainer.append($("<label for='" + id + "'>")
-          .text(labels[i])
-          .append($("<input type='radio' id='" + id + "' name='" + name + "'>")
-          .attr("value", values[i])));
-      }
-      return radioContainer;
-    }
-
-    var showReview = $("<button>").css({float: "right"}).text("Review");
-    var reviewContainer = $("<div>").addClass("reviewContainer");
-
-    function setupReview() {
-      var submitReviewButton = $("<button>")
-        .text("Save this review")
-        .css({float: 'right'})
-        .on("click", function(e) {
-          console.log("Clicking on submit", e);
-          var designScore = reviewContainer.find("input[name=design]:checked").val();
-          var correctScore = reviewContainer.find("input[name=correct]:checked").val();
-          console.log("Clicking on submit after scores", designScore, correctScore);
-          if (designScore === undefined) {
-            designRadios.css({'background-color': 'red'});
-          }
-          if (correctScore === undefined) {
-            correctRadios.css({'background-color': 'red'});
-          }
-          if (designScore && correctScore) {
-            designRadios.css({'background-color': 'transparent'});
-            correctRadios.css({'background-color': 'transparent'});
-            saveReview(reviews.path.versions[0].save, {
-              review: {
-                comments: reviewText.val(),
-                design: designScore,
-                correct: correctScore
-              }
-            }, function() {
-              // TODO(joe 22 July 2013): Give some feedback
-            });
-          }
-        });
-      var designRadios = radios(
-          "design",
-          ["(Worst design) 1", 2, 3, 4, 5, 6, 7, 8, 9, "10 (Best design)"],
-          [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-        .addClass("reviewDesignScore");
-      var correctRadios = radios(
-          "correct",
-          ["(Completely incorrect) 1", 2, 3, 4, 5, 6, 7, 8, 9, "10 (Completely correct)"],
-          [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-        .addClass("reviewCorrectScore");
-      var reviewText = $("<textarea>").css({width: "100%"}).addClass("reviewText");
-
-      reviewText.prop("disabled", true);
-      if (reviews.path.versions.length === 0) {
-        designRadios.hide();
-        correctRadios.hide();
-        reviewText.val("No versions to review");
-      } else {
-        lookupReview(reviews.path.versions[0].lookup, function(rev) {
-            reviewText.prop("disabled", false);
-            if (rev !== null) {
-              reviewText.val(rev.review.comments);
-              designRadios.find("input[value=" + rev.review.design + "]").click();
-              correctRadios.find("input[value=" + rev.review.correct + "]").click();
-            }
+  if (gradeMode) {
+    teacherReviews(container, {
+      hasReviews: Number(reviews.path.versions.length) > 0,
+      reviews: {
+          save: function(review, success, failure) {
+            saveReview(
+              reviews.path.versions[0].save,
+              review,
+              success,
+              failure
+            ); 
           },
-          function(e) {
-            console.error(e);
-          });
-      }
-
-      reviewContainer.append(designRadios)
-        .append(correctRadios)
-        .append(reviewText)
-        .append(submitReviewButton);
-    }
-    setupReview();
-    container.append(showReview).append(reviewContainer);
-    reviewContainer.hide();
-
-
-    showReview.on("click", function(_) { reviewContainer.toggle(); })
+          lookup: function(success, failure) {
+            lookupReview(
+              reviews.path.versions[0].lookup,
+              success,
+              failure
+            );
+          }
+        }
+      });
   }
 
   return {container: container, activityData: {codemirror: editor}};
