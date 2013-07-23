@@ -187,13 +187,14 @@ function functionBuilder(container, resources, args) {
 
   var gradeMode = typeof resources.reviews !== 'undefined';
   
-  var versionsButton = jQuery("<button>+</button>");
+  var versionsButton = jQuery("<button>+</button>")
+    .addClass("versions");
   versionsButton.css({float: "right", padding: "0", width: "20px", height: "20px"});
   codeContainer.css("position", "relative");
   var versionsContainer = jQuery("<div>");
   var versionsList = jQuery("<div>");
   versionsContainer.append(versionsButton);
-  versionsContainer.append("<div class='clearfix'>");
+  versionsContainer.append("<div>").addClass("clearfix");
   versionsContainer.append(versionsList);
   versionsContainer.css({position: "absolute",
                          top: "0",
@@ -259,13 +260,15 @@ function functionBuilder(container, resources, args) {
   var userChecksPoint = edData.userChecks;
   var endPoint = edData.end;
   
-  var button = $("<button>Save and Submit</button>");
+  var button = $("<button>Save and Submit</button>")
+    .addClass("submit");
 
   if (gradeMode) {
     button.hide();
   }
 
   function handleResponse(data, version) {
+    console.log("handling: ", data);
     // NOTE(dbp): cache it so our changes don't count
     var oc = onChangeVersionsCreateRevision;
     
@@ -278,6 +281,7 @@ function functionBuilder(container, resources, args) {
     
     var body = data.body || "\n";
     var userChecks = data.userChecks || "\n";
+    console.log("inserting body: ", body);
     bodyPoint.insert(body);
     userChecksPoint.insert(userChecks);
 
@@ -309,13 +313,14 @@ function functionBuilder(container, resources, args) {
         versionsList.append(jQuery("<span>No versions</span>"));
       }
       versions.forEach(function (v) {
-        var b = jQuery("<button>");
+        var b = jQuery("<button>").addClass("switch-version");
         b.text(v.time);
         b.click(function () {
           if (onChangeVersionsCreateRevision) {
             saveVersion();
           }
           lookupResource(v.resource, function (response) {
+            console.log("got: ", response);
             loadVersions();
             handleResponse(JSON.parse(response.file));
           },
@@ -366,6 +371,7 @@ function functionBuilder(container, resources, args) {
   lookupResource(blobId, handleResponse, function () {
     lookupResource(pathId,
                    function (response) {
+                     console.log("response: ", response);
                      handleResponse(JSON.parse(response.file))
                    },
                    function() { });

@@ -1,28 +1,87 @@
-mockServerTable = {};
 mockReviewTable = {};
+// mapping from resource to json
+mockBlobTable = {};
+// mapping from resource to list of gitref, json pairs, most recent first
+mockPathTable = {};
 
 AUTOSAVE_ENABLED = false;
 
-function setMockServerTable(table) {
-  mockServerTable = table || {};
+var GIT_ID = 0;
+
+function resetMockServer(table) {
+  mockBlobTable = {};
+  mockPathTable = {};
 }
 function setMockReviewTable(table) {
   mockReviewTable = table || {};
 }
 
-window.lookupResource = function(resource, present, absent, error) {
-  if (mockServerTable.hasOwnProperty(resource)) {
-    console.log("Mock server fetching, ", resource, mockServerTable);
-    present(mockServerTable[resource]);
+function lookupInTable(table, type, resource, present, absent, error, postProcess) {
+  if (typeof postProcess === 'undefined') {
+    postProcess = function (x) { return x; };
+  }
+  
+  if (table.hasOwnProperty(resource)) {
+    console.log("Mock server fetching ", type, ", ",
+                resource, table);
+    present(postProcess(table[resource]));
   } else {
-    console.log("Mock server missed, ", resource, mockServerTable);
+    console.log("Mock server missed ", type, ", ",
+                resource, table);
     absent();
+  }
+}
+
+window.lookupResource = function(resource, present, absent, error) {
+  var wrapFile = function(file) {
+    return {file: JSON.stringify(file)}
+  };
+  if (resource[0] === 'b') {
+    lookupInTable(mockBlobTable, "blob", resource,
+                  present, absent, error, function (b) {
+                    return JSON.stringify(b);
+                  });
+  } else if (resource[0] === 'p') {
+    var latest = function (gitRefList) {
+      return wrapFile(gitRefList[0][1]);
+    };
+    lookupInTable(mockPathTable, "path",
+                  resource, present,
+                  absent, error,
+                  latest);
+  } else if (resource[0] === 'g') {
+    var isPresent = false;
+    Object.keys(mockPathTable).forEach(function (k) {
+      mockPathTable[k].forEach(function (gitRefPair) {
+        if (gitRefPair[0] === resource) {
+          console.log("Mock server fetching gitref, ",
+                      resource);
+          present(wrapFile(gitRefPair[1]));
+          isPresent = true;
+        }
+      });
+    });
+    if (!isPresent) {
+      console.log("Mock server missed gitref, ", resource, mockPathTable);
+      absent();
+    }
+  } else {
+    console.error("Mock server presented with resource it didn't understand: ", resource);
   }
 };
 
 window.lookupVersions = function(resource, callback, error) {
-  // TODO(dbp): make this actually do something?
-  callback([]);
+  if (resource[0] !== 'p') {
+    callback([{time: "", resource: resource}]);
+  } else {
+    if (mockPathTable.hasOwnProperty(resource)) {
+      callback(mockPathTable[resource].map(function (gitRefPair) {
+        return {time: "Unknown Time", resource: gitRefPair[0]};
+      }));
+    } else {
+      console.log("Mock server missed versions on pathref ", resource, mockPathTable);
+    }
+  }
 }
 
 function getReviewId(review) { return review.substr(review.lastIndexOf("/")); }
@@ -39,9 +98,28 @@ window.lookupReview = function(review, present, error) {
 };
 
 window.saveResource = function(resource, data, success, failure) {
-  console.log("Mock server saving, ", resource, data, mockServerTable);
-  mockServerTable[resource] = data;
-  success();
+  console.log("Mock server saving, ", resource, data);
+
+  if (resource[0] === 'g') {
+    // can't save a gitref
+    failure();
+  } else if (resource[0] === 'p') {
+    // a pathref
+    var uid = resource[resource.length-1];
+    var newRef = ["g:r:" + GIT_ID++ + ":" + uid, data];
+    if (mockPathTable.hasOwnProperty(resource)) {
+      mockPathTable[resource].unshift(newRef);
+    } else {
+      mockPathTable[resource] = [newRef];
+    }
+    success();
+  } else if (resource[0] === 'b' ){
+    mockBlobTable[resource] = data;
+    success();
+  } else {
+    console.error("Mock server presented with resource it didn't understand: ", resource);
+    failure();
+  }
 };
 
 window.saveReview = function(review, data, success, failure) {
@@ -52,16 +130,18 @@ window.saveReview = function(review, data, success, failure) {
 };
 
 describe("function activities", function() {
+  var functionPathRef = "p:rw:my-id:1";
+  var functionBlobRef = "b:rw:my-id:1";
   var functionData;
   var functionArgs = {includes: [], check: "checkers.check-equals(my_foo(),...)", header: "fun my_foo():"};
   beforeEach(function() {
-    functionData = builders["function"]($("<div>"), {path: "p:rw:my-id:1", blob: "b:rw:my-id:1"}, functionArgs);
+    resetMockServer();
+    functionData = builders["function"]($("<div>"), {path: functionPathRef, blob: functionBlobRef}, functionArgs);
   });
   
   it("should create codemirror", function () {
     expect(functionData.container.find(".CodeMirror").length).not.toEqual(0);
   });
-
   it("should have header in codemirror, but not check", function () {
     var cm = functionData.activityData.codemirror;
     expect(cm.getValue()).toContainStr(functionArgs.header);
@@ -69,7 +149,29 @@ describe("function activities", function() {
   });
 
   it("should have a submit button", function () {
-    expect(functionData.container.find("button").length).toBeGreaterThan(0);
+    console.log("submit button:", functionData.container);
+    expect(functionData.container.find("button.submit").length).toBe(1);
+  });
+
+  it("when you click submit, should create a new version", function () {
+    functionData.container.find("button.submit").click();
+    expect(mockPathTable[functionPathRef].length).toBe(1);
+  });
+
+  it("when you switch to a version, it should put the contents in the editor", function () {
+    resetMockServer();
+    mockPathTable[functionPathRef] = [["g:r:0:1", {body: 'my cool program', userChecks: ''}]];
+    
+    var container = $("<div>");
+    container.hide();
+    $("body").append(container);
+    functionData = builders["function"](container, {path: functionPathRef, blob: functionBlobRef}, functionArgs);
+    
+    functionData.container.find("button.switch-version").click();
+    expect(functionData.activityData
+           .codemirror.getDoc().getValue())
+      .toContainStr("my cool program");
+    window.CM = functionData.activityData.codemirror;
   });
 
   describe("grading activities", function() {
@@ -148,7 +250,7 @@ describe("multiple-choice activities", function() {
   }
   
   beforeEach(function() {
-    mockServerTable = {};
+    resetMockServer();
     id1 = mkId("option1");
     id2 = mkId("option2");
     preDiv = $("<div>");
@@ -178,7 +280,7 @@ describe("multiple-choice activities", function() {
 
   it("should do nothing if nothing selected", function() {
     preDiv.find("button").click();
-    expect(mockServerTable[rcId]).toBeUndefined();
+    expect(mockBlobTable[rcId]).toBeUndefined();
   });
 
   it("should save and color if something is selected", function() {
@@ -186,7 +288,7 @@ describe("multiple-choice activities", function() {
     var opt1 = $(preDiv.find("input[type=radio]")[0]);
     opt1.click();
     preDiv.find("button").click();
-    expect(mockServerTable[rcId]).toEqual({selected: id1});
+    expect(mockBlobTable[rcId]).toEqual({selected: id1});
     var correctLabel = $(preDiv.find("label")[0]);
     var otherLabel = $(preDiv.find("label")[1]);
     expect(correctLabel.css("background-color")).toEqual("green");
