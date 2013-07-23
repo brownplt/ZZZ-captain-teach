@@ -1,3 +1,10 @@
+// NOTE(dbp): There can only be one instance of whalesong,
+// and the place that whalesong uses for stdout is set at
+// the machine level, so if we want the appearance of having
+// many instances on a single page, we need a mechanism of
+// switching what the whalesong writer is pointing to. Hence,
+// our simple mutex.
+
 (function(global) {
   var LOCKED = false;
   var currentWhalesongWriter;
@@ -46,22 +53,97 @@
 
 //: -> (code -> printing it on the repl)
 function makeRepl(container) {
+  var items = [];
+  var pointer = -1;
+  var current = "";
+  function loadItem() {
+    CM.setValue(items[pointer]);
+  }
+  function saveItem() {
+    items.unshift(CM.getValue());
+  }
+  function prevItem() {
+    if (pointer === -1) {
+      current = CM.getValue();
+    }
+    if (pointer < items.length - 1) {
+      pointer++;
+      loadItem();
+    }
+  }
+  function nextItem() {
+    if (pointer >= 1) {
+      pointer--;
+      loadItem();
+    } else if (pointer === 0) {
+      CM.setValue(current);
+      pointer--;
+    }
+  }
+  
+  
 
-  var prompt = jQuery("<input type='text' id='prompt'>");
   var promptContainer = jQuery("<div id='prompt-container'>");
-  promptContainer.append("<span>&gt;&nbsp;</span>");
-  var output = jQuery("<div id='output'>");
+  var prompt = jQuery("<div>").css({
+    "width": "90%",
+    "display": "inline-block"
+  });
+  promptContainer.append($("<span>&gt;&nbsp;</span>"))
+    .append(prompt);
+  
+
+    
+  var output = jQuery("<div id='output' class='cm-s-default'>");
   var breakButton = jQuery("<img id='break' src='http://localhost:8080/break.png'>");
   
   var clearDiv = jQuery("<div class='clear'>");
 
-  prompt.css({
-    'width': '95%'
-  });
-
-  promptContainer.append(prompt);
   container.append(output).append(promptContainer).
     append(breakButton).append(clearDiv);
+
+  var runCode = function (src, uiOptions, options) {
+    breakButton.show();
+    output.empty();
+    promptContainer.hide();
+    promptContainer.fadeIn(100);
+    var defaultReturnHandler = options.check ? checkModePrettyPrint : prettyPrint;
+    var thisReturnHandler = uiOptions.handleReturn || defaultReturnHandler;
+    var thisWrite = uiOptions.write || write;
+    evaluator.run("run", src, clear, thisReturnHandler, thisWrite, options);
+  };
+
+  
+  var CM = makeEditor(prompt, {
+    run: function(code, opts, replOpts) {
+      console.log("code: ", code);
+      items.unshift(code);
+      pointer = -1;
+      write(jQuery('<span>&gt;&nbsp;</span>'));
+      var echo = $("<span class='repl-echo CodeMirror'>");
+      write(echo);
+      formatCode(echo[0], code);
+      write(jQuery('<br/>'));
+      breakButton.show();
+      CM.setOption("readOnly", "nocursor");
+      evaluator.run('interactions',
+                  code,
+                  clear,
+                  prettyPrint,
+                  write,
+                  {});
+    },
+    initial: "",
+    cmOptions: {
+      extraKeys: {
+        'Ctrl-Up': function(cm) {
+          prevItem();
+        },
+        'Ctrl-Down': function(cm) {
+          nextItem();
+        }
+      }
+    }
+  });
 
   var write = function(dom) {
     output.append(dom);
@@ -69,7 +151,7 @@ function makeRepl(container) {
   };
 
   var clear = function() {
-    allowInput(prompt, true)();
+    allowInput(CM, true)();
   };
 
   var onError = function(err) {
@@ -158,40 +240,28 @@ function makeRepl(container) {
   }
 
   var onReady = function () {
-    prompt.val('');
+  /*  prompt.val('');
     prompt.removeAttr('disabled');
-    prompt.css('background-color', 'white');
+    prompt.css('background-color', 'white');*/
   };
 
-  
-  prompt.attr('disabled', 'true');
-  prompt.val('Please wait, initializing...');
-  
   var evaluator = makeEvaluator(container, prettyPrint, onError, onReady);
 
-  var runCode = function (src, uiOptions, options) {
-    breakButton.show();
-    output.empty();
-    promptContainer.hide();
-    promptContainer.fadeIn(100);
-    var defaultReturnHandler = options.check ? checkModePrettyPrint : prettyPrint;
-    var thisReturnHandler = uiOptions.handleReturn || defaultReturnHandler;
-    var thisWrite = uiOptions.write || write;
-    evaluator.run("run", src, clear, thisReturnHandler, thisWrite, options);
-  };
-
+  
   var onBreak = function() { 
     evaluator.requestBreak(clear);
   };
 
 
-  var allowInput = function(elt, clear) { return function() {
+  var allowInput = function(CM, clear) { return function() {
     if (clear) {
-      elt.val('');
+      CM.setValue("");
     }
-    elt.removeAttr('disabled');
-    elt.css('background-color', 'white');
+
+    CM.setOption("readOnly", false);
     breakButton.hide();
+
+    CM.focus();
   } };
 
   var onReset = function() { 
@@ -203,13 +273,10 @@ function makeRepl(container) {
   
 
   var onExpressionEntered = function(srcElt) {
-    var src = srcElt.val();
+    var src = CM.getDoc().getValue();
     write(jQuery('<span>&gt;&nbsp;</span>'));
     write(jQuery('<span>').append(src));
     write(jQuery('<br/>'));
-    jQuery(srcElt).val("");
-    srcElt.attr('disabled', 'true');
-    srcElt.css('background-color', '#eee');
     breakButton.show();
     evaluator.run('interactions',
                   src,
@@ -222,14 +289,8 @@ function makeRepl(container) {
   
   breakButton.hide();
   breakButton.click(onBreak);
-
-  prompt.keypress(function(e) {
-    if (e.which == 13 && !prompt.attr('disabled')) { 
-      onExpressionEntered(prompt);
-    }});
-
+  
   return runCode;
-
 }
 
 function makeEvaluator(container, handleReturnValue, onError, onReady) {

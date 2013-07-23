@@ -25,7 +25,7 @@ function makeEditor(container, options) {
     viewportMargin: Infinity
   };
 
-  cmOptions = _.extend(cmOptions, options.cmOptions);
+  cmOptions = _.merge(cmOptions, options.cmOptions);
   
   var CM = CodeMirror.fromTextArea(textarea[0], cmOptions);
 

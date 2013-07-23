@@ -19,7 +19,9 @@
 //= require editor
 //= require repl
 //= require codemirror
+//= require runmode
 //= require pyret
-//= require underscore
+//= require lodash.min
 
 "use strict";
+
