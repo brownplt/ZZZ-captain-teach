@@ -188,21 +188,6 @@ function functionBuilder(container, resources, args) {
 
   var gradeMode = typeof resources.reviews !== 'undefined';
   
-  var versionsShown = false;
-  var versionsButton = drawVersionsButton(function () {
-    if (versionsShown) {
-      versionsList.css("display", "none");
-      versionsShown = false;
-    } else {
-      versionsList.css("display", "block");
-      versionsShown = true;
-    }
-  });
-  var versionsList = drawVersionsList(false, []);
-  var versionsContainer = drawVersionsContainer(versionsButton, versionsList);
-
-  codeContainer.append(versionsContainer);
-  
   var editor = makeEditor(codeContainer,
                          { initial: "\n\n\n\n",
                            cmOptions: { readOnly: gradeMode, lineNumbers: true },
@@ -211,18 +196,9 @@ function functionBuilder(container, resources, args) {
                              RUN_CODE(prelude + src, uiOpts, replOpts);
                            }});
 
-  // NOTE(dbp): When we change to an old version, we save the current work as
-  // a revision. However, if we are switching between many versions, we don't want
-  // to keep creating new ones (only the first one).
-  var onChangeVersionsCreateRevision = true;
-  editor.on("change", function () {
-    onChangeVersionsCreateRevision = true;
-  });
-  
   var doc = editor.getDoc();
 
   ASSIGNMENT_PIECES.push({id: pathId, editor: editor, mode: args.mode});
-
 
   function setUpEditor(doc) {
     doc.setValue("\n\n\n\n");
@@ -256,9 +232,7 @@ function functionBuilder(container, resources, args) {
 
   function handleResponse(data, version) {
     console.log("handling: ", data);
-    // NOTE(dbp): cache it so our changes don't count
-    var oc = onChangeVersionsCreateRevision;
-    
+
     var edData = setUpEditor(doc);
     headerPoint = edData.header;
     bodyPoint = edData.body;
@@ -271,8 +245,6 @@ function functionBuilder(container, resources, args) {
     console.log("inserting body: ", body);
     bodyPoint.insert(body);
     userChecksPoint.insert(userChecks);
-
-    onChangeVersionsCreateRevision = oc;
   }
   
   function getWork() {
@@ -282,58 +254,43 @@ function functionBuilder(container, resources, args) {
   }
 
   function saveWork() {
-    setVersionsButtonPending(versionButton);
+    // TODO(joe): Some gif for pending save goes here
+    versionsUI.onStartSave();
     saveResource(blobId, getWork(), function () {
       setTimeout(function () {
-        setVersionsButtonReady(versionButton);
+        versionsUI.onFinishSave();
       }, 1000);
     }, function (xhr, response) {
       console.error("Saving failed.");
     });
   }
 
-  function loadVersions() {
-    versionsList.text("");
-    lookupVersions(pathId, function (versions) {
-      if (versions.length == 0) {
-        versionsList.append(drawNoVersions());
-      }
-      versions.forEach(function (v) {
-        var b = drawVersionButton(v.time);
-        b.on("click", function () {
-          if (onChangeVersionsCreateRevision) {
-            saveVersion();
-          }
-          lookupResource(v.resource, function (response) {
-            loadVersions();
-            handleResponse(JSON.parse(response.file));
-          },
-           function () { console.error("Couldn't find resource from version. This is bad!"); });
-        });
-        versionsList.append(b);
-        versionsList.append(jQuery("<br>"));
+  var versionsUI = versions(codeContainer, {
+    lookupVersions: function(success, error) {
+      lookupVersions(pathId, function(versions) {
+        success(versions.map(function(v) {
+          return {
+            lookup: function(success2, error2) {
+              lookupResource(v.resource, success2, error2, error2);
+            },
+            time: v.time,
+            original: v
+          };
+        }));
       });
-    });
-  }
+    },
+    save: function(success, error) {
+      saveResource(pathId, getWork(), success, error);
+    },
+    onLoadVersion: function(response) {
+      handleResponse(JSON.parse(response.file));
+    }
+  });
 
-  loadVersions();
+  editor.on("change", versionsUI.onChange);
 
-  
-  function saveVersion() {
-    onChangeVersionsCreateRevision = false;
-    setVersionsButtonPending(versionButton);
-    saveResource(pathId, getWork(), function () {
-      setTimeout(function () {
-        setVersionsButtonReady(versionButton);
-        loadVersions();
-      }, 1000);
-    }, function (xhr, response) {
-      console.error("Saving failed.");
-    });
-  }
-  
   button.click(function () {
-    saveVersion();
+    versionsUI.saveVersion();
     
     var lastLine = doc.lineCount()-1;
     var prelude = getPreludeFor(pathId);

@@ -1,0 +1,30 @@
+
+<div style="height:10em">
+  <div id="versionsHidden" style="position:relative; width: 25%">
+  </div>
+  <div style="clear:both;"></div>
+</div>
+<script>
+$(function() {
+  var vButton = drawVersionsButton();
+  var vList = drawVersionsList(false, []);
+  var vContainer = drawVersionsContainer(vButton, vList);
+  $("#versionsHidden").append(vContainer);
+});
+</script>
+
+<div>
+  <div id="versionsShown" style="position:relative; width: 25%">
+  </div>
+  <div style="clear:both;"></div>
+</div>
+<script>
+$(function() {
+  var vButton = drawVersionsButton();
+  var b1 = drawVersionButton(Date());
+  var b2 = drawVersionButton(Date());
+  var vList = drawVersionsList(true, [b1, b2]);
+  var vContainer = drawVersionsContainer(vButton, vList);
+  $("#versionsShown").append(vContainer);
+});
+</script>

@@ -76,7 +76,7 @@ window.lookupVersions = function(resource, callback, error) {
   } else {
     if (mockPathTable.hasOwnProperty(resource)) {
       callback(mockPathTable[resource].map(function (gitRefPair) {
-        return {time: "Unknown Time", resource: gitRefPair[0]};
+        return {time: gitRefPair[0], resource: gitRefPair[0]};
       }));
     } else {
       console.log("Mock server missed versions on pathref ", resource, mockPathTable);
@@ -167,7 +167,9 @@ describe("function activities", function() {
     $("body").append(container);
     functionData = builders["function"](container, {path: functionPathRef, blob: functionBlobRef}, functionArgs);
 
-    functionData.container.find("button.switch-version")[1].click();
+    var versionButtons = functionData.container.find("button.versionButton");
+    console.log(versionButtons);
+    $(versionButtons[1]).click();
     expect(functionData.activityData
            .codemirror.getDoc().getValue())
       .toContainStr("my cool program");
