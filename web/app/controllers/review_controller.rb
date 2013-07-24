@@ -8,6 +8,12 @@ class ReviewController < ApplicationController
     }
   end
 
+  def self.reviewee_links(r)
+    {
+      lookup: "/review/lookup/#{r.id}"
+    }
+  end
+
   def lookup
     r = Review.find(params[:rid])
     render :json => r.contents, :status => 200
@@ -30,6 +36,8 @@ class ReviewController < ApplicationController
       if (not parsed.nil?) and (not parsed["review"].nil?)
         to_save = JSON.dump(parsed)
         r.update_or_start(to_save)
+        r.done = true
+        r.save!
         render :json => to_save, :status => 200
       else
         application_not_found("Bad JSON: #{review}")

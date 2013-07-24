@@ -227,8 +227,25 @@ module Resource
       repo = user.user_repo
       if repo.has_file_head?(ref)
         p = PathRef.new(:user_repo => user.user_repo, :path => ref)
-        versions = p.versions.map {|v| {time: v[:time],
-            resource: Resource::mk_resource('g',perm,"#{ref}@#{v[:oid]}",user.id)}}
+        versions = p.versions.map {|v|
+          resource = Resource::mk_resource('g',perm,"#{ref}@#{v[:oid]}",user.id)
+          ro_resource = Resource::read_only(resource)
+          review_assignments = ReviewAssignment.where(
+            :reviewee => user,
+            :resource => ro_resource
+          )
+          reviews = []
+          review_assignments.map { |ra|
+            if (not ra.review.nil?) and ra.review.done
+              reviews << ReviewController.reviewee_links(ra.review)
+            end
+          }
+          {
+            time: v[:time],
+            resource: resource,
+            reviews: reviews
+          }
+        }
         return Normal.new(versions)
       else
         return NotFound.new

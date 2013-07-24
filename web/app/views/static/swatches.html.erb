@@ -120,11 +120,11 @@ $(function() {
             lookup: function(success2) { success2("Version 1"); },
             reviews: [{
                 lookup: function(success2) {
-                  success2({
+                  success2({ review: {
                     correct: "6",
                     design: "7",
                     comments: "Nice try, use more helpers"
-                  });
+                  }});
                 }
               }]
           }, {
@@ -132,19 +132,19 @@ $(function() {
             lookup: function(success2) { success2("Version 2"); },
             reviews: [{
                 lookup: function(success2) {
-                  success2({
+                  success2({ review: {
                     correct: "7",
                     design: "8",
                     comments: "Helpers are there, still not passing tests"
-                  });
+                  }});
                 }
               }, {
                 lookup: function(success2) {
-                  success2({
+                  success2({review: {
                     correct: "8",
                     design: "7",
                     comments: "Avoid parentheses when unnecessary"
-                  });
+                  }});
                 }
               }
             ]
@@ -161,8 +161,4 @@ $(function() {
     });
   });
 </script>
-
-
-
-
 

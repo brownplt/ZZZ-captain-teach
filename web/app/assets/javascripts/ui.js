@@ -75,6 +75,8 @@ function versions(container, options) {
               });
             });
             options.panel.addTab(options.name + "@" + v.time, reviewsDiv);
+            versionsList.toggle();
+            return false;
           });
         }
 
@@ -145,7 +147,7 @@ function teacherReviews(container, options) {
   if (!options.hasReviews) {
     designScores.hide();
     correctScores.hide();
-    setReviewText(rt, "No versions to review");
+    setReviewText(reviewText, "No versions to review");
   } else {
     options.reviews.lookup(function(rev) {
         enableReviewText(reviewText);

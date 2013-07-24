@@ -122,9 +122,9 @@ function drawReviewContainer() {
 
 function drawReview(revData) {
   return $("<div>")
-    .append($("<p>").text("Design score: " + revData.design))
-    .append($("<p>").text("Correctness score: " + revData.correct))
-    .append($("<p>").text("Comments: " + revData.comments));
+    .append($("<p>").text("Design score: " + revData.review.design))
+    .append($("<p>").text("Correctness score: " + revData.review.correct))
+    .append($("<p>").text("Comments: " + revData.review.comments));
 }
 
 function createTabPanel(container) {

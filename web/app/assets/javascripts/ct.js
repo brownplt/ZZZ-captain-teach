@@ -46,17 +46,19 @@ function getPreludeFor(id) {
 
 function lookupResource(resource, present, absent, error) {
   if (typeof error === 'undefined') {
-    error = function(xhr, e) { console.error(xhr, e); }
+    error = function(xhr, e) {
+      ct_error("lookupResource failed:", resource, xhr, e);
+    }
   }
   $.ajax(rails_host + '/resource/lookup?resource=' + resource, {
     success: function(response, _, xhr) {
       present(response);
     },
-    error: function(xhr, error) {
+    error: function(xhr, errorMsg) {
       if (xhr.status === 404) {
         absent();
       } else {
-        error(xhr, error);
+        error(xhr, errorMsg);
       }
     }
   });
@@ -64,17 +66,19 @@ function lookupResource(resource, present, absent, error) {
 
 function lookupVersions(resource, callback, error) {
   if (typeof error === 'undefined') {
-    error = function(xhr, e) { console.error(xhr, e); }
+    error = function(xhr, e) {
+      ct_error("lookupVersions failed:", resource, xhr, e);
+    }
   }
   $.ajax(rails_host + '/resource/versions?resource=' + resource, {
     success: function(response, _, xhr) {
       callback(response);
     },
-    error: function(xhr, error) {
+    error: function(xhr, errorMsg) {
       if (xhr.status === 404) {
         callback([]);
       } else {
-        error(xhr, error);
+        error(xhr, errorMsg);
       }
     }
   });
@@ -216,6 +220,8 @@ function functionBuilder(container, resources, args) {
   }
 
   var versionsUI = versions(codeContainer, {
+    panel: window.PANEL,
+    name: "Function Definition",
     lookupVersions: function(success, error) {
       lookupVersions(pathId, function(versions) {
         success(versions.map(function(v) {
@@ -224,6 +230,13 @@ function functionBuilder(container, resources, args) {
               lookupResource(v.resource, success2, error2, error2);
             },
             time: v.time,
+            reviews: v.reviews.map(function(r) {
+              return {
+                lookup: function(success2) {
+                  lookupReview(r.lookup, success2);
+                }
+              };
+            }),
             original: v
           };
         }));
