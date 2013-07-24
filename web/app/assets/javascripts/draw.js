@@ -7,6 +7,10 @@ function drawVersionButton(time) {
   return b;
 }
 
+function drawVersionEntry(reviewsButton, versionButton) {
+  return $("<div>").append(reviewsButton).append(versionButton);
+}
+
 function drawVersionsButton() {
   return $("<button>+</button>").addClass("versionsButton");
 }
@@ -22,7 +26,7 @@ function setVersionsButtonReady(b) {
 function drawVersionsContainer(versionsButton, versionsList) {
   return $("<div>")
     .append(versionsButton)
-    .append("<div>").addClass("clearfix")
+    .append($("<div>").addClass("clearfix"))
     .append(versionsList)
     .addClass("versionsContainer");
 }
@@ -95,6 +99,32 @@ function enableReviewText(rt) {
 
 function setReviewText(rt, text) {
   rt.val(text);
+}
+
+function drawReviewsButton(count) {
+  if (count === 0) {
+    return $("<span></span>");
+  }
+  else {
+    return $("<a href='#'>R:" + count + "</a>");
+  }
+}
+
+function drawReviewsDiv(name, time) {
+  var rd = $("<div>");
+  rd.append($("<h3>").text("Review for " + name + " at " + time));
+  return rd;
+}
+
+function drawReviewContainer() {
+  return $("<div>");
+}
+
+function drawReview(revData) {
+  return $("<div>")
+    .append($("<p>").text("Design score: " + revData.design))
+    .append($("<p>").text("Correctness score: " + revData.correct))
+    .append($("<p>").text("Comments: " + revData.comments));
 }
 
 function createTabPanel(container) {

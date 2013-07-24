@@ -3,7 +3,8 @@
 options<a>: {
   save: (-> undefined) -> undefined,
   lookupVersions: ([Version<a>] -> undefined) -> undefined,
-  onLoadVersion: a -> undefined
+  onLoadVersion: a -> undefined,
+  panel: { addTab: String, DOM, tabOptions -> undefined }
 }
 
 where
@@ -59,8 +60,28 @@ function versions(container, options) {
           },
            function () { console.error("Couldn't find resource from version. This is bad!"); });
         });
-        versionsList.append(b);
-        versionsList.append(jQuery("<br>"));
+
+        var numReviews = v.reviews.length;
+        var revsButton = drawReviewsButton(numReviews);
+        if (numReviews > 0) {
+          revsButton.on("click", function() {
+            var reviewsDiv = drawReviewsDiv(options.name, v.time);
+            v.reviews.forEach(function(r) {
+              var reviewContainer = drawReviewContainer();
+              reviewsDiv.append(reviewContainer);
+              r.lookup(function(revData) {
+                ct_log("Revdata: ", revData);
+                reviewContainer.append(drawReview(revData));
+              });
+            });
+            options.panel.addTab(options.name + "@" + v.time, reviewsDiv);
+          });
+        }
+
+        var versionEntry = drawVersionEntry(revsButton, b);
+
+        versionsList.append(versionEntry);
+
       });
     });
   }
