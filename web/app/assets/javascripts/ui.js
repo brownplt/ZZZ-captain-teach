@@ -135,3 +135,56 @@ function teacherReviews(container, options) {
   container.append(showReview).append(reviewContainer);
   reviewContainer.hide();
 }
+
+function repeat(n, s) {
+  var str = "";
+  for(var i = 0; i < n; i++) {
+    str += s;
+  }
+  return str;
+}
+
+function createEditor(doc, uneditables, options) {
+  var end = doc.setBookmark({line: 0, ch: 0}, {insertLeft: true});
+  var i = 0;
+  var marks = [];
+  uneditables.forEach(function(u) {
+    var oldEnd = end.find();
+    var isFirst = (i === 0);
+    var isLast = (i === uneditables.length - 1);
+    var toInsert = isFirst ? uneditables[i] : "\n" + uneditables[i];
+    doc.replaceRange(toInsert, end.find());
+    var newEnd = end.find();
+    var markEnd = { line: newEnd.line, ch: newEnd.ch };
+    marks.push(doc.markText(
+      oldEnd,
+      markEnd, {
+        atomic: true,
+        readOnly: true,
+        inclusiveLeft: isFirst,
+        inclusiveRight: isLast,
+        className: 'cptteach-fixed'
+      }));
+    i += 1;
+  });
+
+  function getRegions() {
+    var regions = [];
+    for(var i = 0; i < marks.length - 1; i++) {
+      var start = marks[i].find().to;
+      var end = marks[i + 1].find().from;
+      var region = doc.getRange(start, end);
+      regions.push(region);
+    }
+    return regions;
+  }
+
+  return {
+    setAt: function(index, text) {
+      doc.replaceRange(text, marks[index].find().to, marks[index + 1].find().from);
+    },
+    getAt: function(index) {
+      return getRegions()[index];
+    }
+  };
+}

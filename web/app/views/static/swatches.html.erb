@@ -13,7 +13,7 @@ $(function() {
 });
 </script>
 
-<div>
+<div style="height:10em;">
   <div id="versionsShown" style="position:relative; width: 25%">
   </div>
   <div style="clear:both;"></div>
@@ -26,5 +26,39 @@ $(function() {
   var vList = drawVersionsList(true, [b1, b2]);
   var vContainer = drawVersionsContainer(vButton, vList);
   $("#versionsShown").append(vContainer);
+});
+</script>
+
+<div>
+  <div id="codemirror-regions-test">
+  </div>
+  <div id="codemirror-results">
+  </div>
+  <div style="clear:both;"></div>
+</div>
+<script>
+$(function() {
+  var cm = makeEditor(
+    $("#codemirror-regions-test"),
+    {
+      initial: "",
+      run: function() {}
+    }
+  );
+  var editor = createEditor(cm.getDoc(), [
+      "fun f():",
+      "check:",
+      "end"
+    ]);
+  setInterval(function() {
+    $("#codemirror-results").empty();
+    $("#codemirror-results").append(
+      $("<ul>")
+        .append($("<li>").text(editor.getAt(0)))
+        .append($("<li>").text(editor.getAt(1))));
+  }, 100);
+  setInterval(function() {
+    editor.setAt(1, "\n  # Forcing these checks down yo throat");
+  }, 1000);
 });
 </script>
