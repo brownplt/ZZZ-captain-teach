@@ -47,9 +47,12 @@ $(function() {
   );
   var editor = createEditor(cm.getDoc(), [
       "fun f():",
-      "check:",
-      "end"
-    ]);
+      "\ncheck:",
+      "\nend"
+    ],
+    {
+      initial: {0: "\n  # Your code here", 1: "\n  # Your tests here"} 
+    });
   setInterval(function() {
     $("#codemirror-results").empty();
     $("#codemirror-results").append(
@@ -60,5 +63,37 @@ $(function() {
   setInterval(function() {
     editor.setAt(1, "\n  # Forcing these checks down yo throat");
   }, 1000);
+});
+</script>
+
+<div>
+  <div id="codemirror-inline-test">
+  </div>
+  <div id="codemirror-inline-results">
+  </div>
+  <div style="clear:both;"></div>
+</div>
+<script>
+$(function() {
+  var cm = makeEditor(
+    $("#codemirror-inline-test"),
+    {
+      initial: "",
+      run: function() {}
+    }
+  );
+  var editor = createEditor(cm.getDoc(), [
+      "fun f(x ::",", y ::",")"
+    ], {
+      names: ["xAnn", "yAnn"],
+      initial: {xAnn: " ", yAnn: " String"}
+    });
+  setInterval(function() {
+    $("#codemirror-inline-results").empty();
+    $("#codemirror-inline-results").append(
+      $("<ul>")
+        .append($("<li>").text(editor.getAt("xAnn")))
+        .append($("<li>").text(editor.getAt("yAnn"))));
+  }, 100);
 });
 </script>

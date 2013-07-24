@@ -152,8 +152,7 @@ function createEditor(doc, uneditables, options) {
     var oldEnd = end.find();
     var isFirst = (i === 0);
     var isLast = (i === uneditables.length - 1);
-    var toInsert = isFirst ? uneditables[i] : "\n" + uneditables[i];
-    doc.replaceRange(toInsert, end.find());
+    doc.replaceRange(uneditables[i], end.find());
     var newEnd = end.find();
     var markEnd = { line: newEnd.line, ch: newEnd.ch };
     marks.push(doc.markText(
@@ -168,23 +167,49 @@ function createEditor(doc, uneditables, options) {
     i += 1;
   });
 
-  function getRegions() {
-    var regions = [];
-    for(var i = 0; i < marks.length - 1; i++) {
-      var start = marks[i].find().to;
-      var end = marks[i + 1].find().from;
-      var region = doc.getRange(start, end);
-      regions.push(region);
+  function getIndex(indexOrName) {
+    var result = useNames ? indexDict[indexOrName] : indexOrName;
+    if (result === undefined) { throw "No such index: " + indexOrName; }
+    return Number(result);
+  }
+
+  function setAt(indexOrName, text) {
+    var i = getIndex(indexOrName); 
+    doc.replaceRange(text, marks[i].find().to, marks[i + 1].find().from);
+  }
+
+  function getAt(indexOrName) {
+    var i = getIndex(indexOrName); 
+    var start = marks[i].find().to;
+    var end = marks[i + 1].find().from;
+    return doc.getRange(start, end);
+  }
+
+  var indexDict = {};
+  var useNames = options.hasOwnProperty("names");
+  if (useNames) {
+    if (options.names.length !== marks.length - 1) {
+      throw "Wrong number of names for regions: " +
+            options.names +
+            ", " +
+            uneditables;
     }
-    return regions;
+    var i = 0;
+    options.names.forEach(function(n) {
+      indexDict[n] = i;
+      i += 1;
+    });
+  }
+
+  var hasInitial = options.hasOwnProperty("initial");
+  if (hasInitial) {
+    Object.keys(options.initial).forEach(function(k) {
+      setAt(k, options.initial[k]);
+    });
   }
 
   return {
-    setAt: function(index, text) {
-      doc.replaceRange(text, marks[index].find().to, marks[index + 1].find().from);
-    },
-    getAt: function(index) {
-      return getRegions()[index];
-    }
+    setAt: setAt,
+    getAt: getAt
   };
 }
