@@ -1,3 +1,17 @@
+
+/*
+options<a>: {
+  save: (-> undefined) -> undefined,
+  lookupVersions: ([Version<a>] -> undefined) -> undefined,
+  onLoadVersion: a -> undefined
+}
+
+where
+
+Version = {time: String, reviews: [Review], lookup: (a -> undefined) -> undefined}
+Review = {lookup: ({(design|correct|comments): String} -> undefined) -> undefined}
+*/
+
 function versions(container, options) {
 
   var versionsList = drawVersionsList(false, []);
@@ -30,9 +44,7 @@ function versions(container, options) {
       if (versions.length === 0) {
         versionsList.append(drawNoVersions());
       }
-      console.log("Versions are: ", versions);
       versions.forEach(function (v) {
-        console.log("e.g. ", v);
         var b = drawVersionButton(v.time);
         b.on("click", function () {
           if (onChangeVersionsCreateRevision) {
