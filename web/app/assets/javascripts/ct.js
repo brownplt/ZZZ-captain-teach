@@ -11,7 +11,7 @@ var NO_INSTANCE_DATA = {no_instance_data: true};
 var rails_host = "http://localhost:3000";
 
 function clean(str) {
-  return str.replace(/^\n+/, "").replace(/\n+$/, "");
+  return str.replace(/^\n/, "");//.replace(/\n+$/, "");
 }
 
 var AUTOSAVE_ENABLED = true;
@@ -38,42 +38,6 @@ function getPreludeFor(id) {
   }
 
   return prelude;
-}
-
-function createInsertionPoint(doc, line, ch) {
-  function markReadOnly(from, to, left, right) {
-    return doc.markText(
-        from, to,
-        {className: 'cptteach-fixed',
-         inclusiveLeft: left,
-         inclusiveRight: right,
-         readOnly: true});
-  }
-  var start = doc.setBookmark({line: line, ch: ch});
-  var end = doc.setBookmark({line: line, ch: ch}, {insertLeft: true});
-  return {
-    from: function() { return start.find(); },
-    to: function() { return end.find(); },
-    get: function() {
-      return doc.getRange(start.find(), end.find());
-    },
-    insert: function(val, options) {
-      var defaults = {
-        left: false,
-        right: false,
-        readOnly: false
-      };
-      var realOptions = _.extend(defaults, options || {});
-      doc.replaceRange(val, start.find());
-      if (realOptions.readOnly) {
-        markReadOnly(
-            start.find(),
-            end.find(),
-            realOptions.left,
-            realOptions.right);
-      }
-    }
-  };
 }
 
 function lookupResource(resource, present, absent, error) {
@@ -162,7 +126,7 @@ function codeExample(container, resources, args) {
   var code = args.code;
   var codeContainer = jQuery("<div>");
   container.append(codeContainer);
-  var editor = makeEditor(codeContainer, {
+  var cm = makeEditor(codeContainer, {
       cmOptions: {
         readOnly: 'nocursor'   
       },
@@ -170,7 +134,7 @@ function codeExample(container, resources, args) {
       run: function() {}
    });
 
-  ASSIGNMENT_PIECES.push({id: resources, editor: editor, mode: args.mode});
+  ASSIGNMENT_PIECES.push({id: resources, editor: cm, mode: args.mode});
   
   return { container: container, activityData: {editor: editor} };
 }
@@ -188,40 +152,32 @@ function functionBuilder(container, resources, args) {
 
   var gradeMode = typeof resources.reviews !== 'undefined';
   
-  var editor = makeEditor(codeContainer,
-                         { initial: "\n\n\n\n",
-                           cmOptions: { readOnly: gradeMode, lineNumbers: true },
-                           run: function(src, uiOpts, replOpts) {
-                             var prelude = getPreludeFor(pathId);
-                             RUN_CODE(prelude + src, uiOpts, replOpts);
-                           }});
+  var cm = makeEditor(codeContainer,
+                      { initial: "",
+                        cmOptions: { readOnly: gradeMode, lineNumbers: true },
+                        run: function(src, uiOpts, replOpts) {
+                          var prelude = getPreludeFor(pathId);
+                          RUN_CODE(prelude + src, uiOpts, replOpts);
+                        }});
 
-  var doc = editor.getDoc();
+  var doc = cm.getDoc();
 
-  ASSIGNMENT_PIECES.push({id: pathId, editor: editor, mode: args.mode});
+  ASSIGNMENT_PIECES.push({id: pathId, editor: cm, mode: args.mode});
 
   function setUpEditor(doc) {
-    doc.setValue("\n\n\n\n");
-    var headerPoint = createInsertionPoint(doc, 0, 0);
-    var bodyPoint = createInsertionPoint(doc, 1, 0);
-    var checkPoint = createInsertionPoint(doc, 2, 0);
-    var userChecksPoint = createInsertionPoint(doc, 3, 0);
-    var endPoint = createInsertionPoint(doc, 4, 0);
+    var editor = createEditor(doc, [
+        header,
+        "\ncheck:",
+        "\nend"
+      ], {
+        names: ["definition", "checks"],
+        initial: {definition: "\n", checks: "\n"}
+      });
 
-    headerPoint.insert(header + "\n", { readOnly: true, left: true });
-    checkPoint.insert("check:\n", { readOnly: true });
-    endPoint.insert("end", { readOnly: true, right: true });
-
-    return {header: headerPoint, body: bodyPoint, check: checkPoint,
-            userChecks: userChecksPoint, end: endPoint};
+    return editor;
   }
   
-  var edData = setUpEditor(doc);
-  var headerPoint = edData.header;
-  var bodyPoint = edData.body;
-  var checkPoint = edData.check;
-  var userChecksPoint = edData.userChecks;
-  var endPoint = edData.end;
+  var editor = setUpEditor(doc);
   
   var button = $("<button>Save and Submit</button>")
     .addClass("submit");
@@ -233,23 +189,13 @@ function functionBuilder(container, resources, args) {
   function handleResponse(data, version) {
     console.log("handling: ", data);
 
-    var edData = setUpEditor(doc);
-    headerPoint = edData.header;
-    bodyPoint = edData.body;
-    checkPoint = edData.check;
-    userChecksPoint = edData.userChecks;
-    endPoint = edData.end;
-    
-    var body = data.body || "\n";
-    var userChecks = data.userChecks || "\n";
-    console.log("inserting body: ", body);
-    bodyPoint.insert(body);
-    userChecksPoint.insert(userChecks);
+    editor.setAt("definition", data.body);
+    editor.setAt("checks", data.userChecks);
   }
   
   function getWork() {
-    var defn = clean(doc.getRange(headerPoint.to(), checkPoint.from()));
-    var userChecks = clean(doc.getRange(checkPoint.to(), endPoint.from()));
+    var defn = editor.getAt("definition");
+    var userChecks = editor.getAt("checks");
     return {body: defn, userChecks: userChecks};
   }
 
@@ -287,16 +233,14 @@ function functionBuilder(container, resources, args) {
     }
   });
 
-  editor.on("change", versionsUI.onChange);
+  cm.on("change", versionsUI.onChange);
 
   button.click(function () {
     versionsUI.saveVersion();
     
-    var lastLine = doc.lineCount()-1;
     var prelude = getPreludeFor(pathId);
     var work = getWork();
     var defn = work.body;
-    var userChecks = work.userChecks;
     var prgm = prelude + "\n" + header + "\n" + defn + "\ncheck:\n" + check + "\nend";
     RUN_CODE(prgm, {
         write: function(str) { /* Intentional no-op */ }
@@ -311,7 +255,6 @@ function functionBuilder(container, resources, args) {
   lookupResource(blobId, handleResponse, function () {
     lookupResource(pathId,
                    function (response) {
-                     console.log("response: ", response);
                      handleResponse(JSON.parse(response.file))
                    },
                    function() { });
@@ -351,7 +294,7 @@ function functionBuilder(container, resources, args) {
       });
   }
 
-  return {container: container, activityData: {codemirror: editor}};
+  return {container: container, activityData: {codemirror: cm}};
 }
 
 function multipleChoice(container, resources, args)  {
