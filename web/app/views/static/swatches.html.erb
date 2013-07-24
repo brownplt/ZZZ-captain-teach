@@ -97,3 +97,67 @@ $(function() {
   }, 100);
 });
 </script>
+
+<div style="height:10em;">
+  <div id="version-review-ui" style="position:relative; width: 25%">
+  </div>
+  <div id="version-content-log">
+  </div>
+</div>
+<script>
+var versionsUI = versions($("#version-review-ui"), {
+    onLoadVersion: function(response) {
+      $("#version-content-log").append($("<p>").text(response));
+    },
+    lookupVersions: function(success) {
+      success([
+        {
+          time: "Jun 4, 2014",
+          lookup: function(success2) { success2("Version 1"); },
+          reviews: [{
+              lookup: function(success2) {
+                success2({
+                  correct: "6",
+                  design: "7",
+                  comments: "Nice try, use more helpers"
+                });
+              }
+            }]
+        }, {
+          time: "Jun 5, 2014",
+          lookup: function(success2) { success2("Version 2"); },
+          reviews: [{
+              lookup: function(success2) {
+                success2({
+                  correct: "7",
+                  design: "8",
+                  comments: "Helpers are there, still not passing tests"
+                });
+              }
+            }, {
+              lookup: function(success2) {
+                success2({
+                  correct: "8",
+                  design: "7",
+                  comments: "Avoid parentheses when unnecessary"
+                });
+              }
+            }
+          ]
+        }, {
+          time: "Jun 6, 2014",
+          lookup: function(success2) { success2("Version 3"); },
+          reviews: []
+        }
+      ])
+    },
+    save: function(success) {
+      success();
+    })
+
+</script>
+
+
+
+
+

@@ -96,3 +96,54 @@ function enableReviewText(rt) {
 function setReviewText(rt, text) {
   rt.val(text);
 }
+
+function createTabPanel(container) {
+  var tabContainer = $("<div>").addClass("tabPanel");
+  var panelRow = $("<div>").addClass("tabPanels");
+  var current = false;
+  var titleRow = $("<div>").addClass("tabTitles");
+  function switchToCurrent() {
+    tabContainer.find(".tab").hide();
+    tabContainer.find(".tabTitle").removeClass("currentTab");
+    current.tab.show();
+    current.title.addClass("currentTab");
+  }
+  tabContainer.append(titleRow).append(panelRow);
+  container.append(tabContainer);
+  return {
+    addTab: function(title, dom, inputOptions) {
+      var options = inputOptions ? inputOptions : {};
+      function switchHere() {
+        current = { tab: tab, title: title };
+        switchToCurrent();
+      }
+      var tab = $("<div>").addClass("tab").append(dom);
+      var title = $("<div>")
+        .addClass("tabTitle")
+        .text(title)
+        .on("click", switchHere);
+      if(!options.cannotClose) {
+        var closeButton = $("<span>×</span>").on("click", function(e) {
+          tab.remove();
+          title.remove();
+          if (current.tab.length > 0 && current.tab[0] === tab[0]) {
+            current = {
+              tab: $(tabContainer.find(".tab")[0]),
+              title: $(tabContainer.find(".tabTitle")[0])
+            };
+            switchToCurrent();
+          }
+        });
+        title.append(closeButton);
+      }
+
+      titleRow.append(title);
+      panelRow.append(tab);
+
+      switchHere();
+    }
+  };
+}
+
+
+

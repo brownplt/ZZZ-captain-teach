@@ -8,18 +8,11 @@ body {
 <script>
 $(function() {
   var repl = $("<div>").addClass("repl");;
-  repl.css({
-    position: "fixed",
-    right: "2em",
-    bottom: "2em",
-    width: "40%",
-    height: "90%",
-    "border": "1px solid #333",
-    "background-color": "white"
-  });
+  repl.css({height: "100%"});
+  window.PANEL = createTabPanel($(document.body));
+  PANEL.addTab("Interactions", repl, { cannotClose: true });
   window.REPL = repl;
   window.RUN_CODE = makeRepl(repl);
-  $(document.body).append(repl);
   ct_transform($(document.body));
 });
 </script>

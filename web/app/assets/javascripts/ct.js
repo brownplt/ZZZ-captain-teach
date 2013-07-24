@@ -1,8 +1,12 @@
 var LOG = true;
 function ct_log(/* varargs */) {
   if (window.console && LOG) {
-    console.log("Applying...", arguments);
-    console.log(arguments);
+    console.log.apply(console, arguments);
+  }
+}
+function ct_error(/* varargs */) {
+  if (window.console && LOG) {
+    console.error.apply(console, arguments);
   }
 }
 
@@ -136,7 +140,7 @@ function codeExample(container, resources, args) {
 
   ASSIGNMENT_PIECES.push({id: resources, editor: cm, mode: args.mode});
   
-  return { container: container, activityData: {editor: editor} };
+  return { container: container, activityData: {editor: cm} };
 }
 
 function functionBuilder(container, resources, args) {
