@@ -100,10 +100,48 @@ function versions(container, options) {
   }
 }
 
-function teacherReviews(container, options) {
+function showCode(container, getCode, options) {
+  if (options.run) {
+    var run = drawCodeRunButton();
+    run.on("click", function() {
+      options.run(cm.getValue(), {}, {check: true});
+    });
+    container.append(run);
+  }
+  if (!options.run) { options.run = function() { /* intentional no-op */ }; }
 
-  var showReview = drawShowTeacherReview();
-  var reviewContainer = drawTeacherReviewContainer();
+  var cm = makeEditor(container, {
+    cmOptions: { readOnly: options.readOnly },
+    initial: "(Fetching contents...)",
+    run: options.run
+  });
+
+  getCode(function(code) {
+    cm.setValue(code);
+  });
+}
+
+function studentCodeReview(container, options) {
+  var crContainer = drawCodeReviewContainer();
+  container.append(crContainer);
+  showCode(
+    crContainer,
+    options.lookupCode,
+    {
+      readOnly: true,
+      run: options.run
+    }
+  );
+  writeReviews(
+    crContainer,
+    _.merge(options.reviewOptions, { noResubmit: true })
+  );
+}
+
+function writeReviews(container, options) {
+
+  var showReview = drawShowWriteReview();
+  var reviewContainer = drawWriteReviewContainer();
 
   showReview.on("click", function(_) { reviewContainer.toggle(); })
 
@@ -131,13 +169,15 @@ function teacherReviews(container, options) {
         markOkReviewScore(correctScores);
         options.reviews.save({
             review: {
+              done: true, // NOTE(joe, 25 Jul 2013): This is a client UI hint, not binding
               comments: reviewText.val(),
               design: currentDesignScore,
               correct: currentCorrectScore
             }
           },
           function() {
-            // TODO(joe 22 July 2013): Give some feedback
+            if(options.noResubmit) { disableSubmissionUI(); }
+            drawSavedNotification(container);
           });
       } else {
         ct_log("Invalid review");
@@ -145,6 +185,13 @@ function teacherReviews(container, options) {
     });
 
   var reviewText = drawReviewText(false);
+
+  function disableSubmissionUI() {
+    submitReviewButton.hide();
+    disableReviewText(reviewText);
+    disableReviewScore(designScores);
+    disableReviewScore(correctScores);
+  }
 
   if (!options.hasReviews) {
     designScores.hide();
@@ -154,9 +201,10 @@ function teacherReviews(container, options) {
     options.reviews.lookup(function(rev) {
         enableReviewText(reviewText);
         if (rev !== null) {
-          setReviewText(rev.review.comments);
+          setReviewText(reviewText, rev.review.comments);
           selectReviewScore(designScores, rev.review.design);
           selectReviewScore(correctScores, rev.review.correct);
+          if (options.noResubmit && rev.review.done) { disableSubmissionUI(); }
         }
       },
       function(e) {

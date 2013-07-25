@@ -162,3 +162,26 @@ $(function() {
   });
 </script>
 
+<div>
+  <div id="student-write-review-test" style="width: 40%"></div>
+</div>
+<script>
+  var theReview = null;
+  studentCodeReview(
+    $("#student-write-review-test"),
+    {
+      run: function(prog, options1, options2) {
+        ct_log("Running: ", prog, options1, options2);
+      },
+      lookupCode: function(k) { k("# Proggy"); },
+      reviewOptions: {
+        reviews: {
+          lookup: function(k) { k(theReview); },
+          save: function(v, k) { theReview = v; k(); }
+        },
+        hasReviews: true
+      }
+    }
+  );
+</script>
+

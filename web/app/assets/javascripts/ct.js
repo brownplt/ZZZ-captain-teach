@@ -289,7 +289,7 @@ function functionBuilder(container, resources, args) {
 
   var reviews = resources.reviews;
   if (gradeMode) {
-    teacherReviews(container, {
+    writeReviews(container, {
       hasReviews: Number(reviews.path.versions.length) > 0,
       reviews: {
           save: function(review, success, failure) {

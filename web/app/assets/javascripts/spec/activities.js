@@ -345,6 +345,7 @@ describe("reviews and versions", function () {
             reviews: [{
               lookup: function(success2) {
                 success2({ review: {
+                  done: true,
                   correct: "7",
                   design: "8",
                   comments: "Helpers are there, still not passing tests"
@@ -353,6 +354,7 @@ describe("reviews and versions", function () {
             }, {
               lookup: function(success2) {
                 success2({review: {
+                  done: true,
                   correct: "8",
                   design: "7",
                   comments: "Avoid parentheses when unnecessary"
@@ -367,6 +369,7 @@ describe("reviews and versions", function () {
             reviews: [{
               lookup: function(success2) {
                 success2({ review: {
+                  done: true,
                   correct: "6",
                   design: "7",
                   comments: "Nice try, use more helpers"
@@ -421,4 +424,91 @@ describe("reviews and versions", function () {
       $(versionsContainer.find("button.versionButton")[0]).click();
       expect(versionLoadLog.length).toEqual(4);
     });
+
+  describe("student reviews", function() {
+    var container;
+    var theReview;
+    var run = function(prog, options1, options2) {
+      ct_log("Running: ", prog, options1, options2);
+    };
+
+    beforeEach(function() {
+      container = $("<div>");
+      theReview = null;
+    });
+
+    it("should save a review", function() {
+
+      studentCodeReview(
+        container,
+        {
+          run: run,
+          lookupCode: function(k) { k("# Proggy"); },
+          reviewOptions: {
+            reviews: {
+              lookup: function(k) { k(theReview); },
+              save: function(v, k) { theReview = v; k(); }
+            },
+            hasReviews: true
+          }
+        }
+      );
+      var comments = "Not so fast, bucko.";
+      container.find("button.writeReview").click(); 
+      container.find("textarea.reviewText").val(comments);
+
+      var dScore = '5';
+      var cScore = '7';
+      var revD = container.find(".reviewScore-design");
+      var revC = container.find(".reviewScore-correct");
+      revD.find("input[value=" + dScore + "]").prop("checked", true).click();
+      revC.find("input[value=" + cScore + "]").prop("checked", true).click();
+
+      container.find("button.submitReview").click();
+
+      expect(theReview.review.comments).toEqual(comments);
+      expect(theReview.review.design).toEqual(dScore);
+      expect(theReview.review.correct).toEqual(cScore);
+    });
+
+    it("should not be enabled if the review is done", function() {
+      theReview = {
+        review: {
+          done: true,
+          comments: "You are the best coder I have ever seen fail completely",
+          design: "10",
+          correct: "1"
+        }
+      };
+      studentCodeReview(
+        container,
+        {
+          run: run,
+          lookupCode: function(k) { k("# Proggy"); },
+          reviewOptions: {
+            reviews: {
+              lookup: function(k) { k(theReview); },
+              save: function(v, k) { theReview = v; k(); }
+            },
+            hasReviews: true
+          }
+        }
+      );
+
+      container.find("button.writeReview").click(); 
+      var rt = container.find("textarea.reviewText");
+      expect(rt.val()).toEqual(theReview.review.comments);
+      expect(rt.prop("disabled")).toEqual(true);
+      var rsd = container.find(".reviewScore-design input:checked");
+      ct_log("rsd; ", rsd);
+      expect(rsd.val()).toEqual("10");
+      expect(rsd.prop("disabled")).toEqual(true);
+      var rsc = container.find(".reviewScore-correct input:checked");
+      ct_log("rsc; ", rsc);
+      expect(rsc.val()).toEqual("1");
+      expect(rsc.prop("disabled")).toEqual(true);
+
+    });
+  });
 });
+

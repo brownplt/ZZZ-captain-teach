@@ -69,15 +69,23 @@ function selectReviewScore(reviewScore, value) {
   reviewScore.find("input[value=" + value + "]").click();
 }
 
-function drawShowTeacherReview() {
-  return $("<button>").css({float: "right"}).text("Review");
+function drawShowWriteReview() {
+  return $("<button>").css({float: "right"}).text("Review").addClass("writeReview");
+}
+
+function drawCodeRunButton() {
+  return $("<button>").css({float: "right"}).text("Run");
+}
+
+function drawCodeReviewContainer() {
+  return $("<div>").addClass("codeReviewContainer");
 }
 
 function drawReviewContainer() {
   return $("<div>").addClass("reviewContainer");
 }
 
-function drawTeacherReviewContainer() {
+function drawWriteReviewContainer() {
   return $("<div>").addClass("reviewContainer");
 }
 
@@ -85,6 +93,7 @@ function drawSubmitReviewButton() {
   return $("<button>")
     .text("Save this review")
     .css({float: 'right'})
+    .addClass("submitReview");
 }
 
 function drawReviewText(enabled) {
@@ -99,6 +108,10 @@ function disableReviewText(rt) {
 
 function enableReviewText(rt) {
   rt.prop("disabled", false);
+}
+
+function disableReviewScore(score) {
+  score.find("input").prop("disabled", true);
 }
 
 function setReviewText(rt, text) {
@@ -129,6 +142,12 @@ function drawReview(revData) {
     .append($("<p>").text("Design score: " + revData.review.design))
     .append($("<p>").text("Correctness score: " + revData.review.correct))
     .append($("<p>").text("Comments: " + revData.review.comments));
+}
+
+function drawSavedNotification(container) {
+  var saved = $("<span>Saved</span>");
+  container.append(saved);
+  saved.fadeOut(2000);
 }
 
 function createTabPanel(container) {
