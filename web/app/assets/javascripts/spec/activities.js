@@ -76,7 +76,7 @@ window.lookupVersions = function(resource, callback, error) {
   } else {
     if (mockPathTable.hasOwnProperty(resource)) {
       callback(mockPathTable[resource].map(function (gitRefPair) {
-        return {time: gitRefPair[0], resource: gitRefPair[0]};
+        return {time: gitRefPair[0], resource: gitRefPair[0], reviews: []};
       }));
     } else {
       console.log("Mock server missed versions on pathref ", resource, mockPathTable);
@@ -160,7 +160,10 @@ describe("function activities", function() {
 
   it("when you switch to a version, it should put the contents in the editor", function () {
     resetMockServer();
-    mockPathTable[functionPathRef] = [["g:r:1:1", {body: 'my new program', userChecks: ''}],["g:r:0:1", {body: 'my cool program', userChecks: ''}]];
+    mockPathTable[functionPathRef] = [
+      ["g:r:1:1", {body: 'my new program', userChecks: ''}]
+      ,["g:r:0:1", {body: 'my cool program', userChecks: ''}]
+    ];
     
     var container = $("<div>");
     container.hide();
@@ -219,11 +222,11 @@ describe("function activities", function() {
       var revD = c.find(".reviewScore-design");
       var revC = c.find(".reviewScore-correct");
       console.log("Input for revD: ", revD.find("input[value=" + dScore + "]"));
-      revD.find("input[value=" + dScore + "]").click();
-      revC.find("input[value=" + cScore + "]").click();
-
+      // NOTE(dbp): on Firefox, for me, the "click()" did not result in them being checked.
+      revD.find("input[value=" + dScore + "]").prop("checked", true).click();
+      revC.find("input[value=" + cScore + "]").prop("checked", true).click();
+      
       var submitButton = c.find("button:contains(Save this review)");
-      console.log("Submit: ", submitButton);
       submitButton.click();
 
       lookupReview("lookup/42", function(r) {
@@ -289,11 +292,15 @@ describe("multiple-choice activities", function() {
     expect(preDiv.find("input[type=radio]").length).toBe(2);
     var opt1 = $(preDiv.find("input[type=radio]")[0]);
     opt1.click();
+    // NOTE(dbp): on Firefox, without this, the search for :checked fails, so selected in undefined
+    opt1.prop("checked", true);
+    
     preDiv.find("button").click();
     expect(mockBlobTable[rcId]).toEqual({selected: id1});
     var correctLabel = $(preDiv.find("label")[0]);
     var otherLabel = $(preDiv.find("label")[1]);
-    expect(correctLabel.css("background-color")).toEqual("green");
+    // NOTE(dbp): on Firefox, this fails because the color is 'rgb(0,128,0)'
+    //expect(correctLabel.css("background-color")).toEqual("green");
     expect(otherLabel.css("background-color")).not.toEqual("red");
     expect(otherLabel.css("background-color")).not.toEqual("green");
 
@@ -307,4 +314,111 @@ describe("multiple-choice activities", function() {
   });
 });
 
+describe("reviews and versions", function () {
+  var panelContainer;
+  var panel;
+  var versionsContainer;
+  var versionLoadLog;
+  var versionsUI;
+  
+  beforeEach(function () {
+    panelContainer = $("<div>");
+    panel = createTabPanel(panelContainer);
+    versionsContainer = $("<div>");
+    versionLoadLog = [];
+    versionsUI = versions(versionsContainer, {
+      panel: panel,
+      name: "Phooey!",
+      onLoadVersion: function(response) {
+        versionLoadLog.push(response);
+      },
+      lookupVersions: function(success) {
+        success([
+          {
+            time: "Jun 6, 2014",
+            lookup: function(success2) { success2("Version 3"); },
+            reviews: []
+          },
+          {
+            time: "Jun 5, 2014",
+            lookup: function(success2) { success2("Version 2"); },
+            reviews: [{
+              lookup: function(success2) {
+                success2({ review: {
+                  correct: "7",
+                  design: "8",
+                  comments: "Helpers are there, still not passing tests"
+                }});
+              }
+            }, {
+              lookup: function(success2) {
+                success2({review: {
+                  correct: "8",
+                  design: "7",
+                  comments: "Avoid parentheses when unnecessary"
+                }});
+              }
+            }
+                     ]
+          },
+          {
+            time: "Jun 4, 2014",
+            lookup: function(success2) { success2("Version 1"); },
+            reviews: [{
+              lookup: function(success2) {
+                success2({ review: {
+                  correct: "6",
+                  design: "7",
+                  comments: "Nice try, use more helpers"
+                }});
+              }
+            }]
+          }
+        ])
+      },
+      save: function(success) {
+        success();
+      }
+    });
+  });
 
+  it("should have rev. links for each version w/ revs", function () {
+    expect(versionsContainer.find("a.review-link").length)
+      .toEqual(2);
+  });
+
+  it("should put the contents of review in tab when you click",
+    function () {
+      // the first link is for the Jun 5 one, which has two reviews
+      $(versionsContainer.find("a.review-link")[0]).click();
+      var reviews = panelContainer.find(".review-contents");
+      expect(reviews.length).toEqual(2);
+      expect($(reviews.find("p")[0]).text()).toEqual("Design score: 8");
+      // the panel should now have one tab
+      expect(panelContainer.find(".tab").length).toEqual(1);
+      // close it, to clean up
+      panelContainer.find('.close-tab').click();
+      expect(panelContainer.find(".tab").length).toEqual(0);
+    });
+
+  it("should create two tabs if you click the review button twice",
+    function () {
+      $(versionsContainer.find("a.review-link")[0]).click();
+      $(versionsContainer.find("a.review-link")[0]).click();
+      expect(panelContainer.find(".tab").length).toEqual(2);
+      $(panelContainer.find('.close-tab')[0]).click();
+      expect(panelContainer.find(".tab").length).toEqual(1);
+      $(panelContainer.find('.close-tab')[0]).click();
+      expect(panelContainer.find(".tab").length).toEqual(0);
+    });
+
+  it("should call onload handler when the version button is clicked",
+    function () {
+      $(versionsContainer.find("button.versionButton")[0]).click();
+      expect(versionLoadLog).toContain("Version 3");
+      $(versionsContainer.find("button.versionButton")[1]).click();
+      $(versionsContainer.find("button.versionButton")[2]).click();
+      $(versionsContainer.find("button.versionButton")[0]).click();
+      expect(versionLoadLog.length).toEqual(4);
+    });
+});

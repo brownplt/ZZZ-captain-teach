@@ -69,11 +69,15 @@ function selectReviewScore(reviewScore, value) {
   reviewScore.find("input[value=" + value + "]").click();
 }
 
-function drawShowReview() {
+function drawShowTeacherReview() {
   return $("<button>").css({float: "right"}).text("Review");
 }
 
 function drawReviewContainer() {
+  return $("<div>").addClass("reviewContainer");
+}
+
+function drawTeacherReviewContainer() {
   return $("<div>").addClass("reviewContainer");
 }
 
@@ -106,7 +110,7 @@ function drawReviewsButton(count) {
     return $("<span></span>");
   }
   else {
-    return $("<a href='#'>R:" + count + "</a>");
+    return $("<a href='#' class='review-link'>R:" + count + "</a>");
   }
 }
 
@@ -121,7 +125,7 @@ function drawReviewContainer() {
 }
 
 function drawReview(revData) {
-  return $("<div>")
+  return $("<div class='review-contents'>")
     .append($("<p>").text("Design score: " + revData.review.design))
     .append($("<p>").text("Correctness score: " + revData.review.correct))
     .append($("<p>").text("Comments: " + revData.review.comments));
@@ -153,7 +157,7 @@ function createTabPanel(container) {
         .text(title)
         .on("click", switchHere);
       if(!options.cannotClose) {
-        var closeButton = $("<span>×</span>").on("click", function(e) {
+        var closeButton = $("<span class='close-tab'>×</span>").on("click", function(e) {
           tab.remove();
           title.remove();
           if (current.tab.length > 0 && current.tab[0] === tab[0]) {

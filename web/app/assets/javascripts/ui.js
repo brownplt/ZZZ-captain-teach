@@ -102,8 +102,8 @@ function versions(container, options) {
 
 function teacherReviews(container, options) {
 
-  var showReview = drawShowReview();
-  var reviewContainer = drawReviewContainer();
+  var showReview = drawShowTeacherReview();
+  var reviewContainer = drawTeacherReviewContainer();
 
   showReview.on("click", function(_) { reviewContainer.toggle(); })
 
@@ -139,6 +139,8 @@ function teacherReviews(container, options) {
           function() {
             // TODO(joe 22 July 2013): Give some feedback
           });
+      } else {
+        console.log("Invalid review");
       }
     });
 
