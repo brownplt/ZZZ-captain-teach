@@ -140,7 +140,7 @@ function teacherReviews(container, options) {
             // TODO(joe 22 July 2013): Give some feedback
           });
       } else {
-        console.log("Invalid review");
+        ct_log("Invalid review");
       }
     });
 

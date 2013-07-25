@@ -383,32 +383,32 @@ describe("reviews and versions", function () {
   });
 
   it("should have rev. links for each version w/ revs", function () {
-    expect(versionsContainer.find("a.review-link").length)
+    expect(versionsContainer.find("a.reviewLink").length)
       .toEqual(2);
   });
 
   it("should put the contents of review in tab when you click",
     function () {
       // the first link is for the Jun 5 one, which has two reviews
-      $(versionsContainer.find("a.review-link")[0]).click();
-      var reviews = panelContainer.find(".review-contents");
+      $(versionsContainer.find("a.reviewLink")[0]).click();
+      var reviews = panelContainer.find(".reviewContents");
       expect(reviews.length).toEqual(2);
       expect($(reviews.find("p")[0]).text()).toEqual("Design score: 8");
       // the panel should now have one tab
       expect(panelContainer.find(".tab").length).toEqual(1);
       // close it, to clean up
-      panelContainer.find('.close-tab').click();
+      panelContainer.find('.closeTab').click();
       expect(panelContainer.find(".tab").length).toEqual(0);
     });
 
   it("should create two tabs if you click the review button twice",
     function () {
-      $(versionsContainer.find("a.review-link")[0]).click();
-      $(versionsContainer.find("a.review-link")[0]).click();
+      $(versionsContainer.find("a.reviewLink")[0]).click();
+      $(versionsContainer.find("a.reviewLink")[0]).click();
       expect(panelContainer.find(".tab").length).toEqual(2);
-      $(panelContainer.find('.close-tab')[0]).click();
+      $(panelContainer.find('.closeTab')[0]).click();
       expect(panelContainer.find(".tab").length).toEqual(1);
-      $(panelContainer.find('.close-tab')[0]).click();
+      $(panelContainer.find('.closeTab')[0]).click();
       expect(panelContainer.find(".tab").length).toEqual(0);
     });
 

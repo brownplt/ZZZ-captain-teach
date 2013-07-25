@@ -110,7 +110,7 @@ function drawReviewsButton(count) {
     return $("<span></span>");
   }
   else {
-    return $("<a href='#' class='review-link'>R:" + count + "</a>");
+    return $("<a href='#'>R:" + count + "</a>").addClass("reviewLink");
   }
 }
 
@@ -125,7 +125,7 @@ function drawReviewContainer() {
 }
 
 function drawReview(revData) {
-  return $("<div class='review-contents'>")
+  return $("<div>").addClass("reviewContents")
     .append($("<p>").text("Design score: " + revData.review.design))
     .append($("<p>").text("Correctness score: " + revData.review.correct))
     .append($("<p>").text("Comments: " + revData.review.comments));
@@ -157,17 +157,18 @@ function createTabPanel(container) {
         .text(title)
         .on("click", switchHere);
       if(!options.cannotClose) {
-        var closeButton = $("<span class='close-tab'>×</span>").on("click", function(e) {
-          tab.remove();
-          title.remove();
-          if (current.tab.length > 0 && current.tab[0] === tab[0]) {
-            current = {
-              tab: $(tabContainer.find(".tab")[0]),
-              title: $(tabContainer.find(".tabTitle")[0])
-            };
-            switchToCurrent();
-          }
-        });
+        var closeButton = $("<span>×</span>").addClass("closeTab")
+          .on("click", function(e) {
+            tab.remove();
+            title.remove();
+            if (current.tab.length > 0 && current.tab[0] === tab[0]) {
+              current = {
+                tab: $(tabContainer.find(".tab")[0]),
+                title: $(tabContainer.find(".tabTitle")[0])
+              };
+              switchToCurrent();
+            }
+          });
         title.append(closeButton);
       }
 
