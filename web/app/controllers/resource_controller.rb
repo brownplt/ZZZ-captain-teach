@@ -13,24 +13,24 @@ class ResourceController < ApplicationController
 
   def lookup
     # any perm is okay, because this is read
-    type,_perm,ref,user = get_resource()
-    Resource::lookup(type, _perm, ref, user).respond(self)
+    type,_perm,ref,args,user = get_resource()
+    Resource::lookup(type, _perm, ref, args, user).respond(self)
   end
 
   def lookup_create
-    type,perm,ref,user = get_resource()
-    Resource::lookup_create(type, perm, ref, user, params[:data]).respond(self)
+    type,perm,ref,args,user = get_resource()
+    Resource::lookup_create(type, perm, ref, args, user, params[:data]).respond(self)
   end
   
   def save
-    type,perm,ref,user = get_resource()
-    Resource::save(type, perm, ref, user, params[:data]).respond(self)
+    type,perm,ref,args,user = get_resource()
+    Resource::save(type, perm, ref, args, user, params[:data]).respond(self)
   end
 
   def versions
     # we use perm when constructing new resources for pathrefs
-    type,perm,ref,user = get_resource()
-    Resource::versions(type, perm, ref, user, params[:resource]).respond(self)
+    type,perm,ref,args,user = get_resource()
+    Resource::versions(type, perm, ref, args, user, params[:resource]).respond(self)
   end
   
   private

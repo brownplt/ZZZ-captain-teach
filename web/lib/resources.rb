@@ -67,15 +67,15 @@ module Resource
     "#{base}:#{uid}"
   end
 
-  def mk_resource(type, perm, ref, uid)
-    mk_user_resource("#{type}:#{perm}:#{ref}", uid)
+  def mk_resource(type, perm, ref, args, uid)
+    mk_user_resource("#{type}:#{perm}:#{ref}:#{Base64.urlsafe_encode64(JSON.dump(args))}", uid)
   end
 
   def read_only(resource)
     parsed = parse(resource)
     if parsed
-      type, perm, ref, uid = parsed
-      mk_resource(type, 'r', ref, uid.id)
+      type, perm, ref, args, uid = parsed
+      mk_resource(type, 'r', ref, args, uid.id)
     else
       false
     end
@@ -90,18 +90,19 @@ module Resource
 
   def parse(resource)
     # TODO(dbp): error handling - exceptions? return types?
-    type,perm,ref,uid = resource.split(":")
-
+    type,perm,ref,args,uid = resource.split(":")
+    args = JSON.parse(Base64.urlsafe_decode64(args))
+    
     begin
       user = User.find(uid)
     rescue Exception => e
       return false
     end
     
-    return type,perm,ref,user
+    return type,perm,ref,args,user
   end
 
-  def lookup(type, _perm, ref, user)
+  def lookup(type, _perm, ref, args, user)
     if type == 'b'
       b = Blob.find_by(user: user, ref: ref)
       if b.nil?
@@ -131,7 +132,7 @@ module Resource
     end
   end
 
-  def lookup_create(type, perm, ref, user, data)
+  def lookup_create(type, perm, ref, args, user, data)
     
     if perm != "rw" and perm != "rc"
       return PermissionDenied.new
@@ -162,7 +163,7 @@ module Resource
     end
   end
 
-  def save(type, perm, ref, user, data)
+  def save(type, perm, ref, args, user, data)
     if perm != "rw" and perm != "rc"
       return PermissionDenied.new
     else
@@ -208,7 +209,7 @@ module Resource
     end
   end
 
-  def versions(type, perm, ref, user, resource)
+  def versions(type, perm, ref, args, user, resource)
     if type == 'b'
       b = Blob.find_by(user: user, ref: ref)
       if b.nil?
@@ -228,7 +229,7 @@ module Resource
       if repo.has_file_head?(ref)
         p = PathRef.new(:user_repo => user.user_repo, :path => ref)
         versions = p.versions.map {|v|
-          resource = Resource::mk_resource('g',perm,"#{ref}@#{v[:oid]}",user.id)
+          resource = Resource::mk_resource('g',perm,"#{ref}@#{v[:oid]}",{},user.id)
           ro_resource = Resource::read_only(resource)
           review_assignments = ReviewAssignment.where(
             :reviewee => user,

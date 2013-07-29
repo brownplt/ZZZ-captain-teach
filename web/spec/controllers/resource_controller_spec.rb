@@ -14,33 +14,36 @@ describe ResourceController do
   describe "Blobs" do
 
     it "GET lookup with r, rw, or rc should succeed" do
-      get :lookup, :resource => "b:r:foo:#{@user.id}", :format => :json
+      get :lookup,
+        :resource => Resource::mk_resource("b","r","foo",{},@user.id),
+        :format => :json
       response.response_code.should(eq(200))
       # provided it parses as JSON, that's good enough for us
       JSON::parse(response.body)
 
-      get :lookup, :resource => "b:rw:foo:#{@user.id}", :format => :json
+      get :lookup,
+        :resource => Resource::mk_resource("b","rw","foo",{},"#{@user.id}"), :format => :json
       response.response_code.should(eq(200))
       # provided it parses as JSON, that's good enough for us
       JSON::parse(response.body)
 
-      get :lookup, :resource => "b:rc:foo:#{@user.id}", :format => :json
+      get :lookup, :resource => Resource::mk_resource("b","rc","foo",{},"#{@user.id}"), :format => :json
       response.response_code.should(eq(200))
       # provided it parses as JSON, that's good enough for us
       JSON::parse(response.body)
     end
 
     it "GET on unknown ref or user should fail" do
-      get :lookup, :resource => "b:rw:bazfoo:#{@user.id}", :format => :json
+      get :lookup, :resource => Resource::mk_resource("b","rw","bazfoo",{},"#{@user.id}"), :format => :json
       response.response_code.should(eq(404))
 
-      get :lookup, :resource => "b:rw:bazfoo:not-an-id", :format => :json
+      get :lookup, :resource => Resource::mk_resource("b","rw","bazfoo",{},"not-an-id"), :format => :json
       response.response_code.should(eq(404))
       
     end
 
     it "POST with rw should succeed" do
-      post :save, :resource => "b:rw:foo:#{@user.id}", :data => "[1]",
+      post :save, :resource => Resource::mk_resource("b","rw","foo",{},"#{@user.id}"), :data => "[1]",
       :format => :json
       response.response_code.should(eq(200))
       resp = JSON::parse(response.body)
@@ -52,37 +55,37 @@ describe ResourceController do
     end
 
     it "POST with rc when the item exists should fail" do
-      post :save, :resource => "b:rc:foo:#{@user.id}", :data => "[1]",
+      post :save, :resource => Resource::mk_resource("b","rc","foo",{},"#{@user.id}"), :data => "[1]",
       :format => :json
       response.response_code.should(eq(405))
     end
 
     it "POST with r should fail" do
-      post :save, :resource => "b:r:foo:#{@user.id}", :data => "[1]",
+      post :save, :resource => Resource::mk_resource("b","r","foo",{},"#{@user.id}"), :data => "[1]",
       :format => :json
       response.response_code.should(eq(405))
     end
 
     it "POST with rc or rw with new resource should succeed" do
-      post :save, :resource => "b:rc:bar1:#{@user.id}", :data => "[1]",
+      post :save, :resource => Resource::mk_resource("b","rc","bar1",{},"#{@user.id}"), :data => "[1]",
       :format => :json
       response.response_code.should(eq(200))
       Blob.find_by(user: @user, ref: "bar1").should(be_a(Blob))
 
-      post :save, :resource => "b:rw:bar2:#{@user.id}", :data => "[1]",
+      post :save, :resource => Resource::mk_resource("b","rw","bar2",{},"#{@user.id}"), :data => "[1]",
       :format => :json
       response.response_code.should(eq(200))
       Blob.find_by(user: @user, ref: "bar2").should(be_a(Blob))
     end
 
     it "POST with r should fail" do
-      post :save, :resource => "b:r:bar1:#{@user.id}", :data => "[1]",
+      post :save, :resource => Resource::mk_resource("b","r","bar1",{},"#{@user.id}"), :data => "[1]",
       :format => :json
       response.response_code.should(eq(405))
     end
 
     it "GET versions should succeed for existing blob" do
-      resource = "b:r:foo:#{@user.id}"
+      resource = Resource::mk_resource("b","r","foo",{},"#{@user.id}")
 
       get :versions, :resource => resource, :format => :json
       response.response_code.should(eq(200))
@@ -92,31 +95,31 @@ describe ResourceController do
     end
 
     it "GET versions should 404 on non-existent blob" do
-      get :versions, :resource => "b:rw:bar3:#{@user.id}", :format => :json
+      get :versions, :resource => Resource::mk_resource("b","rw","bar3",{},"#{@user.id}"), :format => :json
       response.response_code.should(eq(404))
     end
   end
 
   describe "PathRef" do
     it "GET with r, rc, or rw should succeed" do
-      get :lookup, :resource => "p:r:foo:#{@user.id}", :format => :json
+      get :lookup, :resource => Resource::mk_resource("p","r","foo",{},"#{@user.id}"), :format => :json
       response.response_code.should(eq(200))
       JSON::parse(response.body)["file"].should(eq(@file))
 
-      get :lookup, :resource => "p:rw:foo:#{@user.id}", :format => :json
+      get :lookup, :resource => Resource::mk_resource("p","rw","foo",{},"#{@user.id}"), :format => :json
       response.response_code.should(eq(200))
       JSON::parse(response.body)["file"].should(eq(@file))
       
-      get :lookup, :resource => "p:rc:foo:#{@user.id}", :format => :json
+      get :lookup, :resource => Resource::mk_resource("p","rc","foo",{},"#{@user.id}"), :format => :json
       response.response_code.should(eq(200))
       JSON::parse(response.body)["file"].should(eq(@file))
     end
 
     it "GET on unknown ref or user should fail" do
-      get :lookup, :resource => "p:rw:bazfoo:#{@user.id}", :format => :json
+      get :lookup, :resource => Resource::mk_resource("p","rw","bazfoo",{},"#{@user.id}"), :format => :json
       response.response_code.should(eq(404))
 
-      get :lookup, :resource => "p:rw:foo:not-an-id", :format => :json
+      get :lookup, :resource => Resource::mk_resource("p","rw","foo",{},"not-an-id"), :format => :json
       response.response_code.should(eq(404))
     end
 
@@ -127,7 +130,7 @@ describe ResourceController do
       path_ref = PathRef.new(:user_repo => @user.user_repo, :path => "foo1")
       before_versions = path_ref.versions.length
       new_data = "My New File"
-      post :save, :resource => "p:rw:foo1:#{@user.id}", :data => new_data,
+      post :save, :resource => Resource::mk_resource("p","rw","foo1",{},"#{@user.id}"), :data => new_data,
       :format => :json
       response.response_code.should(eq(200))
       resp = JSON::parse(response.body)
@@ -138,39 +141,39 @@ describe ResourceController do
     end
     
     it "POST with rc when the item exists should fail" do
-      post :save, :resource => "p:rc:foo:#{@user.id}", :data => "Blah blah blah",
+      post :save, :resource => Resource::mk_resource("p","rc","foo",{},"#{@user.id}"), :data => "Blah blah blah",
       :format => :json
       response.response_code.should(eq(405))
     end
     
     it "POST with r should fail" do
-      post :save, :resource => "p:r:foo:#{@user.id}", :data => "[1]",
+      post :save, :resource => Resource::mk_resource("p","r","foo",{},"#{@user.id}"), :data => "[1]",
       :format => :json
       response.response_code.should(eq(405))
     end
 
     it "POST with rc or rw with new resource should succeed" do
       data = "My Program"
-      post :save, :resource => "p:rc:bar1:#{@user.id}", :data => data,
+      post :save, :resource => Resource::mk_resource("p","rc","bar1",{},"#{@user.id}"), :data => data,
       :format => :json
       response.response_code.should(eq(200))
       @user.user_repo.lookup_file_head("bar1").should(eq(data))
 
       data2 = "My Program 2"
-      post :save, :resource => "p:rw:bar2:#{@user.id}", :data => data2,
+      post :save, :resource => Resource::mk_resource("p","rw","bar2",{},"#{@user.id}"), :data => data2,
       :format => :json
       response.response_code.should(eq(200))
       @user.user_repo.lookup_file_head("bar2").should(eq(data2))
     end
 
     it "POST with r should fail" do
-      post :save, :resource => "p:r:bar3:#{@user.id}", :data => "Baz",
+      post :save, :resource => Resource::mk_resource("p","r","bar3",{},"#{@user.id}"), :data => "Baz",
       :format => :json
       response.response_code.should(eq(405))
     end
 
     it "GET versions should succeed for existing pathref" do
-      resource = "p:r:foo:#{@user.id}"
+      resource = Resource::mk_resource("p","r","foo",{},"#{@user.id}")
 
       get :versions, :resource => resource, :format => :json
       response.response_code.should(eq(200))
@@ -179,19 +182,19 @@ describe ResourceController do
     end
 
     it "GET versions should 404 on non-existent pathref" do
-      get :versions, :resource => "p:rw:bar3:#{@user.id}", :format => :json
+      get :versions, :resource => Resource::mk_resource("p","rw","bar3",{},"#{@user.id}"), :format => :json
       response.response_code.should(eq(404))
     end
 
     it "GET versions should return all versions of pathref" do
-      post :save, :resource => "p:rw:bar4:#{@user.id}", :data => "Program 1",
+      post :save, :resource => Resource::mk_resource("p","rw","bar4",{},"#{@user.id}"), :data => "Program 1",
       :format => :json
-      post :save, :resource => "p:rw:bar4:#{@user.id}", :data => "Program 2",
+      post :save, :resource => Resource::mk_resource("p","rw","bar4",{},"#{@user.id}"), :data => "Program 2",
       :format => :json
-      post :save, :resource => "p:rw:bar4:#{@user.id}", :data => "Program 3",
+      post :save, :resource => Resource::mk_resource("p","rw","bar4",{},"#{@user.id}"), :data => "Program 3",
       :format => :json
 
-      get :versions, :resource => "p:rw:bar4:#{@user.id}", :format => :json
+      get :versions, :resource => Resource::mk_resource("p","rw","bar4",{},"#{@user.id}"), :format => :json
       resp = JSON::parse(response.body)
       resp.should(be_a(Array))
       resp.length.should(eq(3))
@@ -199,13 +202,13 @@ describe ResourceController do
 
     it "GET versions should return gitrefs to old versions of the pathref" do
       data1 = "Program 1"
-      post :save, :resource => "p:rw:bar5:#{@user.id}", :data => data1,
+      post :save, :resource => Resource::mk_resource("p","rw","bar5",{},"#{@user.id}"), :data => data1,
       :format => :json
       data2 = "Program 2"
-      post :save, :resource => "p:rw:bar5:#{@user.id}", :data => data2,
+      post :save, :resource => Resource::mk_resource("p","rw","bar5",{},"#{@user.id}"), :data => data2,
       :format => :json
 
-      get :versions, :resource => "p:rw:bar5:#{@user.id}", :format => :json
+      get :versions, :resource => Resource::mk_resource("p","rw","bar5",{},"#{@user.id}"), :format => :json
       resp = JSON::parse(response.body)
       resp.should(be_a(Array))
       resp.length.should(eq(2))
@@ -221,7 +224,7 @@ describe ResourceController do
   end
 
   it "should create read-only references from other references" do
-    resource = "p:rw:to-be-read-only:#{@user.id}"
+    resource = Resource::mk_resource("p","rw","to-be-read-only",{},"#{@user.id}")
     post :save, :resource => resource, :data => "some allowed stuff", :format => :json
     response.response_code.should(eq(200))
 
@@ -230,6 +233,14 @@ describe ResourceController do
     post :save, :resource => read_only, :data => "some stuff", :format => :json
     response.response_code.should(eq(405))
 
+  end
+
+  describe "Inboxes" do
+    it "should allow appending by key" do
+      resource = "inbox-write:rw:review-holding-resource:{}:#{@user.id}"
+
+
+    end
   end
   
 end
