@@ -24,7 +24,7 @@ function versions(container, options) {
   // a revision. However, if we are switching between many versions, we don't want
   // to keep creating new ones (only the first one).
   var onChangeVersionsCreateRevision = true;
-  
+
   function saveVersion() {
     onChangeVersionsCreateRevision = false;
     setVersionsButtonPending(versionsButton);
@@ -233,6 +233,7 @@ function createEditor(doc, uneditables, options) {
   var end = doc.setBookmark({line: 0, ch: 0}, {insertLeft: true});
   var i = 0;
   var marks = [];
+  var disabled_regions = {};
   uneditables.forEach(function(u) {
     var oldEnd = end.find();
     var isFirst = (i === 0);
@@ -259,15 +260,51 @@ function createEditor(doc, uneditables, options) {
   }
 
   function setAt(indexOrName, text) {
-    var i = getIndex(indexOrName); 
+    var i = getIndex(indexOrName);
     doc.replaceRange(text, marks[i].find().to, marks[i + 1].find().from);
   }
 
   function getAt(indexOrName) {
-    var i = getIndex(indexOrName); 
+    var i = getIndex(indexOrName);
     var start = marks[i].find().to;
     var end = marks[i + 1].find().from;
     return doc.getRange(start, end);
+  }
+
+  function cm_advance_char(doc, pos) {
+    var is_eol = (doc.getRange(pos, {line: pos.line}) == "");
+    if (is_eol) {
+      return {line: pos.line + 1, ch: 0};
+    } else {
+      return {line: pos.line, ch: pos.ch + 1};
+    }
+  }
+
+  function cm_retreat_char(doc, pos) {
+    if (pos.ch == 0 && pos.line == 0) {
+      return pos;
+    }
+    else if (pos.ch == 0) {
+      return {line: pos.line - 1, ch: 0};
+    } else {
+      return {line: pos.line, ch: pos.ch - 1};
+    }
+  }
+
+  function enableAt(indexOrName) {
+    if (disabled_regions[indexOrName]) {
+      disabled_regions[indexOrName].clear()
+    }
+  }
+
+  function disableAt(indexOrName) {
+    var i = getIndex(indexOrName);
+    var start = marks[i].find().to;
+    var end =  marks[i + 1].find().from;
+    var region = doc.markText(start, end, {readOnly: true,
+                                          inclusiveLeft: true,
+                                          inclusiveRight: true});
+    disabled_regions[indexOrName] = region;
   }
 
   var indexDict = {};
@@ -295,6 +332,47 @@ function createEditor(doc, uneditables, options) {
 
   return {
     setAt: setAt,
-    getAt: getAt
+    getAt: getAt,
+    enableAt: enableAt,
+    disableAt: disableAt
   };
+}
+
+
+function steppedEditor(doc, container, uneditables, options) {
+  var cm = makeEditor(
+    $(container),
+    {
+      initial: "",
+      run: options.run
+    }
+  );
+  var sequence = options.steps || [];
+  var pos = 0;
+  var editor = createEditor(cm.getDoc(), uneditables, {
+      names: options.names,
+      initial: options.initial
+  });
+
+  var mark_enabled = function() {
+    for(var i = 0; i < sequence.length; i++) {
+      if (i <= pos) {
+        editor.enableAt(sequence[i]);
+      } else {
+        editor.disableAt(sequence[i]);
+      }
+    }
+  };
+  mark_enabled();
+  var doneButton = drawNextStepButton();
+  doneButton.on("click", function () {
+    if (pos < sequence.length) {
+      pos++;
+      mark_enabled();
+    }
+  });
+
+  $(container).append(doneButton);
+
+  return editor;
 }

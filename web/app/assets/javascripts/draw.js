@@ -150,6 +150,10 @@ function drawSavedNotification(container) {
   saved.fadeOut(2000);
 }
 
+function drawNextStepButton() {
+  return $("<button>").text("Next Step");
+}
+
 function createTabPanel(container) {
   var tabContainer = $("<div>").addClass("tabPanel");
   var panelRow = $("<div>").addClass("tabPanels");
@@ -198,6 +202,3 @@ function createTabPanel(container) {
     }
   };
 }
-
-
-
