@@ -236,11 +236,75 @@ describe ResourceController do
   end
 
   describe "Inboxes" do
-    it "should allow appending by key" do
-      resource = "inbox-write:rw:review-holding-resource:{}:#{@user.id}"
+    it "should allow writing by key" do
+      b = Blob.create!(:user => @user, :ref => "some-id-for-activity", :data => "{}")
+      resource = Resource::mk_resource("inbox-for-write", "rw", "some-id-for-activity", { blob_uid: b.uid, key: "1" }, @user.id)
+      data = {"review" => "My review, or whatever"}
+      post :save, :resource => resource, :data => data, :format => :json
+      response.response_code.should(eq(200))
 
+      get :lookup, :resource => resource
 
+      response.response_code.should(eq(200))
+      JSON.parse(response.body).should(eq(data))
     end
+
+    it "should always echo the most recent version" do
+      b = Blob.create!(:user => @user, :ref => "some-id-for-activity", :data => "{}")
+      resource = Resource::mk_resource("inbox-for-write", "rw", "some-id-for-activity", { blob_uid: b.uid, key: "1" }, @user.id)
+      data = {"review" => "My review, or whatever"}
+      post :save, :resource => resource, :data => data, :format => :json
+      response.response_code.should(eq(200))
+
+      data2 = {"review" => "My review, after some reflection"}
+      post :save, :resource => resource, :data => data2, :format => :json
+      response.response_code.should(eq(200))
+
+      get :lookup, :resource => resource
+
+      response.response_code.should(eq(200))
+      JSON.parse(response.body).should(eq(data2))
+    end
+
+    it "should allow a reader to see all the versions" do
+      blob_for_inbox = Blob.create!(:user => @user, :ref => "some-id-for-activity", :data => "{}")
+      resource = Resource::mk_resource(
+          "inbox-for-read",
+          "r",
+          "some-id-for-activity",
+          { blob_uid: blob_for_inbox.uid, owner: true },
+          @user.id
+        )
+      write_resource1 = Resource::mk_resource(
+          "inbox-for-write",
+          "rw",
+          "some-id-for-activity",
+          { blob_uid: blob_for_inbox.uid, key: "42" },
+          @user.id)
+      write_resource2 = Resource::mk_resource(
+          "inbox-for-write",
+          "rw",
+          "some-id-for-activity",
+          { blob_uid: blob_for_inbox.uid, key: "84" },
+          @user.id)
+
+      data = {"review" => "First review"}
+      post :save, :resource => write_resource1, :data => data, :format => :json
+      response.response_code.should(eq(200))
+
+      data2 = {"review" => "Second review"}
+      post :save, :resource => write_resource2, :data => data2, :format => :json
+      response.response_code.should(eq(200), "Second attempt")
+
+      get :lookup, :resource => resource
+
+      response.response_code.should(eq(200))
+
+      resp = JSON::parse(response.body)
+      resp[0].should(eq(data))
+      resp[1].should(eq(data2))
+    end
+
   end
   
 end

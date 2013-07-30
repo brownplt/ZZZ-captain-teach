@@ -127,13 +127,37 @@ module Resource
       else
         return NotFound.new
       end
+    elsif type == 'inbox-for-read'
+      b = Blob.find_by(:uid => args["blob_uid"])
+      if b.nil?
+        return NotFound.new
+      else
+        values = []
+        json_data = JSON.parse(b.data)
+        json_data.keys.sort.each do |key|
+          values.push(json_data[key])
+        end
+        return Normal.new(JSON.dump(values))
+      end
+    elsif type == 'inbox-for-write'
+      b = Blob.find_by(:uid => args["blob_uid"])
+      if b.nil?
+        return NotFound.new
+      else
+        data_for_key = JSON.parse(b.data)[args["key"]]
+        if data_for_key.nil?
+          return NotFound.new
+        else
+          return Normal.new(data_for_key)
+        end
+      end
     else
       return Invalid.new
     end
   end
 
   def lookup_create(type, perm, ref, args, user, data)
-    
+
     if perm != "rw" and perm != "rc"
       return PermissionDenied.new
     else
@@ -202,8 +226,22 @@ module Resource
                            DEFAULT_GIT_USER)
           return Success.new
         end 
+      elsif type == 'inbox-for-write'
+        print("In save: #{user} #{args}\n")
+        b = Blob.find_by(uid: args["blob_uid"])
+        if b.nil?
+          print "Invalid: #{b.data}\n"
+          return Invalid.new
+        else
+          json_data = JSON.parse(b.data)
+          json_data[args["key"]] = data
+          print("the data is: #{json_data}\n")
+          b.data = JSON.dump(json_data)
+          b.save!
+          return Success.new
+        end
       else
-        # you can't save a gitref
+        # you can't save a gitref or inbox-for-read
         return Invalid.new
       end
     end
