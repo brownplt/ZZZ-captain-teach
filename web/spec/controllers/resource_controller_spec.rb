@@ -237,8 +237,9 @@ describe ResourceController do
 
   describe "Inboxes" do
     it "should allow writing by key" do
-      b = Blob.create!(:user => @user, :ref => "some-id-for-activity", :data => "{}")
-      resource = Resource::mk_resource("inbox-for-write", "rw", "some-id-for-activity", { blob_uid: b.uid, key: "1" }, @user.id)
+      ref = "some-id-for-activity/reviews"
+      b = Blob.create!(:user => @user, :ref => ref, :data => "{}")
+      resource = Resource::mk_resource("inbox-for-write", "rw", "some-id", { blob_ref: ref, blob_user_id: @user.id, key: "1" }, @user.id)
       data = {"review" => "My review, or whatever"}
       post :save, :resource => resource, :data => data, :format => :json
       response.response_code.should(eq(200))
@@ -250,8 +251,9 @@ describe ResourceController do
     end
 
     it "should always echo the most recent version" do
-      b = Blob.create!(:user => @user, :ref => "some-id-for-activity", :data => "{}")
-      resource = Resource::mk_resource("inbox-for-write", "rw", "some-id-for-activity", { blob_uid: b.uid, key: "1" }, @user.id)
+      ref = "some-id-for-activity/reviews"
+      b = Blob.create!(:user => @user, :ref => ref, :data => "{}")
+      resource = Resource::mk_resource("inbox-for-write", "rw", "some-id-for-activity", { blob_ref: ref, blob_user_id: @user.id, key: "1" }, @user.id)
       data = {"review" => "My review, or whatever"}
       post :save, :resource => resource, :data => data, :format => :json
       response.response_code.should(eq(200))
@@ -267,30 +269,31 @@ describe ResourceController do
     end
 
     it "should allow a reader to see all the versions" do
-      blob_for_inbox = Blob.create!(:user => @user, :ref => "some-id-for-activity", :data => "{}")
+      ref = "some-id-for-activity/reviews"
+      blob_for_inbox = Blob.create!(:user => @user, :ref => ref, :data => "{}")
       resource = Resource::mk_resource(
           "inbox-for-read",
           "r",
           "some-id-for-activity",
-          { blob_uid: blob_for_inbox.uid, owner: true },
+          { blob_ref: blob_for_inbox.ref, blob_user_id: @user.id },
           @user.id
         )
       write_resource1 = Resource::mk_resource(
           "inbox-for-write",
           "rw",
           "some-id-for-activity",
-          { blob_uid: blob_for_inbox.uid, key: "42" },
+          { blob_ref: blob_for_inbox.ref, blob_user_id: @user.id, key: "42" },
           @user.id)
       write_resource2 = Resource::mk_resource(
           "inbox-for-write",
           "rw",
           "some-id-for-activity",
-          { blob_uid: blob_for_inbox.uid, key: "84" },
+          { blob_ref: blob_for_inbox.ref, blob_user_id: @user.id, key: "84" },
           @user.id)
 
       data = {"review" => "First review"}
       post :save, :resource => write_resource1, :data => data, :format => :json
-      response.response_code.should(eq(200))
+      response.response_code.should(eq(200), "First review write")
 
       data2 = {"review" => "Second review"}
       post :save, :resource => write_resource2, :data => data2, :format => :json
@@ -313,8 +316,9 @@ describe ResourceController do
       @activity_id = 'some-activity-id'
     end
     it "should allow submission, and put submissions in the Submitted table" do
+      b = Blob.create!(:user => @user, :ref => @activity_id, :data => "{}")
       resource_to_submit =
-        Resource::mk_resource('g', 'r', @activity_id, {
+        Resource::mk_resource('b', 'r', @activity_id, {
             activity_id: @activity_id 
           }, @user.id)
 
@@ -332,8 +336,9 @@ describe ResourceController do
     end
 
     it "should allow multiple submissions" do
+      b = Blob.create!(:user => @user, :ref => @activity_id, :data => "{}")
       resource_to_submit =
-        Resource::mk_resource('g', 'r', @activity_id, {
+        Resource::mk_resource('b', 'r', @activity_id, {
             activity_id: @activity_id 
           }, @user.id)
 
@@ -364,6 +369,7 @@ describe ResourceController do
     end
 
     it "should change submissions to read-only" do
+      b = Blob.create!(:user => @user, :ref => @activity_id, :data => "{}")
       resource_to_submit = 
         Resource.mk_resource('b', 'rw', @activity_id, {
             activity_id: @activity_id
