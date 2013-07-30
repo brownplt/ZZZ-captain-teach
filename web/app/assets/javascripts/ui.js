@@ -310,7 +310,8 @@ function createEditor(doc, uneditables, options) {
       var end =  marks[i + 1].find().from;
       var region = doc.markText(start, end, {readOnly: true,
                                              inclusiveLeft: true,
-                                             inclusiveRight: true});
+                                             inclusiveRight: true,
+                                             className: 'cptteach-fixed'});
       disabled_regions[indexOrName] = region;
     }
   }
@@ -350,6 +351,9 @@ function createEditor(doc, uneditables, options) {
 
 function steppedEditor(container, uneditables, options) {
 
+  var currentSectionTitle = drawCurrentStepTitle();
+  container.append(currentSectionTitle);
+  
   var gutterId = "steppedGutter";
   var steps = options.steps || [];
   var pos = 0;
@@ -387,7 +391,7 @@ function steppedEditor(container, uneditables, options) {
   }
   
   var draw = function() {
-    ct_log("pos is ", pos, " and cur is ", cur);
+    setCurrentStepTitle(currentSectionTitle, steps[cur]);
     stepsContainer.empty();
     cm.clearGutter(gutterId);
     steps.forEach(function(e, i) {

@@ -182,6 +182,14 @@ function drawProgressStep(width) {
   return $("<span>").addClass("progressStep").css("width", width + "%");
 }
 
+function drawCurrentStepTitle() {
+  return $("<h3>");
+}
+
+function setCurrentStepTitle(dom, title) {
+  dom.text(title);
+}
+
 function createTabPanel(container) {
   var tabContainer = $("<div>").addClass("tabPanel");
   var panelRow = $("<div>").addClass("tabPanels");
