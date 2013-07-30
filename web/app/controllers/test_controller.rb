@@ -27,6 +27,12 @@ class TestController < ApplicationController
     redirect_to :back
   end
 
+  def server_tests
+    @data = JSON.dump({
+      "user_id" => 1      
+    })
+  end
+
   private
 
   def run_scribble(name)

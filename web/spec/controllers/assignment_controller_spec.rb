@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'nokogiri' # NOTE(dbp): may require gem install nokogiri
 
 describe AssignmentController do
   before(:all) do
@@ -72,5 +73,4 @@ describe AssignmentController do
       body_resource[0].should(eq("inbox-for-read"))
     end
   end
-  
 end

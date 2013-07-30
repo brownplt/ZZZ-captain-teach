@@ -1,16 +1,18 @@
-[] Marks for function activities
+[x] Marks for function activities
   - track beginning/end of header/check blocks
-[] Locks for control of Whalesong printing
-[] Have check mode just return the data structure of check results and
+[x] Locks for control of Whalesong printing
+[x] Have check mode just return the data structure of check results and
    let the context figure it out (cmdline.rkt, repl.js, etc.), rather
    than printing by itself
+[] Prettier test output
+[] Highlight error messages in output
 [] Make CodeMirror behave with respect to zooming
 
 [] Figure out how pathrefs should be created in the database... so
 that caching can work (right now, we create path refs many times)
 
-[] Libraries
-[] Versions
+[x] Libraries
+[x] Versions
 [] Reviews
 [] Design recipe step
 
@@ -21,3 +23,10 @@ that caching can work (right now, we create path refs many times)
    interface?
 
 [] Consistent on("event") vs .event()
+
+[] Don't try to save versions in teacher review mode when switching versions
+
+[] Indicate reviewability of activity instances in markup
+  - Indicate this by creating and passing args
+
+

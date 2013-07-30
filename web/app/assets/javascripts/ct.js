@@ -147,6 +147,10 @@ function codeExample(container, resources, args) {
   return { container: container, activityData: {editor: cm} };
 }
 
+function studentReviewBuilder(container, resources, args) {
+  
+}
+
 function functionBuilder(container, resources, args) {
 
   var header = args.header;
