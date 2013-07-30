@@ -374,7 +374,6 @@ describe ResourceController do
       review_blob = Blob.find_by(:user => @user, :ref => review_ref)
       data = JSON.parse(review_blob.data)
 
-      print "data: #{data}\n"
       data.length.should(eq(3))
 
       r1 = Resource::parse(data[0]["save_review"])

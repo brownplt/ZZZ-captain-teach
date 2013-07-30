@@ -62,18 +62,32 @@ describe AssignmentController do
 
       check_part = parts[0]
       check_part["name"].should(eq("check"))
-      check_resource = Resource::parse(check_part["resource"])
-      check_resource[2].should(eq(controller.part_ref(node["data-activity-id"], "check")))
+      check_resource = Resource::parse(check_part["read_reviews"])
+      check_resource[2].should(eq(AssignmentController.part_ref(node["data-activity-id"], "check")))
       check_resource[0].should(eq("inbox-for-read"))
+      check_do_reviews = Resource::parse(check_part["do_reviews"])
+      check_do_reviews[2].should(eq(AssignmentController.reviews_ref(
+                                      AssignmentController.part_ref(
+                                          node["data-activity-id"],
+                                          "check"
+                                        ))))
 
       body_part = parts[1]
       body_part["name"].should(eq("body"))
-      body_resource = Resource::parse(body_part["resource"])
-      body_resource[2].should(eq(controller.part_ref(node["data-activity-id"], "body")))
-      body_resource[0].should(eq("inbox-for-read"))
+      body_read_reviews = Resource::parse(body_part["read_reviews"])
+      body_read_reviews[2].should(eq(AssignmentController.part_ref(node["data-activity-id"], "body")))
+      body_read_reviews[0].should(eq("inbox-for-read"))
+      body_do_reviews = Resource::parse(body_part["do_reviews"])
+      body_do_reviews[2].should(eq(AssignmentController.reviews_ref(
+                                      AssignmentController.part_ref(
+                                          node["data-activity-id"],
+                                          "body"
+                                        ))))
 
       path_resource = Resource::parse(JSON.parse(node["data-resources"])["path"])
       path_resource[3]["reviews"].should(eq(2))
+
+
     end
   end
 end

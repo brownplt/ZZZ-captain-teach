@@ -310,8 +310,6 @@ module Resource
       .where("user_id != ?", user.id)
       .take(reviews)
 
-      print "str: #{submissions_to_review.to_a}\n"
-
       part_ref = AssignmentController.part_ref(ref, type)
 
       data = submissions_to_review.map do |sub|
