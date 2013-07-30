@@ -239,7 +239,7 @@ describe ResourceController do
     it "should allow writing by key" do
       ref = "some-id-for-activity/reviews"
       b = Blob.create!(:user => @user, :ref => ref, :data => "{}")
-      resource = Resource::mk_resource("inbox-for-write", "rw", "some-id", { blob_ref: ref, blob_user_id: @user.id, key: "1" }, @user.id)
+      resource = Resource::mk_resource("inbox-for-write", "rw", ref, { blob_user_id: @user.id, key: "1" }, @user.id)
       data = {"review" => "My review, or whatever"}
       post :save, :resource => resource, :data => data, :format => :json
       response.response_code.should(eq(200))
@@ -253,7 +253,7 @@ describe ResourceController do
     it "should always echo the most recent version" do
       ref = "some-id-for-activity/reviews"
       b = Blob.create!(:user => @user, :ref => ref, :data => "{}")
-      resource = Resource::mk_resource("inbox-for-write", "rw", "some-id-for-activity", { blob_ref: ref, blob_user_id: @user.id, key: "1" }, @user.id)
+      resource = Resource::mk_resource("inbox-for-write", "rw", ref, { blob_user_id: @user.id, key: "1" }, @user.id)
       data = {"review" => "My review, or whatever"}
       post :save, :resource => resource, :data => data, :format => :json
       response.response_code.should(eq(200))
@@ -274,21 +274,21 @@ describe ResourceController do
       resource = Resource::mk_resource(
           "inbox-for-read",
           "r",
-          "some-id-for-activity",
-          { blob_ref: blob_for_inbox.ref, blob_user_id: @user.id },
+          ref,
+          {},
           @user.id
         )
       write_resource1 = Resource::mk_resource(
           "inbox-for-write",
           "rw",
-          "some-id-for-activity",
-          { blob_ref: blob_for_inbox.ref, blob_user_id: @user.id, key: "42" },
+          ref,
+          { blob_user_id: @user.id, key: "42" },
           @user.id)
       write_resource2 = Resource::mk_resource(
           "inbox-for-write",
           "rw",
-          "some-id-for-activity",
-          { blob_ref: blob_for_inbox.ref, blob_user_id: @user.id, key: "84" },
+          ref,
+          { blob_user_id: @user.id, key: "84" },
           @user.id)
 
       data = {"review" => "First review"}

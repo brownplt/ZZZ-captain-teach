@@ -88,10 +88,10 @@ module Resource
     return path,commit
   end
 
-  def find_blob_for_inbox(args)
+  def find_blob_for_inbox(user_id, ref)
     Blob.find_by(
-        :user_id => args["blob_user_id"],
-        :ref => args["blob_ref"]
+        :user_id => user_id,
+        :ref => ref
       )
   end
 
@@ -135,7 +135,7 @@ module Resource
         return NotFound.new
       end
     elsif type == 'inbox-for-read'
-      b = find_blob_for_inbox(args)
+      b = find_blob_for_inbox(user.id, ref)
       if b.nil?
         return NotFound.new
       else
@@ -147,7 +147,7 @@ module Resource
         return Normal.new(JSON.dump(values))
       end
     elsif type == 'inbox-for-write'
-      b = find_blob_for_inbox(args)
+      b = find_blob_for_inbox(args["blob_user_id"], ref)
       if b.nil?
         return NotFound.new
       else
@@ -234,7 +234,7 @@ module Resource
           return Success.new
         end 
       elsif type == 'inbox-for-write'
-        b = find_blob_for_inbox(args)
+        b = find_blob_for_inbox(args["blob_user_id"], ref)
         if b.nil?
           return Invalid.new
         else
