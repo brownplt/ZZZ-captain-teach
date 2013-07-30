@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>App</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
+  <%= stylesheet_link_tag    "ui", media: "all", "data-turbolinks-track" => true %>
+  <%= stylesheet_link_tag    "editor", media: "all", "data-turbolinks-track" => true %>
+  <%= stylesheet_link_tag    "print", media: "print", "data-turbolinks-track" => true %>
+  <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
+  <%= csrf_meta_tags %>
+
+  <!-- whalesong includes -->
+  <script src="http://localhost:8080/collects/runtime.js"></script>
+  <script src="http://localhost:8080/collects/library.js"></script>
+  <script src="http://localhost:8080/easyXDM-min.js"></script>
+  <script src="http://localhost:8080/repl.js"></script>
+  
+</head>
+<body data-no-turbolink>
+
+<%= yield %>
+
+</body>
+</html>
