@@ -45,7 +45,32 @@ describe AssignmentController do
     get :grade_assignment, :uid => @a.uid, :user_id => @not_the_teacher.id
     response.status.should eq 200
 
-    controller.logout_browserid
-    
+    controller.logout_browserid    
   end
+
+  describe "Scribble" do
+    it "should have a resource for getting reviews" do
+      o = Object.new
+      def o.path
+        scribble_file("function_with_review.jrny")
+      end
+      html = controller.path_to_html(@not_the_teacher,o)
+      doc = Nokogiri::HTML(html)
+      node = doc.css("[data-parts]")[0]
+      parts = JSON.parse(node["data-parts"])
+
+      check_part = parts[0]
+      check_part["name"].should(eq("check"))
+      check_resource = Resource::parse(check_part["resource"])
+      check_resource[2].should(eq(controller.part_ref(node["data-activity-id"], "check")))
+      check_resource[0].should(eq("inbox-for-read"))
+
+      body_part = parts[1]
+      body_part["name"].should(eq("body"))
+      body_resource = Resource::parse(body_part["resource"])
+      body_resource[2].should(eq(controller.part_ref(node["data-activity-id"], "body")))
+      body_resource[0].should(eq("inbox-for-read"))
+    end
+  end
+  
 end

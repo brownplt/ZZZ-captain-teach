@@ -16,8 +16,15 @@ RSpec.configure do |config|
   # NOTE(dbp): this is to get rspec to pick up tests in spec/lib
   config.pattern = "**/*_spec.rb"
 
-  USER_GIT_REPO_PATH = "/tmp/ct-user-repos/"
+  def scribble_file(file)
+    scribble_path = File.expand_path("../../spec/scribble_files/", __FILE__)
+    File.expand_path(file, scribble_path)
+  end
+  
+  
 
+  USER_GIT_REPO_PATH = "/tmp/ct-user-repos/"
+ 
   config.before(:all) {
     Dir.mkdir(USER_GIT_REPO_PATH)
   }

@@ -4,8 +4,7 @@ module Scribble
   class ScribbleError < Exception
   end
 
-  def render(path_ref)
-    source = path_ref.create_temporary
+  def render(source)
     # NOTE(dbp): if we don't end it in .html, scribble adds that
     # for us.
     dest = Tempfile.new(["scribble", '.html'])
@@ -32,5 +31,6 @@ module Scribble
     end
     @rv
   end
+  
   module_function :render
 end

@@ -10,7 +10,8 @@ class AssignmentController < ApplicationController
       if !authenticated?
         @html = "Not logged in"
       else
-        @html = path_ref_to_html(ct_current_user, assignment.path_ref)
+        path = path_ref_to_path(assignment.path_ref)
+        @html = path_to_html(ct_current_user, path)
       end
     end
   end
@@ -25,15 +26,14 @@ class AssignmentController < ApplicationController
       else
         if(assignment.course.teachers.exists?(current_user.id))
           user = User.find(params[:user_id])
-          @html = path_ref_to_grade_html(user, assignment.path_ref)
+          path = path_ref_to_path(assignment.path_ref)
+          @html = path_to_grade_html(user, path)
         else
           application_not_found("No access to assignment")
         end
       end
     end
   end
-
-  private
 
   def resource_from_dict(d, uid)
     Resource::mk_resource(
@@ -45,8 +45,17 @@ class AssignmentController < ApplicationController
       )
   end
 
-  def path_ref_to_html(user, path_ref)
-    scribbled = Scribble::render(path_ref)
+  def part_ref(id, k)
+    "#{id}-#{k}"
+  end
+  
+  def path_ref_to_path(path_ref)
+    path_ref.create_temporary
+  end
+
+  
+  def path_to_html(user, path)
+    scribbled = Scribble::render(path)
     doc = Nokogiri::HTML(scribbled)
     main = doc.css('div.main').first
     if main.nil?
@@ -61,13 +70,23 @@ class AssignmentController < ApplicationController
           resources[k] = resource_from_dict(resources[k], user.id)
         end
         node["data-resources"] = resources.to_json
+
+        parts = JSON.parse(node["data-parts"])
+        parts = parts.map do |k|
+          {name: k, resource: Resource::mk_resource("inbox-for-read",
+                                                    "r",
+                                                    part_ref(node["data-activity-id"], k),
+                                                    {},
+                                                    user.id)}
+        end
+        node["data-parts"] = JSON.dump(parts)
       end
     end
     main.to_html
   end
 
-  def path_ref_to_grade_html(user, path_ref)
-    scribbled = Scribble::render(path_ref)
+  def path_to_grade_html(user, path)
+    scribbled = Scribble::render(path)
     doc = Nokogiri::HTML(scribbled)
     main = doc.css('div.main').first
     if main.nil?

@@ -1,0 +1,12 @@
+#lang scribble/base
+
+@(require ct-scribble/ct-lib)
+
+@journey{034852b4-f93e-11e2-b6ba-cf7c3de49d69}
+
+@title{Function Definition With Review}
+
+@function-reviewable['include-run "1d47760e-f93e-11e2-a40e-8f0fb1c03259"]{
+  @header{fun foooooo():}
+  @check{}
+}

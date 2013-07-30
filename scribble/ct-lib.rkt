@@ -135,6 +135,35 @@
                       (cons 'check check)))))))))
        ""))))
 
+(define-syntax-rule (function-reviewable mode1 unique-id elt ...)
+  (begin
+    (letrec [(mode (validate-mode mode1))
+             (parts (filter holder? (list elt ...)))
+             ;;(include (holder-elt (first parts)))
+             (header (holder-elt (first parts)))
+             (check (holder-elt (second parts)))]
+      (element
+          (style #f
+            (list
+             (alt-tag "div")
+             (attributes
+              (list
+               (cons 'data-ct-node "1")
+               (cons 'data-activity-id unique-id)
+               (cons 'data-resources (jsexpr->string
+                                      (make-hash
+                                       (list (cons 'path (mk-resource "p" "rw" unique-id (make-hash)))
+                                             (cons 'blob (mk-resource "b" "rw" unique-id (make-hash)))))))
+               (cons 'data-type "function")
+               (cons 'data-parts (jsexpr->string (list "check" "body")))
+               (cons 'data-args (jsexpr->string
+                                 (make-hash
+                                  (list
+                                   (cons 'mode mode)
+                                   (cons 'header header)
+                                   (cons 'check check)))))))))
+        ""))))
+
 (define-syntax-rule (inline-example elt ...)
   (let [(code (string-append* (list elt ...)))]
   (element
