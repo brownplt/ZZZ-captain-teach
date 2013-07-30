@@ -227,15 +227,12 @@ module Resource
           return Success.new
         end 
       elsif type == 'inbox-for-write'
-        print("In save: #{user} #{args}\n")
         b = Blob.find_by(uid: args["blob_uid"])
         if b.nil?
-          print "Invalid: #{b.data}\n"
           return Invalid.new
         else
           json_data = JSON.parse(b.data)
           json_data[args["key"]] = data
-          print("the data is: #{json_data}\n")
           b.data = JSON.dump(json_data)
           b.save!
           return Success.new
