@@ -66,7 +66,7 @@ function markOkReviewScore(reviewScore) {
 }
 
 function selectReviewScore(reviewScore, value) {
-  reviewScore.find("input[value=" + value + "]").click();
+  reviewScore.find("input[value=" + value + "]").click().prop("checked", true);
 }
 
 function drawShowWriteReview() {
