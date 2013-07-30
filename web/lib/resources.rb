@@ -88,6 +88,13 @@ module Resource
     return path,commit
   end
 
+  def find_blob_for_inbox(args)
+    Blob.find_by(
+        :user_id => args["blob_user_id"],
+        :ref => args["blob_ref"]
+      )
+  end
+
   def parse(resource)
     # TODO(dbp): error handling - exceptions? return types?
     type,perm,ref,args,uid = resource.split(":")
@@ -128,7 +135,7 @@ module Resource
         return NotFound.new
       end
     elsif type == 'inbox-for-read'
-      b = Blob.find_by(:uid => args["blob_uid"])
+      b = find_blob_for_inbox(args)
       if b.nil?
         return NotFound.new
       else
@@ -140,7 +147,7 @@ module Resource
         return Normal.new(JSON.dump(values))
       end
     elsif type == 'inbox-for-write'
-      b = Blob.find_by(:uid => args["blob_uid"])
+      b = find_blob_for_inbox(args)
       if b.nil?
         return NotFound.new
       else
@@ -227,7 +234,7 @@ module Resource
           return Success.new
         end 
       elsif type == 'inbox-for-write'
-        b = Blob.find_by(uid: args["blob_uid"])
+        b = find_blob_for_inbox(args)
         if b.nil?
           return Invalid.new
         else
@@ -303,5 +310,5 @@ module Resource
     return Success.new
   end
 
-  module_function :mk_resource, :mk_user_resource, :read_only, :get_commit, :parse, :lookup, :lookup_create, :save, :versions, :submit
+  module_function :find_blob_for_inbox, :mk_resource, :mk_user_resource, :read_only, :get_commit, :parse, :lookup, :lookup_create, :save, :versions, :submit
 end
