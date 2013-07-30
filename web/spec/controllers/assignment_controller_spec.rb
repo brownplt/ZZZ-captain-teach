@@ -71,6 +71,9 @@ describe AssignmentController do
       body_resource = Resource::parse(body_part["resource"])
       body_resource[2].should(eq(controller.part_ref(node["data-activity-id"], "body")))
       body_resource[0].should(eq("inbox-for-read"))
+
+      path_resource = Resource::parse(JSON.parse(node["data-resources"])["path"])
+      path_resource[3]["reviews"].should(eq(2))
     end
   end
 end

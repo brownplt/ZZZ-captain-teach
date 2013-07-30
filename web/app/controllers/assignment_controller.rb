@@ -45,8 +45,11 @@ class AssignmentController < ApplicationController
       )
   end
 
-  def part_ref(id, k)
+  def self.part_ref(id, k)
     "#{id}-#{k}"
+  end
+  def self.reviews_ref(ref)
+    "#{ref}-reviews"
   end
   
   def path_ref_to_path(path_ref)

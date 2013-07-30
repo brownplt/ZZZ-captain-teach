@@ -236,14 +236,13 @@ module Resource
       elsif type == 'inbox-for-write'
         b = find_blob_for_inbox(args["blob_user_id"], ref)
         if b.nil?
-          return Invalid.new
-        else
-          json_data = JSON.parse(b.data)
-          json_data[args["key"]] = data
-          b.data = JSON.dump(json_data)
-          b.save!
-          return Success.new
+          b = Blob.create!(ref: ref, user_id: args["blob_user_id"], data: "{}")
         end
+        json_data = JSON.parse(b.data)
+        json_data[args["key"]] = data
+        b.data = JSON.dump(json_data)
+        b.save!
+        return Success.new
       else
         # you can't save a gitref or inbox-for-read
         return Invalid.new
@@ -298,6 +297,43 @@ module Resource
     end
   end
   
+  def assign_reviews(user, ref, type, reviews)
+    if reviews.nil? or reviews == 0
+      return
+    else
+      submissions_to_review = Submitted.where(
+        :activity_id => ref,
+        :submission_type => type,
+      )
+      .order("review_count ASC")
+      .order("submission_time ASC")
+      .where("user_id != ?", user.id)
+      .take(reviews)
+
+      print "str: #{submissions_to_review.to_a}\n"
+
+      part_ref = AssignmentController.part_ref(ref, type)
+
+      data = submissions_to_review.map do |sub|
+        {
+          resource: sub.resource,
+          save_review: Resource::mk_resource(
+            'inbox-for-write',
+            'rw',
+            part_ref,
+            { blob_user_id: sub.user_id, key: user.id },
+            user.id
+          )
+        }
+      end
+
+      review_blob = Blob.create!(
+        :user => user,
+        :ref => AssignmentController.reviews_ref(AssignmentController.part_ref(ref, type)),
+        :data => JSON.dump(data))
+    end
+  end
+
   def submit(type, perm, ref, args, user, data, resource)
     maybe_resource_versions = versions(type, perm, ref, args, user, resource)
     if maybe_resource_versions.instance_of?(Normal)
@@ -305,14 +341,25 @@ module Resource
       if resource_versions.length == 0
         return Invalid.new
       else
+        type = args["type"] || data["type"] || ""
         read_only_resource = Resource::read_only(resource_versions[0][:resource])
+        not_already_submitted = Submitted.find_by(
+          :user => user,
+          :resource => read_only_resource,
+          :activity_id => ref,
+          :submission_type => type
+        ).nil?
         submitted = Submitted.create!(
           :user => user,
           :resource => read_only_resource,
-          :activity_id => ref, #TODO(joe): review -- should this come from args or ref?
-          :submission_type => args["type"] || data["type"] || "", #TODO(joe): review -- allow client-chosen type?
+          :activity_id => ref,
+          :submission_type => type, #TODO(joe): review -- allow client-chosen type?
           :submission_time => Time.zone.now
         )
+        
+        if not_already_submitted
+          assign_reviews(user, ref, type, args["reviews"])
+        end
         return Success.new
       end
     else
@@ -320,5 +367,17 @@ module Resource
     end
   end
 
-  module_function :find_blob_for_inbox, :mk_resource, :mk_user_resource, :read_only, :get_commit, :parse, :lookup, :lookup_create, :save, :versions, :submit
+
+module_function :assign_reviews,
+  :find_blob_for_inbox,
+  :mk_resource,
+  :mk_user_resource,
+  :read_only,
+  :get_commit,
+  :parse,
+  :lookup,
+  :lookup_create,
+  :save,
+  :versions,
+  :submit
 end

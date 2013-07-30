@@ -236,13 +236,18 @@ describe ResourceController do
   end
 
   describe "Inboxes" do
-    it "should allow writing by key" do
+    before(:each) do
+      Blob.destroy_all
+    end
+    it "should allow writing by key, and create on write" do
       ref = "some-id-for-activity/reviews"
-      b = Blob.create!(:user => @user, :ref => ref, :data => "{}")
+      Blob.count.should(eq(0))
       resource = Resource::mk_resource("inbox-for-write", "rw", ref, { blob_user_id: @user.id, key: "1" }, @user.id)
       data = {"review" => "My review, or whatever"}
       post :save, :resource => resource, :data => data, :format => :json
       response.response_code.should(eq(200))
+
+      Blob.count.should(eq(1))
 
       get :lookup, :resource => resource
 
@@ -311,16 +316,27 @@ describe ResourceController do
   end
 
   describe "Submitted" do
+    def create_sub(id)
+      part_ref = AssignmentController.part_ref(@activity_id, "check")
+      Submitted.create!(
+        :submission_type => "check",
+        :activity_id => @activity_id,
+        :resource => Resource::mk_resource('b', 'r', part_ref, {}, id),
+        :user_id => id,
+        :submission_time => Time.zone.now
+      )
+    end
+
     before(:each) do
       Submitted.destroy_all
+      Blob.destroy_all
       @activity_id = 'some-activity-id'
     end
+
     it "should allow submission, and put submissions in the Submitted table" do
       b = Blob.create!(:user => @user, :ref => @activity_id, :data => "{}")
       resource_to_submit =
-        Resource::mk_resource('b', 'r', @activity_id, {
-            activity_id: @activity_id 
-          }, @user.id)
+        Resource::mk_resource('b', 'r', @activity_id, {}, @user.id)
 
       post :submit,
         :resource => resource_to_submit,
@@ -335,12 +351,92 @@ describe ResourceController do
       s.activity_id.should(eq(@activity_id))
     end
 
+    it "should allow submission, and set up reviews" do
+      part_ref = AssignmentController.part_ref(@activity_id, "check")
+
+      create_sub(52)
+      create_sub(88)
+      create_sub(34)
+      create_sub(22)
+
+      b = Blob.create!(:user => @user, :ref => @activity_id, :data => "{}")
+      resource_to_submit =
+        Resource::mk_resource('b', 'r', @activity_id, { reviews: 3 }, @user.id)
+
+      post :submit,
+        :resource => resource_to_submit,
+        :data => { type: "check" },
+        :format => :json
+      response.response_code.should(eq(200))
+
+      review_ref = AssignmentController.reviews_ref(part_ref)
+
+      review_blob = Blob.find_by(:user => @user, :ref => review_ref)
+      data = JSON.parse(review_blob.data)
+
+      print "data: #{data}\n"
+      data.length.should(eq(3))
+
+      r1 = Resource::parse(data[0]["save_review"])
+      r2 = Resource::parse(data[1]["save_review"])
+      r3 = Resource::parse(data[2]["save_review"])
+
+      r1[0].should(eq("inbox-for-write"))
+      r1[2].should(eq(part_ref))
+      r1[3]["blob_user_id"].should(eq(52))
+      r1[4].should(eq(@user))
+
+      r2[0].should(eq("inbox-for-write"))
+      r2[2].should(eq(part_ref))
+      r2[3]["blob_user_id"].should(eq(88))
+      r2[4].should(eq(@user))
+
+      r3[0].should(eq("inbox-for-write"))
+      r3[2].should(eq(part_ref))
+      r3[3]["blob_user_id"].should(eq(34))
+      r3[4].should(eq(@user))
+
+    end
+
+    it "should only assign reviews once" do
+      part_ref = AssignmentController.part_ref(@activity_id, "check")
+
+      create_sub(52)
+      create_sub(88)
+      create_sub(34)
+      create_sub(22)
+
+      b = Blob.create!(:user => @user, :ref => @activity_id, :data => "{}")
+      resource_to_submit =
+        Resource::mk_resource('b', 'r', @activity_id, { reviews: 3 }, @user.id)
+
+      post :submit,
+        :resource => resource_to_submit,
+        :data => { type: "check" },
+        :format => :json
+      response.response_code.should(eq(200))
+
+      review_ref = AssignmentController.reviews_ref(part_ref)
+      review_blob = Blob.find_by(:user => @user, :ref => review_ref)
+      data = JSON.parse(review_blob.data)
+      data.length.should(eq(3))
+      Blob.count.should(eq(2))
+
+      post :submit,
+        :resource => resource_to_submit,
+        :data => { type: "check" },
+        :format => :json
+      response.response_code.should(eq(200))
+
+      Blob.count.should(eq(2))
+
+    end
+
+
     it "should allow multiple submissions" do
       b = Blob.create!(:user => @user, :ref => @activity_id, :data => "{}")
       resource_to_submit =
-        Resource::mk_resource('b', 'r', @activity_id, {
-            activity_id: @activity_id 
-          }, @user.id)
+        Resource::mk_resource('b', 'r', @activity_id, {}, @user.id)
 
       post :submit,
         :resource => resource_to_submit,
@@ -371,9 +467,7 @@ describe ResourceController do
     it "should change submissions to read-only" do
       b = Blob.create!(:user => @user, :ref => @activity_id, :data => "{}")
       resource_to_submit = 
-        Resource.mk_resource('b', 'rw', @activity_id, {
-            activity_id: @activity_id
-          }, @user.id)
+        Resource.mk_resource('b', 'rw', @activity_id, {}, @user.id)
       post :submit,
         :resource => resource_to_submit,
         :data => { type: "done" },

@@ -152,7 +152,7 @@
                (cons 'data-activity-id unique-id)
                (cons 'data-resources (jsexpr->string
                                       (make-hash
-                                       (list (cons 'path (mk-resource "p" "rw" unique-id (make-hash)))
+                                       (list (cons 'path (mk-resource "p" "rw" unique-id (make-hash (list (cons 'reviews 2)))))
                                              (cons 'blob (mk-resource "b" "rw" unique-id (make-hash)))))))
                (cons 'data-type "function")
                (cons 'data-parts (jsexpr->string (list "check" "body")))
