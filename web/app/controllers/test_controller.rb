@@ -28,11 +28,25 @@ class TestController < ApplicationController
   end
 
   def server_tests
+    ref = "foo"
+    part_ref = AssignmentController.part_ref(ref, "check")
+    review_ref = AssignmentController.reviews_ref(part_ref)
+    u = User.create!(:email => "gfy")
+    Blob.create!(:ref => ref, :user => u, :data => JSON.dump({check: "my checks are unforgable"}))
+    data = [{ resource: Resource::mk_resource("b", "r", ref, {}, u.id),
+              save_review: Resource::mk_resource("inbox-for-write", "rw", part_ref,
+                                                 { blob_user_id: u.id, key: current_user.id },
+                                                 current_user.id)}]
+    Blob.create!(:ref => review_ref, :user => current_user, :data => JSON.dump(data))
+    
     @data = JSON.dump({
-      "user_id" => 1      
+      parts: [{
+       name: "check",
+       do_reviews: Resource::mk_resource("b", "r", review_ref, {}, current_user.id)
+      }]
     })
   end
-
+  
   private
 
   def run_scribble(name)

@@ -433,14 +433,21 @@ function steppedEditor(container, uneditables, options) {
 
   var doneButton = drawNextStepButton();
   doneButton.on("click", function () {
-    progress.set(pos);
-    if (pos < steps.length - 1) {
-      if (cur === pos) {
-        cur++;
+    function resume() {
+      progress.set(pos);
+      if (pos < steps.length - 1) {
+        if (cur === pos) {
+          cur++;
+        }
+        pos++;
+        draw();
       }
-      pos++;
-      draw();
     }
+    if (options.afterHandlers && options.afterHandlers[steps[pos]]) {
+      options.afterHandlers[steps[pos]](editor, resume);
+    } else {
+      resume()
+    } 
   });
 
   $(container).append(doneButton);

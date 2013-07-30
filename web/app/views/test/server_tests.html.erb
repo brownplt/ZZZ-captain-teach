@@ -5,6 +5,7 @@
   <%= javascript_include_tag "jasmine" %>
   <%= javascript_include_tag "jasmine-html" %>
   <%= javascript_include_tag "spec/SpecHelper" %>
+  <%= javascript_include_tag "spec/server_tests.js" %>
 
   <script type="text/javascript">
     (function() {
@@ -38,3 +39,6 @@
 <script>
 var TESTDATA = <%= raw(@data) %>;
 </script>
+
+
+<div id="review-editor"></div>
