@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130715185017) do
+ActiveRecord::Schema.define(version: 20130730033124) do
 
   create_table "assignments", force: true do |t|
     t.string   "uid"
@@ -105,6 +105,18 @@ ActiveRecord::Schema.define(version: 20130715185017) do
     t.integer "user_id"
     t.integer "course_id"
   end
+
+  create_table "submitteds", force: true do |t|
+    t.integer  "user_id"
+    t.string   "activity_id"
+    t.string   "resource"
+    t.datetime "submission_time"
+    t.string   "type"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "submitteds", ["user_id"], name: "index_submitteds_on_user_id"
 
   create_table "teachers_courses", id: false, force: true do |t|
     t.integer "user_id"
