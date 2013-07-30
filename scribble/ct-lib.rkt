@@ -9,9 +9,13 @@
 
 (define current-id-prefix (make-parameter ""))
 
-(define (mk-id type mode id)
-  (string-append* (list type ":" mode ":"
-                        (current-id-prefix) "/" id)))
+(define (mk-resource type perms id args)
+  (make-hash
+    (list
+      (cons 'type type)
+      (cons 'perms perms)
+      (cons 'ref (string-append (current-id-prefix) "/" id))
+      (cons 'args args))))
 
 (define-struct holder (elt))
 
@@ -94,7 +98,7 @@
                 (list
                   (cons 'data-ct-node "1")
                   (cons 'data-activity-id unique-id)
-                  (cons 'data-resources (single-resource 'blob (mk-id "b" "rc" unique-id)))
+                  (cons 'data-resources (single-resource 'blob (mk-resource "b" "rc" unique-id (make-hash))))
                   (cons 'data-type "multiple-choice")
                   (cons 'data-args (jsexpr->string
                     (make-hash
@@ -120,8 +124,8 @@
                     (cons 'data-activity-id unique-id)
                     (cons 'data-resources (jsexpr->string
                                            (make-hash
-                                            (list (cons 'path (mk-id "p" "rw" unique-id))
-                                                  (cons 'blob (mk-id "b" "rw" unique-id))))))
+                                            (list (cons 'path (mk-resource "p" "rw" unique-id (make-hash)))
+                                                  (cons 'blob (mk-resource "b" "rw" unique-id (make-hash)))))))
                     (cons 'data-type "function")
                     (cons 'data-args (jsexpr->string
                     (make-hash

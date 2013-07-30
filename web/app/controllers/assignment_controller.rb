@@ -35,6 +35,16 @@ class AssignmentController < ApplicationController
 
   private
 
+  def resource_from_dict(d, uid)
+    Resource::mk_resource(
+        d["type"],
+        d["perms"],
+        d["ref"],
+        d["args"],
+        uid
+      )
+  end
+
   def path_ref_to_html(user, path_ref)
     scribbled = Scribble::render(path_ref)
     doc = Nokogiri::HTML(scribbled)
@@ -48,8 +58,7 @@ class AssignmentController < ApplicationController
       if node["data-resources"]
         resources = JSON.parse(node["data-resources"])
         resources.keys.each do |k|
-          # add user credentials and encrypt
-          resources[k] = Resource::mk_user_resource(resources[k], user.id)
+          resources[k] = resource_from_dict(resources[k], user.id)
         end
         node["data-resources"] = resources.to_json
       end
@@ -72,9 +81,10 @@ class AssignmentController < ApplicationController
         reviews = {}
         resources.keys.each do |k|
           # add user credentials and encrypt
-          resources[k] = Resource::read_only(Resource::mk_user_resource(resources[k], user.id))
-          type, perm, ref, uid = Resource::parse(resources[k])
-          versions = Resource::versions(type, perm, ref, uid, resources[k])
+          resource = Resource::read_only(resource_from_dict(resources[k], user.id))
+          type, perm, ref, args, uid = Resource::parse(resource)
+          versions = Resource::versions(type, perm, ref, args, uid, resource)
+          resources[k] = resource
           versionsResources = []
           if versions.instance_of?(Resource::Normal)
             versionsResources = versions.data
