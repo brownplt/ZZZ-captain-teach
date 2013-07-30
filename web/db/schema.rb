@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130730033124) do
+ActiveRecord::Schema.define(version: 20130730141638) do
 
   create_table "assignments", force: true do |t|
     t.string   "uid"
@@ -111,7 +111,7 @@ ActiveRecord::Schema.define(version: 20130730033124) do
     t.string   "activity_id"
     t.string   "resource"
     t.datetime "submission_time"
-    t.string   "type"
+    t.string   "submission_type"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

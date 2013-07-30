@@ -290,6 +290,18 @@ module Resource
       return Invalid.new
     end
   end
+  
+  def submit(type, perm, ref, args, user, data, resource)
+    read_only_resource = Resource::read_only(resource)
+    submitted = Submitted.create!(
+      :user => user,
+      :resource => read_only_resource,
+      :activity_id => ref, #TODO(joe): review -- should this come from args or ref?
+      :submission_type => args["type"] || data["type"] || "", #TODO(joe): review -- allow client-chosen type?
+      :submission_time => Time.zone.now
+    )
+    return Success.new
+  end
 
-  module_function :mk_resource, :mk_user_resource, :read_only, :get_commit, :parse, :lookup, :lookup_create, :save, :versions
+  module_function :mk_resource, :mk_user_resource, :read_only, :get_commit, :parse, :lookup, :lookup_create, :save, :versions, :submit
 end

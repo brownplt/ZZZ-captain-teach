@@ -306,5 +306,77 @@ describe ResourceController do
     end
 
   end
+
+  describe "Submitted" do
+    before(:each) do
+      Submitted.destroy_all
+      @activity_id = 'some-activity-id'
+    end
+    it "should allow submission, and put submissions in the Submitted table" do
+      resource_to_submit =
+        Resource::mk_resource('g', 'r', @activity_id, {
+            activity_id: @activity_id 
+          }, @user.id)
+
+      post :submit,
+        :resource => resource_to_submit,
+        :data => { type: "done" },
+        :format => :json
+      response.response_code.should(eq(200))
+
+      s = Submitted.last
+      s.resource.should(eq(resource_to_submit))
+      s.user_id.should(eq(@user.id))
+      s.submission_type.should(eq("done"))
+      s.activity_id.should(eq(@activity_id))
+    end
+
+    it "should allow multiple submissions" do
+      resource_to_submit =
+        Resource::mk_resource('g', 'r', @activity_id, {
+            activity_id: @activity_id 
+          }, @user.id)
+
+      post :submit,
+        :resource => resource_to_submit,
+        :data => { type: "done" },
+        :format => :json
+      response.response_code.should(eq(200))
+      post :submit,
+        :resource => resource_to_submit,
+        :data => { type: "done again" },
+        :format => :json
+      response.response_code.should(eq(200))
+
+      s1 = Submitted.first
+      s2 = Submitted.last
+      s1.resource.should(eq(resource_to_submit))
+      s1.user_id.should(eq(@user.id))
+      s1.submission_type.should(eq("done"))
+      s1.activity_id.should(eq(@activity_id))
+
+      s2.resource.should(eq(resource_to_submit))
+      s2.user_id.should(eq(@user.id))
+      s2.submission_type.should(eq("done again"))
+      s2.activity_id.should(eq(@activity_id))
+
+      (s2.submission_time > s1.submission_time).should(eq(true))
+    end
+
+    it "should change submissions to read-only" do
+      resource_to_submit = 
+        Resource.mk_resource('b', 'rw', @activity_id, {
+            activity_id: @activity_id
+          }, @user.id)
+      post :submit,
+        :resource => resource_to_submit,
+        :data => { type: "done" },
+        :format => :json
+      response.response_code.should(eq(200))
+      s = Submitted.first
+      s.resource.should(eq(Resource::read_only(resource_to_submit)))
+      s.user_id.should(eq(@user.id))
+    end
+  end
   
 end

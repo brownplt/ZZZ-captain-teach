@@ -32,6 +32,12 @@ class ResourceController < ApplicationController
     type,perm,ref,args,user = get_resource()
     Resource::versions(type, perm, ref, args, user, params[:resource]).respond(self)
   end
+
+  def submit
+    # any perm is okay, because this is read
+    type,_perm,ref,args,user = get_resource()
+    Resource::submit(type, _perm, ref, args, user, params[:data], params[:resource]).respond(self)
+  end
   
   private
 

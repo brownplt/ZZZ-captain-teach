@@ -10,15 +10,6 @@ App::Application.routes.draw do
   post 'login' => 'sessions#create'
   post 'logout' => 'sessions#destroy'
 
-  get 'all_assignments' => "test#all_assignments"
-  get 'fetch_assignments' => "test#fetch_assignments"
-  get 'test_assignment' => "test#test_assignment"
-  
-
-  # get  'blob/lookup'        => 'blob#lookup'
-  # post 'blob/lookup_create' => 'blob#lookup_create'
-  # post 'blob/save'          => 'blob#save'
-
   post 'review/save/:rid'   => 'review#save'
   get  'review/lookup/:rid' => 'review#lookup'
 
@@ -26,6 +17,7 @@ App::Application.routes.draw do
   post 'resource/lookup_create' => 'resource#lookup_create'
   post 'resource/save'          => 'resource#save'
   get  'resource/versions'      => 'resource#versions'
+  post 'resource/submit'        => 'resource#submit'
   
   #get 'do_assignment/:uid' => 'assignment#do_assignment'
   get 'assignment/:uid' => 'assignment#get_assignment', as: :assignment
@@ -89,10 +81,15 @@ App::Application.routes.draw do
   #     resources :products
   #   end
 
-  # routing static pages, for testing currently
-  if Rails.env.development?
+  # These all have various security or other concerns for running
+  # in production, but are very handy when developing
+  if Rails.env.development? or Rails.env.test?
     post 'become_user/:uid' => "awesome#become_user"
     get 'all_users' => "awesome#all_users"
+    get 'all_assignments' => "test#all_assignments"
+    get 'fetch_assignments' => "test#fetch_assignments"
+    get 'test_assignment' => "test#test_assignment"
+    get 'server_tests' => "test#server_tests"
     get ':action' => 'static#:action'
   end
 end
