@@ -154,6 +154,34 @@ function drawNextStepButton() {
   return $("<button>").text("Next Step");
 }
 
+function drawStepsContainer() {
+  return $("<div>").addClass("stepsContainer");
+}
+
+function drawStepButton(text) {
+  return $("<button>").text(text);
+}
+
+function drawCurrentStepGutterMarker() {
+  return $("<span>").addClass("gutterButton active").html("&rarr;")[0];
+}
+
+function drawSwitchToStepGutterMarker(n) {
+  return $("<span>").addClass("gutterButton").text(n)[0];
+}
+
+function drawInactiveStepGutterMarker(n) {
+  return $("<span>").addClass("gutterButton inactive").text(n)[0];
+}
+
+function drawProgressContainer() {
+  return $("<div>").addClass("progressContainer");
+}
+
+function drawProgressStep(width) {
+  return $("<span>").addClass("progressStep").css("width", width + "%");
+}
+
 function createTabPanel(container) {
   var tabContainer = $("<div>").addClass("tabPanel");
   var panelRow = $("<div>").addClass("tabPanels");

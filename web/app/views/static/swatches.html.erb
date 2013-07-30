@@ -254,7 +254,7 @@ $(function() {
 
 
 <div>
-  <div id="stepped-editor">
+  <div id="stepped-editor" style="width: 50%;">
   </div>
   <div id="stepped-editor-results">
   </div>
@@ -262,27 +262,53 @@ $(function() {
 </div>
 <script>
 $(function() {
-  var cm = makeEditor(
-    $("#codemirror-inline-test"),
-    {
-      initial: "",
-      run: function() {}
-    }
-  );
   var editor = steppedEditor(
-    cm,
     $("#stepped-editor"),
     [
       "data Tree:\n  |mt\n  |node(value, kids)\nend",
-      "\nfun find(tree, proc):",
+      "\nfun find(tree :: Tree, proc):",
+      "\ncheck:",
+      "\nend",
+      "\nfun update (c :: Cursor, proc :: Tree -> Tree) -> Cursor",
+      "\ncheck:",
+      "\nend",
+      "fun to-tree(c :: Cursor) -> Tree:",
+      "\ncheck:",
+      "\nend",
+      "\nfun left(c :: Cursor) -> Cursor:",
+      "\ncheck:",
+      "\nend",
+      "\nfun right(c :: Cursor) -> Cursor:",
+      "\ncheck:",
+      "\nend",
+      "\nfun up(c :: Cursor) -> Cursor:",
+      "\ncheck:",
+      "\nend",
+      "\nfun down(c :: Cursor, n :: Number) -> Cursor:",
       "\ncheck:",
       "\nend"
     ],
     {
       run: function() {},
-      names: ["_1", "find_def", "find_tests"],
-      initial: {"_1": "\n\n", "find_def": "\n", "find_tests": "\n"},
-      steps: ["find_tests", "find_def"]
+      names: ["_1", "find_def", "find_tests",
+              "_2", "update_def", "update_tests",
+              "_3", "to-tree_def", "to-tree_tests",
+              "_4", "left_def", "left_tests",
+              "_5", "right_def", "right_tests",
+              "_6", "up_def", "up_tests",
+              "_7", "down_def", "down_tests"],
+      initial: {"_1": "\n\n", "find_def": "\n", "find_tests": "\n",
+                "_2": "\n\n", "update_def": "\n", "update_tests": "\n",
+                "_3": "\n\n", "to-tree_def": "\n", "to-tree_tests": "\n",
+                "_4": "\n\n", "left_def": "\n", "left_tests": "\n",
+                "_5": "\n\n", "right_def": "\n", "right_tests": "\n",
+                "_6": "\n\n", "up_def": "\n", "up_tests": "\n",
+                "_7": "\n\n", "down_def": "\n", "down_tests": "\n"
+               },
+      steps: ["find_tests", "find_def", "update_tests", "update_def",
+             "to-tree_tests", "to-tree_def", "left_tests", "left_def",
+             "right_tests", "right_def", "up_tests", "up_def",
+             "down_tests", "down_def"]
     });
 });
 </script>

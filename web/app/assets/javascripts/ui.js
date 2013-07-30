@@ -291,20 +291,28 @@ function createEditor(doc, uneditables, options) {
     }
   }
 
+  function lineOf(indexOrName) {
+    var i = getIndex(indexOrName);
+    var start = marks[i].find().to;
+    return cm_advance_char(doc, start).line;
+  }
   function enableAt(indexOrName) {
     if (disabled_regions[indexOrName]) {
       disabled_regions[indexOrName].clear()
+      delete disabled_regions[indexOrName];
     }
   }
 
   function disableAt(indexOrName) {
-    var i = getIndex(indexOrName);
-    var start = marks[i].find().to;
-    var end =  marks[i + 1].find().from;
-    var region = doc.markText(start, end, {readOnly: true,
-                                          inclusiveLeft: true,
-                                          inclusiveRight: true});
-    disabled_regions[indexOrName] = region;
+    if (disabled_regions[indexOrName] === undefined) {
+      var i = getIndex(indexOrName);
+      var start = marks[i].find().to;
+      var end =  marks[i + 1].find().from;
+      var region = doc.markText(start, end, {readOnly: true,
+                                             inclusiveLeft: true,
+                                             inclusiveRight: true});
+      disabled_regions[indexOrName] = region;
+    }
   }
 
   var indexDict = {};
@@ -333,46 +341,134 @@ function createEditor(doc, uneditables, options) {
   return {
     setAt: setAt,
     getAt: getAt,
+    lineOf: lineOf,
     enableAt: enableAt,
     disableAt: disableAt
   };
 }
 
 
-function steppedEditor(doc, container, uneditables, options) {
+function steppedEditor(container, uneditables, options) {
+
+  var gutterId = "steppedGutter";
+  var steps = options.steps || [];
+  var pos = 0;
+  var cur = 0;
+
+  var progress = progressBar(container, steps.length);
+
   var cm = makeEditor(
     $(container),
     {
       initial: "",
-      run: options.run
+      run: options.run,
+      cmOptions:  { gutters: [gutterId]}
     }
   );
-  var sequence = options.steps || [];
-  var pos = 0;
+  
   var editor = createEditor(cm.getDoc(), uneditables, {
       names: options.names,
       initial: options.initial
   });
 
-  var mark_enabled = function() {
-    for(var i = 0; i < sequence.length; i++) {
-      if (i <= pos) {
-        editor.enableAt(sequence[i]);
-      } else {
-        editor.disableAt(sequence[i]);
-      }
+  // NOTE(dbp 2013-7-29): hiding the buttons, for now.
+  var stepsContainer = drawStepsContainer();
+  $(container).append(stepsContainer);
+  stepsContainer.hide();
+
+  function switchTo(i) {
+    cur = i;
+    if (i === pos) {
+      doneButton.show();
+    } else {
+      doneButton.hide();
     }
+    draw();
+  }
+  
+  var draw = function() {
+    ct_log("pos is ", pos, " and cur is ", cur);
+    stepsContainer.empty();
+    cm.clearGutter(gutterId);
+    steps.forEach(function(e, i) {
+      var b = drawStepButton(e);
+      stepsContainer.append(b);
+      if (i <= pos) {
+        b.on("click", function() {
+          switchTo(i);
+          return false;
+        });
+      } else {
+        b.prop("disabled", true);
+      }
+
+      if (i === cur) {
+        var marker = drawCurrentStepGutterMarker();
+        cm.setGutterMarker(editor.lineOf(e),
+                           gutterId,
+                           marker);
+        editor.enableAt(e);
+      } else {
+        if (i <= pos) {
+          var marker = drawSwitchToStepGutterMarker(i+1);
+          $(marker).on("click", function () {
+            switchTo(i);
+            return false;
+          });
+        } else {
+          var marker = drawInactiveStepGutterMarker(i+1);
+        }
+        cm.setGutterMarker(editor.lineOf(e),
+                           gutterId,
+                           marker);
+        editor.disableAt(e);
+      }
+    });
   };
-  mark_enabled();
+  draw();
+
   var doneButton = drawNextStepButton();
   doneButton.on("click", function () {
-    if (pos < sequence.length) {
+    progress.set(pos);
+    if (pos < steps.length - 1) {
+      if (cur === pos) {
+        cur++;
+      }
       pos++;
-      mark_enabled();
+      draw();
     }
   });
 
   $(container).append(doneButton);
 
   return editor;
+}
+
+
+function progressBar(container, numberSteps) {
+  var progressContainer = drawProgressContainer();
+
+  var percentPerStep = 100 / numberSteps;
+  var steps = [];
+  _.times(numberSteps, function () {
+    var step = drawProgressStep(percentPerStep);
+    steps.push(step);
+    progressContainer.append(step);
+  });
+
+  function setCurrentStep(n) {
+    for (var i = 0; i < steps.length; i++) {
+      if (i <= n) {
+        steps[i].addClass("done");
+      } else {
+        steps[i].removeClass("done");
+      }
+    }
+  }
+
+  container.append(progressContainer);
+
+  return {
+    set: setCurrentStep
+  }; 
 }
