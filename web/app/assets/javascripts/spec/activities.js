@@ -3,14 +3,17 @@ mockReviewTable = {};
 mockBlobTable = {};
 // mapping from resource to list of gitref, json pairs, most recent first
 mockPathTable = {};
+// mapping from resource to [activity_id, resource, submission_time, type]
+mockSubmittedTable = {};
 
 AUTOSAVE_ENABLED = false;
 
 var GIT_ID = 0;
 
-function resetMockServer(table) {
+function resetMockServer() {
   mockBlobTable = {};
   mockPathTable = {};
+  mockSubmittedTable = {};
 }
 function setMockReviewTable(table) {
   mockReviewTable = table || {};
@@ -97,6 +100,62 @@ window.lookupReview = function(review, present, error) {
   }
 };
 
+function parseResource(resource) {
+  var parseRe = /([gpb]):([crwv]+):([-a-zA-Z0-9\/]+):([0-9]+)/;
+  var matches = resource.match(parseRe);
+  if (matches) {
+    console.log(matches);
+    return {
+      type: matches[1],
+      permissions: matches[2],
+      activityId: matches[3],
+      userId: matches[4]
+    };
+  } else {
+    throw "Couldn't parse resource: " + resource;
+  }
+}
+
+function getActivityId(resource) {
+  var parsed = parseResource(resource);
+  return parsed.activityId;
+}
+
+function getUser(resource) {
+  var parsed = parseResource(resource);
+  return parsed.userId;
+}
+
+describe("getActivityId", function() {
+  it("should fetch activity ids from reasonable resources", function() {
+    expect(getActivityId("g:r:1234:1")).toEqual("1234");
+    expect(getActivityId("p:rw:abcd/1234:1")).toEqual("abcd/1234");
+  });
+
+  it("should blow up on unreasonable resources", function() {
+    expect(function() {
+      getActivityId("hello!");
+    }).toThrow("Couldn't parse resource: hello!");
+  });
+});
+
+window.submitResource = function(resource, data, success, failure) {
+  console.log("Mock server submitting: ", resource, data);
+  var existing = mockSubmittedTable[resource] || [];
+  existing.push({
+    activityId: getActivityId(resource),
+    user: getUser(resource),
+    time: Date.now(),
+    type: data.type
+  });
+  mockSubmittedTable[resource] = existing;
+  saveResource(resource, data, success, failure);
+};
+
+window.getSubmittedForResource = function(resource) {
+  return mockSubmittedTable[resource];
+}
+
 window.saveResource = function(resource, data, success, failure) {
   console.log("Mock server saving, ", resource, data);
 
@@ -128,6 +187,57 @@ window.saveReview = function(review, data, success, failure) {
   mockReviewTable[reviewId] = data;
   success();
 };
+
+window.getReviewStatus = function(reviewStatus, success, failure) {
+  
+};
+
+window.fail = function() {
+  expect(false).toBe(true);
+};
+
+describe("mock server", function() {
+  it("should submit resources", function() {
+    var submitted = false;
+    var r = "b:rw:my-id:1";
+    submitResource(r, { type: 'done' }, function() {
+        submitted = true;
+      },
+      function() {
+        fail();
+      });
+    expect(submitted).toBe(true);
+    var vals = getSubmittedForResource(r)[0];
+    expect(vals.activityId).toEqual("my-id");
+    expect(vals.user).toEqual("1");
+    expect(vals.type).toEqual("done");
+    expect(typeof vals.time).toBe("number");
+  });
+
+  it("should append to the list when submiting multiple resources", function() {
+    var submitted = 0;
+    var r = "b:rw:my-id:1";
+    submitResource(r, { type: 'round1' }, function() {
+        submitted += 1;
+      }, fail);
+    submitResource(r, { type: 'done' }, function() {
+        submitted += 1;
+      }, fail);
+    expect(submitted).toBe(2);
+    var val1 = getSubmittedForResource(r)[1];
+    expect(val1.activityId).toEqual("my-id");
+    expect(val1.user).toEqual("1");
+    expect(val1.type).toEqual("round1");
+    expect(typeof val1.time).toBe("number");
+    var val2 = getSubmittedForResource(r)[0];
+    expect(val2.activityId).toEqual("my-id");
+    expect(val2.user).toEqual("1");
+    expect(val2.type).toEqual("done");
+    expect(typeof val2.time).toBe("number");
+    
+    expect(val2.time < val1.time).toBe(true);
+  });
+});
 
 describe("function activities", function() {
   var functionPathRef = "p:rw:my-id:1";
@@ -512,3 +622,10 @@ describe("reviews and versions", function () {
   });
 });
 
+describe("Student review interface", function() {
+
+  it("should start with a button that starts the review", function() {
+    
+  });
+
+});
