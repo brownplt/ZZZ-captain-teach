@@ -449,18 +449,18 @@ function steppedEditor(container, uneditables, options) {
   };
   draw();
 
+  function resume() {
+    progress.set(pos);
+    if (pos < steps.length - 1) {
+      if (cur === pos) {
+        cur++;
+      }
+      pos++;
+      draw();
+    }
+  }
   var doneButton = drawNextStepButton();
   doneButton.on("click", function () {
-    function resume() {
-      progress.set(pos);
-      if (pos < steps.length - 1) {
-        if (cur === pos) {
-          cur++;
-        }
-        pos++;
-        draw();
-      }
-    }
     if (options.afterHandlers && options.afterHandlers[steps[pos]]) {
       options.afterHandlers[steps[pos]](editor, resume);
     } else {
@@ -470,7 +470,19 @@ function steppedEditor(container, uneditables, options) {
 
   $(container).append(doneButton);
 
-  return editor;
+  return _.merge(editor, {
+    resumeAt: function(step) {
+      switchTo(_.indexOf(steps, step));
+    },
+    advanceFrom: function(step) {
+      var nextStep = _.indexOf(steps, step) + 1;
+      if (nextStep >= steps.length) {
+        switchTo(steps.length - 1);
+      } else {
+        switchTo(nextStep);
+      }
+    }
+  });
 }
 
 

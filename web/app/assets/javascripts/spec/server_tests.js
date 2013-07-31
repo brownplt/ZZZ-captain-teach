@@ -25,6 +25,7 @@ describe("reviews interactions", function () {
       function review_fun(step) { return function(editor, resume) {
           editor.disableAll();
           lookupResource(step.do_reviews, function(reviewData) {
+            console.log("reviewData: ", reviewData);
             var doneCount = 0;
             function incrementDone() {
               doneCount += 1;
@@ -85,13 +86,48 @@ describe("reviews interactions", function () {
         };
       }
 
-
       var editorOptions = _.merge(sharedOptions, { initial: activityState.parts });
 
       resources.steps.forEach(function(step) {
-        editorOptions.afterHandlers[step.name] = review_fun(step);
+        editorOptions.afterHandlers[step.name] = function(editor, resume) {
+          var toSave = {};
+          toSave.parts = getContents();
+          toSave.status = { step: step.name, reviewing: true };
+
+          saveResource(resources.path, toSave, function() {
+              review_fun(step)(editor, function() { afterReview(step.name, resume); });
+            }, function() {
+              ct_error("Shouldn't fail to save work: ", resources.path, toSave);
+            });
+        }
       });
 
+      function getContents() {
+        var parts = {};
+        args.parts.forEach(function(p) {
+          parts[p] = editor.getAt(p);
+        });
+        return parts;
+      }
+
+      function afterReview(step, resumeCoding) {
+        var toSaveAfterReview = {};
+        toSaveAfterReview.parts = getContents();
+        var indexOfStep = _.indexOf(steps, step);
+        var status;
+        if (indexOfStep === (resources.steps.length - 1)) {
+          status = { done: true };
+        }
+        else {
+          status = {
+            reviewing: false,
+            step: resources.steps[indexOfStep + 1].name
+          };
+        }
+        toSaveAfterReview.status = status;
+        saveResource(resources.path, toSaveAfterReview, resumeCoding);
+      }
+  
       var editor = steppedEditor(
           editorContainer,
           args.codeDelimiters,
@@ -99,7 +135,18 @@ describe("reviews interactions", function () {
         );
 
       if (currentState.reviewing) {
-        review_fun(resources.steps[currentState.step]);
+        console.log("state: ", currentState);
+        console.log("resources: ", resources);
+        review_fun(_.findWhere(resources.steps, { name: currentState.step }))
+            (editor,
+             function() {
+               afterReview(
+                 currentState.step,
+                 function() { editor.advanceFrom(currentState.step); });
+             });
+      }
+      else {
+        editor.resumeAt(currentState.step);
       }
       
     });
