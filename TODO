@@ -8,6 +8,12 @@
 [] Highlight error messages in output
 [] Make CodeMirror behave with respect to zooming
 
+[] Column on submitted for how many have reviewed
+
+[] Simple assignment test for summer students@
+
+[] Group by user_id and take the first by time in assign_reviews
+
 [] Figure out how pathrefs should be created in the database... so
 that caching can work (right now, we create path refs many times)
 
@@ -29,4 +35,13 @@ that caching can work (right now, we create path refs many times)
 [] Indicate reviewability of activity instances in markup
   - Indicate this by creating and passing args
 
+[] Auto-save:
+  - blob stores the most recent version (if any)
+  - on reload, the blob is authoritative if its version matches the path's most recent version
+  - otherwise, the blob is discarded
+
+[] Refactor server_tests.js into draw and ui components
+[] Write code-assignment builder in ct.js that uses these
+[] Design/write code-assignment scribble
+[] TEST TEST TEST
 

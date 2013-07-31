@@ -147,8 +147,129 @@ function codeExample(container, resources, args) {
   return { container: container, activityData: {editor: cm} };
 }
 
-function studentReviewBuilder(container, resources, args) {
-  
+function codeAssignment(container, resources, args) {
+  var tabs = createTabPanel(container);
+  var editorContainer = drawEditorContainer();
+  tabs.addTab("Code", editorContainer, { cannotClose: true });
+
+  lookupResource(resources.path, function(activityState) {
+    var currentState = activityState.status;
+    var names = args.parts;
+    var steps = [];
+    resources.steps.forEach(function(elt) {
+      steps.push(elt.name);
+    });
+    var sharedOptions = {
+      run: function() {},
+      names: names,
+      steps: steps,
+      afterHandlers: {}
+    };
+
+    var editorOptions = _.merge(sharedOptions, { initial: activityState.parts });
+
+    function getContents() {
+      var parts = {};
+      args.parts.forEach(function(p) {
+        parts[p] = editor.getAt(p);
+      });
+      return parts;
+    }
+
+    function afterReview(step, resumeCoding) {
+      var toSaveAfterReview = {};
+      toSaveAfterReview.parts = getContents();
+      var indexOfStep = _.indexOf(steps, step);
+      var status;
+      editor.enableAll();
+      if (indexOfStep === (resources.steps.length - 1)) {
+        status = { done: true };
+      }
+      else {
+        status = {
+          reviewing: false,
+          step: resources.steps[indexOfStep + 1].name
+        };
+      }
+      toSaveAfterReview.status = status;
+      saveResource(resources.path, toSaveAfterReview, resumeCoding);
+    }
+
+    function wrapStepForReview(step) {
+      return {
+        getReviewData: function(f, e) {
+          function wrapResult(reviewData) {
+            f(reviewData.map(function(rd) {
+                return {
+                  saveReview: function(val, success, failure) {
+                    saveResource(rd.save_review, val, success, failure);
+                  },
+                  getReview: function(present, absent) {
+                    lookupResource(rd.save_review, present, absent);
+                  },
+                  attachWorkToReview: function(editorContainer, f, e) {
+                    function wrapReviewContent(content) {
+                      var cm = makeEditor(
+                        editorContainer,
+                        {
+                          initial: "",
+                          run: function() {}
+                        }
+                      );
+                      var reviewEditorOptions = _.merge(sharedOptions, {
+                        initial: content.parts
+                      });
+                      var editor = createEditor(cm, args.codeDelimiters, reviewEditorOptions);
+                      editor.disableAll();
+                      f();
+                    }
+                    lookupResource(rd.resource, wrapReviewContent, e);
+                  }
+                }
+              }))
+          }
+          lookupResource(step.do_reviews, wrapResult, e);
+        }
+      };
+    }
+
+    resources.steps.forEach(function(step) {
+      editorOptions.afterHandlers[step.name] = function(editor, resume) {
+        var toSave = {};
+        toSave.parts = getContents();
+        toSave.status = { step: step.name, reviewing: true };
+
+        saveResource(resources.path, toSave, function() {
+            editor.disableAll();
+            reviewTabs(tabs, wrapStepForReview(step), function() { afterReview(step.name, resume); });
+          }, function() {
+            ct_error("Shouldn't fail to save work: ", resources.path, toSave);
+          });
+      }
+    });
+
+    var editor = steppedEditor(
+        editorContainer,
+        args.codeDelimiters,
+        editorOptions
+      );
+
+    if (currentState.reviewing) {
+      editor.disableAll();
+      reviewTabs(
+          tabs,
+          wrapStepForReview(_.findWhere(resources.steps, { name: currentState.step })),
+          function() {
+            afterReview(
+              currentState.step,
+              function() { editor.advanceFrom(currentState.step); });
+          }
+      );
+    }
+    else {
+      editor.resumeAt(currentState.step);
+    }
+  });
 }
 
 function functionBuilder(container, resources, args) {

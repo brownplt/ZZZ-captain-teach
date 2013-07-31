@@ -399,6 +399,7 @@ function steppedEditor(container, uneditables, options) {
   stepsContainer.hide();
 
   function switchTo(i) {
+    if (i > pos) { pos = i; }
     cur = i;
     if (i === pos) {
       doneButton.show();
@@ -412,6 +413,7 @@ function steppedEditor(container, uneditables, options) {
     setCurrentStepTitle(currentSectionTitle, steps[cur]);
     stepsContainer.empty();
     cm.clearGutter(gutterId);
+    progress.set(pos);
     steps.forEach(function(e, i) {
       var b = drawStepButton(e);
       stepsContainer.append(b);
@@ -450,7 +452,6 @@ function steppedEditor(container, uneditables, options) {
   draw();
 
   function resume() {
-    progress.set(pos);
     if (pos < steps.length - 1) {
       if (cur === pos) {
         cur++;
@@ -489,7 +490,7 @@ function steppedEditor(container, uneditables, options) {
 function progressBar(container, numberSteps) {
   var progressContainer = drawProgressContainer();
 
-  var percentPerStep = 100 / numberSteps;
+  var percentPerStep = 100 / (numberSteps - 1);
   var steps = [];
   _.times(numberSteps, function () {
     var step = drawProgressStep(percentPerStep);
@@ -513,3 +514,52 @@ function progressBar(container, numberSteps) {
     set: setCurrentStep
   }; 
 }
+
+function reviewTabs(tabPanel, step, resume) {
+  step.getReviewData(function(reviewData) {
+    var doneCount = 0;
+    function incrementDone() {
+      doneCount += 1;
+      tryFinishReview();
+    }
+    function tryFinishReview() {
+      if(doneCount === reviewData.length) {
+        resume();
+      }
+    }
+    tryFinishReview(); // If reviewData is empty, just be done
+
+    reviewData.forEach(function(reviewDatum) {
+      reviewDatum.getReview(incrementDone, function(/* notFound */) {
+          var reviewsTab = drawReviewsTab();
+          var reviewTabHandle =
+            tabPanel.addTab("Reviews", reviewsTab, { cannotClose: true });
+          
+          var editorContainer = drawReviewEditorContainer();
+          reviewsTab.append(editorContainer);
+          reviewDatum.attachWorkToReview(editorContainer, function() {
+            writeReviews(reviewsTab, {
+                hasReviews: true,
+                noResubmit: true,
+                reviews: {
+                    save: function(val, f) {
+                      reviewDatum.saveReview(val, function() {
+                          reviewTabHandle.close();
+                          incrementDone();
+                        },
+                        function(e) {
+                          // TODO(joe 31 July 2013): Just let them move on if
+                          // this fails?
+                          ct_error("Saving review failed:", e);
+                        });
+                    },
+                    lookup: function(f) { f(null); }
+                  }
+              });
+          });
+        });
+    });
+  });
+
+}
+

@@ -242,3 +242,15 @@ function createTabPanel(container) {
     }
   };
 }
+
+function drawEditorContainer() {
+  return $("<div>").addClass("editorContainer");
+}
+
+function drawReviewsTab() {
+  return $("<div>").addClass("reviewsTab");
+}
+
+function drawReviewEditorContainer() {
+  return $("<div>").addClass("reviewEditorContainer");
+}
