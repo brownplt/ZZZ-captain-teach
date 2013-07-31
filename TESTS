@@ -1,0 +1,33 @@
+Tests and experiments can be written in several places.
+
+RSpec
+
+  There are rspec unit tests for the controllers, models, and git wrapper in
+  web/spec/.  These can be run with guard.
+
+  $ guard
+  > [Press Enter]
+  Spec output here
+
+UI
+
+  Some JQuery-driven user interface tests are served (in development and test
+  modes) from <root>/tests/.  They run with Jasmine and the tests are in
+  JavaScript files in web/app/assets/javascripts/spec/
+
+Manual tests
+
+  We have experimental tests in other places that are less automated but still
+  useful.  Serving <root>/swatches shows several UI elements on the same page
+  with testable interactions.  This is a place to load elements and play with
+  them to see if they can be forced into odd states, still work with one
+  another, etc.
+
+  There are also manual tests in test_controller, currently served from
+  server_tests, which are served from <root>/server_tests.  These tests
+  currently take a "user" parameter of any string, using the same parameter
+  will load the same users and any stored data, using a not-seen-before
+  parameter will restart the interaction.  The point of this test is to do
+  reviews and see that they worked.
+
+
