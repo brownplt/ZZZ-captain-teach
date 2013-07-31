@@ -25,12 +25,15 @@
   width: 80%;
 }
 
-.tabPanel {
+.replContainer {
   position: fixed;
   right: 2em;
   bottom: 2em;
   width: 40%;
   height: 90%;
+}
+
+.tabPanel {
   border: 1px solid #333;
   background-color: white;
 }

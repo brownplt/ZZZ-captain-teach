@@ -143,8 +143,6 @@ function writeReviews(container, options) {
   var showReview = drawShowWriteReview();
   var reviewContainer = drawWriteReviewContainer();
 
-  showReview.on("click", function(_) { reviewContainer.toggle(); })
-
   var designScores = drawReviewScore(
       "design",
       ["(Worst design) 1", 2, 3, 4, 5, 6, 7, 8, 9, "10 (Best design)"],
@@ -217,8 +215,7 @@ function writeReviews(container, options) {
     .append(reviewText)
     .append(submitReviewButton);
 
-  container.append(showReview).append(reviewContainer);
-  reviewContainer.hide();
+  container.append(reviewContainer);
 }
 
 function repeat(n, s) {
@@ -229,7 +226,8 @@ function repeat(n, s) {
   return str;
 }
 
-function createEditor(doc, uneditables, options) {
+function createEditor(cm, uneditables, options) {
+  var doc = cm.getDoc();
   var end = doc.setBookmark({line: 0, ch: 0}, {insertLeft: true});
   var i = 0;
   var marks = [];
@@ -303,15 +301,19 @@ function createEditor(doc, uneditables, options) {
     }
   }
 
+  var readOnlyOptions = {
+      readOnly: true,
+      inclusiveLeft: true,
+      inclusiveRight: true,
+      className: 'cptteach-fixed'
+    };
+
   function disableAt(indexOrName) {
     if (disabled_regions[indexOrName] === undefined) {
       var i = getIndex(indexOrName);
       var start = marks[i].find().to;
       var end =  marks[i + 1].find().from;
-      var region = doc.markText(start, end, {readOnly: true,
-                                             inclusiveLeft: true,
-                                             inclusiveRight: true,
-                                             className: 'cptteach-fixed'});
+      var region = doc.markText(start, end, readOnlyOptions);
       disabled_regions[indexOrName] = region;
     }
   }
@@ -339,12 +341,28 @@ function createEditor(doc, uneditables, options) {
     });
   }
 
+  var allRegion = false;
+  function disableAll() {
+    if (!allRegion) {
+      var start = marks[0].find().from;
+      var end = marks[marks.length - 1].find().to;
+      allRegion = doc.markText(start, end, readOnlyOptions);
+    }
+  }
+  function enableAll() {
+    if (!allRegion) { return; }
+    allRegion.clear();
+    allRegion = false;
+  }
+
   return {
     setAt: setAt,
     getAt: getAt,
     lineOf: lineOf,
     enableAt: enableAt,
-    disableAt: disableAt
+    disableAt: disableAt,
+    disableAll: disableAll,
+    enableAll: enableAll
   };
 }
 
@@ -370,7 +388,7 @@ function steppedEditor(container, uneditables, options) {
     }
   );
   
-  var editor = createEditor(cm.getDoc(), uneditables, {
+  var editor = createEditor(cm, uneditables, {
       names: options.names,
       initial: options.initial
   });

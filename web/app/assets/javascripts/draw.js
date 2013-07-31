@@ -204,7 +204,9 @@ function createTabPanel(container) {
   tabContainer.append(titleRow).append(panelRow);
   container.append(tabContainer);
   return {
-    addTab: function(title, dom, inputOptions) {
+    addTab: function(title, dom, inputOptions)
+    /*: String, Dom, { cannotClose: Bool } -> Undef */ 
+    {
       var options = inputOptions ? inputOptions : {};
       function switchHere() {
         current = { tab: tab, title: title };
@@ -215,19 +217,19 @@ function createTabPanel(container) {
         .addClass("tabTitle")
         .text(title)
         .on("click", switchHere);
+      function close() {
+        tab.remove();
+        title.remove();
+        if (current.tab.length > 0 && current.tab[0] === tab[0]) {
+          current = {
+            tab: $(tabContainer.find(".tab")[0]),
+            title: $(tabContainer.find(".tabTitle")[0])
+          };
+          switchToCurrent();
+        }
+      }
       if(!options.cannotClose) {
-        var closeButton = $("<span>×</span>").addClass("closeTab")
-          .on("click", function(e) {
-            tab.remove();
-            title.remove();
-            if (current.tab.length > 0 && current.tab[0] === tab[0]) {
-              current = {
-                tab: $(tabContainer.find(".tab")[0]),
-                title: $(tabContainer.find(".tabTitle")[0])
-              };
-              switchToCurrent();
-            }
-          });
+        var closeButton = $("<span>×</span>").addClass("closeTab").on("click", close);
         title.append(closeButton);
       }
 
@@ -235,6 +237,8 @@ function createTabPanel(container) {
       panelRow.append(tab);
 
       switchHere();
+
+      return { close: close };
     }
   };
 }

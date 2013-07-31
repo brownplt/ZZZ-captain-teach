@@ -176,20 +176,14 @@ function functionBuilder(container, resources, args) {
 
   ASSIGNMENT_PIECES.push({id: pathId, editor: cm, mode: args.mode});
 
-  function setUpEditor(doc) {
-    var editor = createEditor(doc, [
-        header,
-        "\ncheck:",
-        "\nend"
-      ], {
-        names: ["definition", "checks"],
-        initial: {definition: "\n", checks: "\n"}
-      });
-
-    return editor;
-  }
-  
-  var editor = setUpEditor(doc);
+  var editor = createEditor(cm, [
+      header,
+      "\ncheck:",
+      "\nend"
+    ], {
+      names: ["definition", "checks"],
+      initial: {definition: "\n", checks: "\n"}
+    });
   
   var button = $("<button>Save and Submit</button>")
     .addClass("submit");

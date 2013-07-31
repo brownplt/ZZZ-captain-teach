@@ -7,12 +7,13 @@ body {
 <%= raw(@html) %>
 <script>
 $(function() {
-  var repl = $("<div>").addClass("repl");;
+  var repl = $("<div>").addClass("repl");
   repl.css({height: "100%"});
-  window.PANEL = createTabPanel($(document.body));
+  window.PANEL = createTabPanel($("#REPL"));
   PANEL.addTab("Interactions", repl, { cannotClose: true });
   window.REPL = repl;
   window.RUN_CODE = makeRepl(repl);
   ct_transform($(document.body));
 });
 </script>
+<div id="REPL" class="replContainer"></div>

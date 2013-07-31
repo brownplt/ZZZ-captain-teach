@@ -74,30 +74,32 @@ class AssignmentController < ApplicationController
         end
         node["data-resources"] = resources.to_json
 
-        parts = JSON.parse(node["data-parts"])
-        activity_id = node["data-activity-id"]
-        parts = parts.map do |k|
-          {
-            name: k,
-            read_reviews: Resource::mk_resource(
-                "inbox-for-read",
-                "r",
-                AssignmentController.part_ref(activity_id, k),
-                {},
-                user.id
-              ),
-            do_reviews: Resource::mk_resource(
-                "b",
-                "r",
-                AssignmentController.reviews_ref(
-                    AssignmentController.part_ref(activity_id, k)
-                  ),
-                {},
-                user.id
-              )
-          }
+        if not node["data-parts"].nil?
+          parts = JSON.parse(node["data-parts"])
+          activity_id = node["data-activity-id"]
+          parts = parts.map do |k|
+            {
+              name: k,
+              read_reviews: Resource::mk_resource(
+                  "inbox-for-read",
+                  "r",
+                  AssignmentController.part_ref(activity_id, k),
+                  {},
+                  user.id
+                ),
+              do_reviews: Resource::mk_resource(
+                  "b",
+                  "r",
+                  AssignmentController.reviews_ref(
+                      AssignmentController.part_ref(activity_id, k)
+                    ),
+                  {},
+                  user.id
+                )
+            }
+          end
+          node["data-parts"] = JSON.dump(parts)
         end
-        node["data-parts"] = JSON.dump(parts)
       end
     end
     main.to_html

@@ -31,19 +31,82 @@ class TestController < ApplicationController
     ref = "foo"
     part_ref = AssignmentController.part_ref(ref, "check")
     review_ref = AssignmentController.reviews_ref(part_ref)
-    u = User.create!(:email => "gfy")
-    Blob.create!(:ref => ref, :user => u, :data => JSON.dump({check: "my checks are unforgable"}))
-    data = [{ resource: Resource::mk_resource("b", "r", ref, {}, u.id),
-              save_review: Resource::mk_resource("inbox-for-write", "rw", part_ref,
-                                                 { blob_user_id: u.id, key: current_user.id },
-                                                 current_user.id)}]
-    Blob.create!(:ref => review_ref, :user => current_user, :data => JSON.dump(data))
-    
+    part_ref_foo = AssignmentController.part_ref(ref, "foo")
+    review_ref_foo = AssignmentController.reviews_ref(part_ref_foo)
+    user_index = params[:user] || User.count
+    reviewee_email_a = "test_reviewee_a#{user_index}"
+    reviewee_email_b = "test_reviewee_b#{user_index}"
+    maybe_u_curr = User.find_by(:email => "test_reviewer#{user_index}")
+    maybe_u = User.find_by(:email => reviewee_email_a)
+    maybe_u2 = User.find_by(:email => reviewee_email_b)
+    if maybe_u_curr.nil? and maybe_u.nil? and maybe_u2.nil?
+      u_curr = User.create!(:email => "test_reviewer#{user_index}")
+      u = User.create!(:email => reviewee_email_a)
+      Blob.create!(
+          :ref => ref,
+          :user => u,
+          :data => JSON.dump({
+              status: { part: "check", reviewing: true },
+              parts: {
+                check: "\nmy checks are unforgable",
+                scratch: "\n# Foo was hard",
+                foo: "\n"
+              }
+            })
+        )
+      u2 = User.create!(:email => reviewee_email_b)
+      Blob.create!(
+          :ref => ref,
+          :user => u2,
+          :data => JSON.dump({
+              status: { part: "check", reviewing: true },
+              parts: {
+                check: "\nmy checks have already been forged",
+                scratch: "\n# Foo was so easy, man",
+                foo: "\n"
+              }
+            })
+        )
+      data = [{ resource: Resource::mk_resource("b", "r", ref, {}, u.id),
+                save_review: Resource::mk_resource("inbox-for-write", "rw", part_ref,
+                                                   { blob_user_id: u.id, key: u_curr.id },
+                                                   u_curr.id)},
+              { resource: Resource::mk_resource("b", "r", ref, {}, u2.id),
+                save_review: Resource::mk_resource("inbox-for-write", "rw", part_ref,
+                                                   { blob_user_id: u2.id, key: u_curr.id },
+                                                   u_curr.id)}]
+      Blob.create!(:ref => review_ref, :user => u_curr, :data => JSON.dump(data))
+      Blob.create!(:ref => review_ref_foo, :user => u_curr, :data => "[]")
+
+      Blob.create!(:ref => ref, :user => u_curr, :data => JSON.dump({
+          status: { step: "check", reviewing: true },
+          parts: {
+            check: "\n1 is 4",
+            scratch: "\n# I think foo is gonna be hard",
+            foo: "\n"
+          }
+        }))
+    else
+      u_curr = maybe_u_curr
+    end
     @data = JSON.dump({
-      parts: [{
-       name: "check",
-       do_reviews: Resource::mk_resource("b", "r", review_ref, {}, current_user.id)
-      }]
+      user_index: user_index,
+      reviewer_email: u_curr.email,
+      args: {
+          codeDelimiters: [ "check:", "\nend", "\nFoo Stage", "\nend" ],
+          parts: ["check", "scratch", "foo"]
+        }, 
+      resources: {
+          blob: Resource::mk_resource("b", "rw", ref + "+drafts", {}, u_curr.id),
+          path: Resource::mk_resource("b", "rw", ref, {}, u_curr.id),
+          steps: [{
+              name: "check",
+              do_reviews: Resource::mk_resource("b", "r", review_ref, {}, u_curr.id)
+            }, {
+              name: "foo",
+              do_reviews: Resource::mk_resource("b", "r", review_ref_foo, {}, u_curr.id)
+            }]
+        }
     })
   end
   

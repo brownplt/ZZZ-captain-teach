@@ -308,13 +308,9 @@ describe("function activities", function() {
     });
 
     it("should add a review div if versions present to review", function () {
-      expect(reviewContainer.css("display")).toEqual("none");
 
       var reviewText = c.find(".reviewText");
       expect(reviewText.text()).toEqual("");
-
-      var reviewButton = c.find("button:contains(Review)");
-      reviewButton.click();
 
       expect(reviewContainer.css("display")).not.toEqual("none");
     });

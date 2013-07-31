@@ -45,7 +45,7 @@ $(function() {
       run: function() {}
     }
   );
-  var editor = createEditor(cm.getDoc(), [
+  var editor = createEditor(cm, [
       "fun f():",
       "\ncheck:",
       "\nend"
@@ -82,7 +82,7 @@ $(function() {
       run: function() {}
     }
   );
-  var editor = createEditor(cm.getDoc(), [
+  var editor = createEditor(cm, [
       "fun f(x ::",", y ::",")"
     ], {
       names: ["xAnn", "yAnn"],

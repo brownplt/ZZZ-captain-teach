@@ -151,7 +151,7 @@ module Resource
       if b.nil?
         return NotFound.new
       else
-        data_for_key = JSON.parse(b.data)[args["key"]]
+        data_for_key = JSON.parse(b.data)[args["key"].to_s]
         if data_for_key.nil?
           return NotFound.new
         else
@@ -239,7 +239,7 @@ module Resource
           b = Blob.create!(ref: ref, user_id: args["blob_user_id"], data: "{}")
         end
         json_data = JSON.parse(b.data)
-        json_data[args["key"]] = data
+        json_data[args["key"].to_s] = data
         b.data = JSON.dump(json_data)
         b.save!
         return Success.new
