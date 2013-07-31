@@ -40,8 +40,12 @@ that caching can work (right now, we create path refs many times)
   - on reload, the blob is authoritative if its version matches the path's most recent version
   - otherwise, the blob is discarded
 
-[] Refactor server_tests.js into draw and ui components
-[] Write code-assignment builder in ct.js that uses these
+[x] Refactor server_tests.js into draw and ui components
+[x] Write code-assignment builder in ct.js that uses these
+[] Extend code-assignment builder to do versioning
 [] Design/write code-assignment scribble
+
+[] See the reviews you got
+
 [] TEST TEST TEST
 

@@ -46,7 +46,7 @@ class TestController < ApplicationController
           :ref => ref,
           :user => u,
           :data => JSON.dump({
-              status: { part: "check", reviewing: true },
+              status: { step: "check", reviewing: true },
               parts: {
                 check: "\nmy checks are unforgable",
                 scratch: "\n# Foo was hard",
@@ -59,7 +59,7 @@ class TestController < ApplicationController
           :ref => ref,
           :user => u2,
           :data => JSON.dump({
-              status: { part: "check", reviewing: true },
+              status: { step: "check", reviewing: true },
               parts: {
                 check: "\nmy checks have already been forged",
                 scratch: "\n# Foo was so easy, man",
@@ -86,27 +86,58 @@ class TestController < ApplicationController
             foo: "\n"
           }
         }))
+
+      data2 = [{ resource: Resource::mk_resource("b", "r", ref, {}, u_curr.id),
+                save_review: Resource::mk_resource("inbox-for-write", "rw", part_ref,
+                                                   { blob_user_id: u_curr.id, key: u.id },
+                                                   u.id)},
+              { resource: Resource::mk_resource("b", "r", ref, {}, u2.id),
+                save_review: Resource::mk_resource("inbox-for-write", "rw", part_ref,
+                                                   { blob_user_id: u2.id, key: u.id },
+                                                   u.id)}]
+      Blob.create!(:ref => review_ref, :user => u, :data => JSON.dump(data2))
+      Blob.create!(:ref => review_ref_foo, :user => u, :data => "[]")
+
     else
       u_curr = maybe_u_curr
+      u = maybe_u
     end
     @data = JSON.dump({
       user_index: user_index,
-      reviewer_email: u_curr.email,
-      args: {
-          codeDelimiters: [ "check:", "\nend", "\nFoo Stage", "\nend" ],
-          parts: ["check", "scratch", "foo"]
-        }, 
-      resources: {
-          blob: Resource::mk_resource("b", "rw", ref + "+drafts", {}, u_curr.id),
-          path: Resource::mk_resource("b", "rw", ref, {}, u_curr.id),
-          steps: [{
-              name: "check",
-              do_reviews: Resource::mk_resource("b", "r", review_ref, {}, u_curr.id)
-            }, {
-              name: "foo",
-              do_reviews: Resource::mk_resource("b", "r", review_ref_foo, {}, u_curr.id)
-            }]
-        }
+      user1: {
+          args: {
+              codeDelimiters: [ "check:", "\nend", "\nFoo Stage", "\nend" ],
+              parts: ["check", "scratch", "foo"]
+            }, 
+          resources: {
+              blob: Resource::mk_resource("b", "rw", ref + "+drafts", {}, u_curr.id),
+              path: Resource::mk_resource("b", "rw", ref, {}, u_curr.id),
+              steps: [{
+                  name: "check",
+                  do_reviews: Resource::mk_resource("b", "r", review_ref, {}, u_curr.id)
+                }, {
+                  name: "foo",
+                  do_reviews: Resource::mk_resource("b", "r", review_ref_foo, {}, u_curr.id)
+                }]
+            }
+        },
+      user2: {
+          args: {
+              codeDelimiters: [ "check:", "\nend", "\nFoo Stage", "\nend" ],
+              parts: ["check", "scratch", "foo"]
+            }, 
+          resources: {
+              blob: Resource::mk_resource("b", "rw", ref + "+drafts", {}, u.id),
+              path: Resource::mk_resource("b", "rw", ref, {}, u.id),
+              steps: [{
+                  name: "check",
+                  do_reviews: Resource::mk_resource("b", "r", review_ref, {}, u.id)
+                }, {
+                  name: "foo",
+                  do_reviews: Resource::mk_resource("b", "r", review_ref_foo, {}, u.id)
+                }]
+            }
+      }
     })
   end
   

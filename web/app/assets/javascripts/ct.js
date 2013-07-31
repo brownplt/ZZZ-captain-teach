@@ -202,7 +202,12 @@ function codeAssignment(container, resources, args) {
             f(reviewData.map(function(rd) {
                 return {
                   saveReview: function(val, success, failure) {
-                    saveResource(rd.save_review, val, success, failure);
+                    saveResource(
+                        rd.save_review,
+                        _.extend(val, { resource: rd.resource }),
+                        success,
+                        failure
+                    );
                   },
                   getReview: function(present, absent) {
                     lookupResource(rd.save_review, present, absent);
