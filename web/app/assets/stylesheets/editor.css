@@ -83,3 +83,8 @@
 .progressStep.done {
     background-color: green;
 }
+
+.steppedGutterPart {
+    width: 3em;
+    padding-right: 3px;
+}

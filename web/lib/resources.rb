@@ -144,7 +144,7 @@ module Resource
         json_data.keys.sort.each do |key|
           values.push(json_data[key])
         end
-        return Normal.new(JSON.dump(values))
+        return Normal.new(values)
       end
     elsif type == 'inbox-for-write'
       b = find_blob_for_inbox(args["blob_user_id"], ref)
@@ -239,7 +239,7 @@ module Resource
           b = Blob.create!(ref: ref, user_id: args["blob_user_id"], data: "{}")
         end
         json_data = JSON.parse(b.data)
-        json_data[args["key"].to_s] = data
+        json_data[args["key"].to_s] = JSON.parse(data)
         b.data = JSON.dump(json_data)
         b.save!
         return Success.new

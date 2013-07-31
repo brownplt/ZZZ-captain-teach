@@ -38,10 +38,14 @@
 
 <script>
 var TESTDATA = <%= raw(@data) %>;
-console.log("The index for the user is: ", TESTDATA.user_index);
+$(function() {
+  console.log("The index for the user is: ", TESTDATA.user_index);
+  window.PANEL = createTabPanel($("#REPL"));
+});
 </script>
+<div id="REPL" class="replContainer"></div>
 
 
-<div id="review-editor1"></div>
-<div id="review-editor2"></div>
+<div id="review-editor1" style="width: 50%"></div>
+<div id="review-editor2" style="width: 50%"></div>
 

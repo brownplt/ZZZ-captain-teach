@@ -371,8 +371,11 @@ function steppedEditor(container, uneditables, options) {
 
   var currentSectionTitle = drawCurrentStepTitle();
   container.append(currentSectionTitle);
+
+  options.partGutterCallbacks = options.partGutterCallbacks || {};
   
   var gutterId = "steppedGutter";
+  var partGutter = "steppedGutterPart";
   var steps = options.steps || [];
   var pos = 0;
   var cur = 0;
@@ -384,7 +387,7 @@ function steppedEditor(container, uneditables, options) {
     {
       initial: "",
       run: options.run,
-      cmOptions:  { gutters: [gutterId]}
+      cmOptions:  { gutters: [partGutter, gutterId]}
     }
   );
   
@@ -413,6 +416,7 @@ function steppedEditor(container, uneditables, options) {
     setCurrentStepTitle(currentSectionTitle, steps[cur]);
     stepsContainer.empty();
     cm.clearGutter(gutterId);
+    cm.clearGutter(partGutter);
     progress.set(pos);
     steps.forEach(function(e, i) {
       var b = drawStepButton(e);
@@ -426,6 +430,15 @@ function steppedEditor(container, uneditables, options) {
         b.prop("disabled", true);
       }
 
+      if (options.drawPartGutter) {
+        options.drawPartGutter(e, function(gutterElement) {
+          cm.setGutterMarker(
+              editor.lineOf(e),
+              partGutter,
+              gutterElement
+          );
+        });
+      }
       if (i === cur) {
         var marker = drawCurrentStepGutterMarker();
         cm.setGutterMarker(editor.lineOf(e),

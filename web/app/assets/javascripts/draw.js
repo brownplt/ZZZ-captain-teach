@@ -133,6 +133,12 @@ function drawReviewsDiv(name, time) {
   return rd;
 }
 
+function drawReviewsDivName(name, part) {
+  var rd = $("<div>");
+  rd.append($("<h3>").text("Review for " + part + " of " + name));
+  return rd;
+}
+
 function drawReviewContainer() {
   return $("<div>");
 }
@@ -254,3 +260,4 @@ function drawReviewsTab() {
 function drawReviewEditorContainer() {
   return $("<div>").addClass("reviewEditorContainer");
 }
+

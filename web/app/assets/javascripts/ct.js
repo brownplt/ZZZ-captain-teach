@@ -166,8 +166,6 @@ function codeAssignment(container, resources, args) {
       afterHandlers: {}
     };
 
-    var editorOptions = _.merge(sharedOptions, { initial: activityState.parts });
-
     function getContents() {
       var parts = {};
       args.parts.forEach(function(p) {
@@ -214,18 +212,7 @@ function codeAssignment(container, resources, args) {
                   },
                   attachWorkToReview: function(editorContainer, f, e) {
                     function wrapReviewContent(content) {
-                      var cm = makeEditor(
-                        editorContainer,
-                        {
-                          initial: "",
-                          run: function() {}
-                        }
-                      );
-                      var reviewEditorOptions = _.merge(sharedOptions, {
-                        initial: content.parts
-                      });
-                      var editor = createEditor(cm, args.codeDelimiters, reviewEditorOptions);
-                      editor.disableAll();
+                      readOnlyEditorFromParts(editorContainer, content.parts);
                       f();
                     }
                     lookupResource(rd.resource, wrapReviewContent, e);
@@ -237,6 +224,49 @@ function codeAssignment(container, resources, args) {
         }
       };
     }
+
+    function readOnlyEditorFromParts(container, parts) {
+      var cm = makeEditor(
+        container,
+        {
+          initial: "",
+          run: function() {}
+        }
+      );
+      var thisEditorOptions = _.merge(sharedOptions, {
+        initial: parts
+      });
+      var editor = createEditor(cm, args.codeDelimiters, thisEditorOptions);
+      editor.disableAll();
+    }
+
+    var editorOptions = _.merge(sharedOptions, {
+        initial: activityState.parts,
+        drawPartGutter: function(stepName, insert) {
+          var toRead = _.findWhere(resources.steps, { name: stepName }).read_reviews;
+          lookupResource(toRead, function(reviews) {
+            if (reviews.length !== 0) {
+              var elt = drawReviewsButton(reviews.length);
+              elt.on("click", function() {
+                var reviewsDiv = drawReviewsDiv(args.name, stepName);
+                reviews.forEach(function(r) {
+                  lookupResource(r.resource, function(data) {
+                    var reviewContainer = drawReviewContainer();
+                    reviewsDiv.append(reviewContainer);
+                    readOnlyEditorFromParts(reviewContainer, data.parts);
+                    reviewContainer.append(drawReview(r));
+                  });
+                });
+                window.PANEL.addTab("Rev: " + args.name + ":" + stepName, reviewsDiv);
+                return false;
+              });
+              insert(elt[0]);
+            }
+          }, function(/* not found */) {
+
+          });
+        }
+      });
 
     resources.steps.forEach(function(step) {
       editorOptions.afterHandlers[step.name] = function(editor, resume) {

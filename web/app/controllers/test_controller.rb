@@ -106,6 +106,7 @@ class TestController < ApplicationController
       user_index: user_index,
       user1: {
           args: {
+              name: "FooThing",
               codeDelimiters: [ "check:", "\nend", "\nFoo Stage", "\nend" ],
               parts: ["check", "scratch", "foo"]
             }, 
@@ -114,15 +115,18 @@ class TestController < ApplicationController
               path: Resource::mk_resource("b", "rw", ref, {}, u_curr.id),
               steps: [{
                   name: "check",
+                  read_reviews: Resource::mk_resource("inbox-for-read", "r", part_ref, {}, u_curr.id),
                   do_reviews: Resource::mk_resource("b", "r", review_ref, {}, u_curr.id)
                 }, {
                   name: "foo",
+                  read_reviews: Resource::mk_resource("inbox-for-read", "r", part_ref_foo, {}, u_curr.id),
                   do_reviews: Resource::mk_resource("b", "r", review_ref_foo, {}, u_curr.id)
                 }]
             }
         },
       user2: {
           args: {
+              name: "FooThing",
               codeDelimiters: [ "check:", "\nend", "\nFoo Stage", "\nend" ],
               parts: ["check", "scratch", "foo"]
             }, 
@@ -131,9 +135,11 @@ class TestController < ApplicationController
               path: Resource::mk_resource("b", "rw", ref, {}, u.id),
               steps: [{
                   name: "check",
+                  read_reviews: Resource::mk_resource("inbox-for-read", "r", part_ref, {}, u.id),
                   do_reviews: Resource::mk_resource("b", "r", review_ref, {}, u.id)
                 }, {
                   name: "foo",
+                  read_reviews: Resource::mk_resource("inbox-for-read", "r", part_ref_foo, {}, u.id),
                   do_reviews: Resource::mk_resource("b", "r", review_ref_foo, {}, u.id)
                 }]
             }
