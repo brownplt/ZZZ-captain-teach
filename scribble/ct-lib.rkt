@@ -112,7 +112,7 @@
      (letrec [(mode (validate-mode mode1))
               (parts (filter holder? (list elt ...)))
               ;;(include (holder-elt (first parts)))
-              (header (holder-elt (first parts)))
+              (header (_header-header (first parts)))
               (check (holder-elt (second parts)))]
      (element
        (style #f
@@ -140,7 +140,7 @@
     (letrec [(mode (validate-mode mode1))
              (parts (filter holder? (list elt ...)))
              ;;(include (holder-elt (first parts)))
-             (header (holder-elt (first parts)))
+             (header (_header-header (first parts)))
              (check (holder-elt (second parts)))]
       (element
           (style #f
@@ -217,11 +217,94 @@
                      (cons 'code code)))))))))
     "")))
 
+(struct _part (part-name))
+(struct _step _part ())
+(struct _library-part _part (code))
+(struct _data-part _step (name))
+(struct _fun-part _step (header))
+
+(struct _name (name))
+(struct _header (header))
+
+(define-syntax-rule (library-part part-name str ...)
+  (_library-part part-name (string-append* (list str ...))))
+(define-syntax-rule (data-part part-name str ...)
+  (_data-part part-name (_name-name (findf _name? (list str ...)))))
+(define-syntax-rule (fun-part part-name str ...)
+  (_fun-part part-name (_header-header (findf _header? (list str ...)))))
+
+(define-syntax-rule (name str ...)
+  (_name (string-append* (list str ...))))
+(define-syntax-rule (header str ...)
+  (_header (string-append* (list str ...))))
+
+(define-syntax-rule (code-assignment unique-id reviews elt ...)
+  (let ()
+    (define (genstr) (symbol->string (gensym name)))
+    (define elts (list elt ...))
+    (define name (_name-name (findf _name? elts)))
+    (define assignment-parts (filter _part? elts))
+    (struct parts (code-delimiters part-names steps))
+    (define (add-part a-part a-parts)
+      (define maybe-line (if (empty? (parts-code-delimiters a-parts)) "" "\n"))
+      (match a-part
+        [(_library-part part-name code)
+         (parts
+            (append (parts-code-delimiters a-parts)
+                    (list (string-append maybe-line code)))
+            (append (parts-part-names a-parts) (list (genstr)))
+            (parts-steps a-parts))]
+        [(_data-part part-name data-name)
+         (define v-step (format "~a-variants" part-name))
+         (define c-step (format "~a-checks" part-name))
+         (parts
+            (append (parts-code-delimiters a-parts)
+                    (list
+                      (format "~adata ~a:" maybe-line data-name)
+                      "\ncheck:"
+                      "\nend"))
+            (append (parts-part-names a-parts) (list v-step c-step (genstr)))
+            (append (parts-steps a-parts) (list v-step c-step)))]
+        [(_fun-part part-name fun-header)
+         (define b-step (format "~a-body" part-name))
+         (define c-step (format "~a-checks" part-name))
+         (parts
+            (append (parts-code-delimiters a-parts)
+                    (list
+                      (format "~afun ~a:" maybe-line fun-header)
+                      "\ncheck:"
+                      "\nend"))
+            (append (parts-part-names a-parts) (list b-step c-step (genstr)))
+            (append (parts-steps a-parts) (list b-step c-step)))]))
+    (define data (foldl add-part (parts (list) (list) (list)) assignment-parts))
+    (element
+      (style #f
+             (list
+               (alt-tag "div")
+               (attributes
+                 (list
+                   (cons 'data-ct-node "1")
+                   (cons 'data-activity-id unique-id)
+                   (cons 'data-resources (jsexpr->string
+                                          (make-hash
+                                           (list (cons 'path (mk-resource "p" "rw" unique-id (make-hash)))
+                                                 (cons 'blob (mk-resource "b" "rw" unique-id (make-hash)))))))
+                   (cons 'data-parts (jsexpr->string (parts-steps data)))
+                   (cons 'data-type "code-assignment")
+                   (cons 'data-args (jsexpr->string
+                      (make-hash
+                        (list
+                          (cons 'name name)
+                          (cons 'codeDelimiters (append (parts-code-delimiters data) (list "\n")))
+                          (cons 'parts (parts-part-names data))))))))))
+       "")))
+         
+
+    
+
 (define-syntax-rule (include elt ...)
   (holder (list elt ...)))
 
-(define-syntax-rule (header elt ...)
-  (holder (string-append* (list elt ...))))
 
 (define-syntax-rule (check elt ...)
   (holder (string-append* (list elt ...))))

@@ -42,10 +42,19 @@ that caching can work (right now, we create path refs many times)
 
 [x] Refactor server_tests.js into draw and ui components
 [x] Write code-assignment builder in ct.js that uses these
-[] Extend code-assignment builder to do versioning
+[x] See the reviews you got
 [] Design/write code-assignment scribble
+[] Hook up frontend to call submission on each part
+[] Test finishing assignments --- something odd with {done:true} that may just
+   be browser refresh problem
+[] To turn on/off or # reviews by part, change args[reviews] to be a dictionary
+   of part->reviews count
+[] data-parts needs to become data-steps
+[] Sensible front-end on finding that the assigned reviews are completely missing
+[] Refactor save/submit/lookupResource to share more
 
-[] See the reviews you got
+[] Extend code-assignment builder to do versioning
 
 [] TEST TEST TEST
 
+[?] Refactor parts/steps to be a list of more descriptive objects

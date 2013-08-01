@@ -96,11 +96,28 @@ function lookupReview(lookupLink, success, error) {
   });
 }
 
+function submitResource(resource, type, success, failure) {
+  if (typeof success === 'undefined') { success = function() {}; }
+  if (typeof failure === 'undefined') {
+    failure = function(xhr, e) {
+      ct_error(xhr, e);
+    };
+  }
+  $.ajax(rails_host + "/resource/submit?resource=" + resource, {
+    data: { data: JSON.stringify({type: type}) },
+    success: function(response, _, xhr) {
+      success(response);
+    },
+    error: failure,
+    type: "POST"
+  });
+}
+
 function saveResource(resource, data, success, failure) {
   if (typeof success === 'undefined') { success = function() {}; }
   if (typeof failure === 'undefined') {
     failure = function(xhr, e) {
-      console.error(xhr, e);
+      ct_error(xhr, e);
     };
   }
   $.ajax(rails_host + "/resource/save?resource=" + resource, {
@@ -114,7 +131,7 @@ function saveReview(saveLink, data, success, failure) {
   if (typeof success === 'undefined') { success = function() {}; }
   if (typeof failure === 'undefined') {
     failure = function(xhr, e) {
-      console.error(xhr, e);
+      ct_error(xhr, e);
     };
   }
   $.ajax(rails_host + saveLink, {
@@ -152,7 +169,20 @@ function codeAssignment(container, resources, args) {
   var editorContainer = drawEditorContainer();
   tabs.addTab("Code", editorContainer, { cannotClose: true });
 
-  lookupResource(resources.path, function(activityState) {
+  var defaultParts = {};
+  args.parts.forEach(function(n) {
+    defaultParts[n] = "\n";
+  });
+
+  var defaultActivityState = {
+    status: {
+      step: resources.steps[0].name,
+      reviewing: false
+    },
+    parts: defaultParts
+  };
+
+  function setupAssignment(activityState) {
     var currentState = activityState.status;
     var names = args.parts;
     var steps = [];
@@ -181,7 +211,7 @@ function codeAssignment(container, resources, args) {
       var status;
       editor.enableAll();
       if (indexOfStep === (resources.steps.length - 1)) {
-        status = { done: true };
+        status = { done: true, step: step.name };
       }
       else {
         status = {
@@ -276,7 +306,10 @@ function codeAssignment(container, resources, args) {
 
         saveResource(resources.path, toSave, function() {
             editor.disableAll();
-            reviewTabs(tabs, wrapStepForReview(step), function() { afterReview(step.name, resume); });
+            function afterSubmit() {
+              reviewTabs(tabs, wrapStepForReview(step), function() { afterReview(step.name, resume); });
+            }
+            submitResource(resources.path, step.name, afterSubmit);
           }, function() {
             ct_error("Shouldn't fail to save work: ", resources.path, toSave);
           });
@@ -304,7 +337,18 @@ function codeAssignment(container, resources, args) {
     else {
       editor.resumeAt(currentState.step);
     }
-  });
+  }
+
+  lookupResource(
+      resources.path,
+      setupAssignment,
+      function() { setupAssignment(defaultActivityState); }
+  );
+
+  return {
+    container: container,
+    activityData: {}
+  };
 }
 
 function functionBuilder(container, resources, args) {
@@ -369,7 +413,7 @@ function functionBuilder(container, resources, args) {
         versionsUI.onFinishSave();
       }, 1000);
     }, function (xhr, response) {
-      console.error("Saving failed.");
+      ct_error("Saving failed.");
     });
   }
 
@@ -528,14 +572,14 @@ function multipleChoice(container, resources, args)  {
             colorify(data);
           },
           function(xhr, error) {
-            console.error("Save failed: ", xhr, error); 
+            ct_error("Save failed: ", xhr, error); 
           });
         return false;
       });
       container.append(button);
     },
     function(xhr, error) {
-      console.error(error);
+      ct_error(error);
     });
   return {container: container};
 }
@@ -544,6 +588,7 @@ var builders = {
   "inline-example": inlineExample,
   "code-example": codeExample,
   "function": functionBuilder,
+  "code-assignment": codeAssignment,
   "multiple-choice": multipleChoice,
   "code-library": function(container, id, args) {
     ASSIGNMENT_PIECES.push({id: id, code: args.code, mode: args.mode});
@@ -566,14 +611,22 @@ function ct_transform(dom) {
     if (jnode.attr("data-resources")) {
       resources = JSON.parse(jnode.attr("data-resources"));
     }
+    if (jnode.attr("data-parts")) {
+      resources.steps = JSON.parse(jnode.attr("data-parts"));
+    }
     function clean(node) {
-      node.removeAttr("data-resources").removeAttr("data-type").removeAttr("data-args").removeAttr("data-ct-node");
+      node
+        .removeAttr("data-resources")
+        .removeAttr("data-type")
+        .removeAttr("data-args")
+        .removeAttr("data-parts")
+        .removeAttr("data-ct-node");
     }
     if (builders.hasOwnProperty(type)) {
       clean(jnode);
       var rv = builders[type](jnode, resources, args);
     } else {
-      console.error("Unknown builder type: ", type);
+      ct_error("Unknown builder type: ", type);
     }
   });
 }
