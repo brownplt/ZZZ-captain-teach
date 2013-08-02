@@ -373,12 +373,13 @@ function steppedEditor(container, uneditables, options) {
   container.append(currentSectionTitle);
 
   options.partGutterCallbacks = options.partGutterCallbacks || {};
-  
+
   var gutterId = "steppedGutter";
   var partGutter = "steppedGutterPart";
   var steps = options.steps || [];
   var pos = 0;
   var cur = 0;
+  var done = false;
 
   var progress = progressBar(container, steps.length);
 
@@ -390,7 +391,7 @@ function steppedEditor(container, uneditables, options) {
       cmOptions:  { gutters: [partGutter, gutterId]}
     }
   );
-  
+
   var editor = createEditor(cm, uneditables, {
       names: options.names,
       initial: options.initial
@@ -411,7 +412,7 @@ function steppedEditor(container, uneditables, options) {
     }
     draw();
   }
-  
+
   var draw = function() {
     setCurrentStepTitle(currentSectionTitle, steps[cur]);
     stepsContainer.empty();
@@ -479,7 +480,7 @@ function steppedEditor(container, uneditables, options) {
       options.afterHandlers[steps[pos]](editor, resume);
     } else {
       resume()
-    } 
+    }
   });
 
   $(container).append(doneButton);
@@ -525,7 +526,7 @@ function progressBar(container, numberSteps) {
 
   return {
     set: setCurrentStep
-  }; 
+  };
 }
 
 function reviewTabs(tabPanel, step, resume) {
@@ -547,7 +548,7 @@ function reviewTabs(tabPanel, step, resume) {
           var reviewsTab = drawReviewsTab();
           var reviewTabHandle =
             tabPanel.addTab("Reviews", reviewsTab, { cannotClose: true });
-          
+
           var editorContainer = drawReviewEditorContainer();
           reviewsTab.append(editorContainer);
           reviewDatum.attachWorkToReview(editorContainer, function() {
@@ -577,4 +578,3 @@ function reviewTabs(tabPanel, step, resume) {
   step.getReviewData(setupReviews, function() { setupReviews([]); });
 
 }
-

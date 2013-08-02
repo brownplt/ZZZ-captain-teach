@@ -105,7 +105,7 @@ function submitResource(resource, type, success, failure) {
     };
   }
   $.ajax(rails_host + "/resource/submit?resource=" + resource, {
-    data: { data: JSON.stringify({type: type}) },
+    data: { data: JSON.stringify({step_type: type}) },
     success: function(response, _, xhr) {
       success(response);
     },
@@ -154,14 +154,14 @@ function codeExample(container, resources, args) {
   container.append(codeContainer);
   var cm = makeEditor(codeContainer, {
       cmOptions: {
-        readOnly: 'nocursor'   
+        readOnly: 'nocursor'
       },
       initial: code,
       run: function() {}
    });
 
   ASSIGNMENT_PIECES.push({id: resources, editor: cm, mode: args.mode});
-  
+
   return { container: container, activityData: {editor: cm} };
 }
 
@@ -302,6 +302,7 @@ function codeAssignment(container, resources, args) {
 
     resources.steps.forEach(function(step) {
       editorOptions.afterHandlers[step.name] = function(editor, resume) {
+        ct_log("after ", step.name);
         var toSave = {};
         toSave.parts = getContents();
         toSave.status = { step: step.name, reviewing: true };
@@ -365,7 +366,7 @@ function functionBuilder(container, resources, args) {
   codeContainer.css("position", "relative");
 
   var gradeMode = typeof resources.reviews !== 'undefined';
-  
+
   var cm = makeEditor(codeContainer,
                       { initial: "",
                         cmOptions: { readOnly: gradeMode, lineNumbers: true },
@@ -386,7 +387,7 @@ function functionBuilder(container, resources, args) {
       names: ["definition", "checks"],
       initial: {definition: "\n", checks: "\n"}
     });
-  
+
   var button = $("<button>Save and Submit</button>")
     .addClass("submit");
 
@@ -400,7 +401,7 @@ function functionBuilder(container, resources, args) {
     editor.setAt("definition", data.body);
     editor.setAt("checks", data.userChecks);
   }
-  
+
   function getWork() {
     var defn = editor.getAt("definition");
     var userChecks = editor.getAt("checks");
@@ -454,7 +455,7 @@ function functionBuilder(container, resources, args) {
 
   button.click(function () {
     versionsUI.saveVersion();
-    
+
     var prelude = getPreludeFor(pathId);
     var work = getWork();
     var defn = work.body;
@@ -468,7 +469,7 @@ function functionBuilder(container, resources, args) {
 
   // NOTE(dbp): We look up the blob first, as that is the "current" version of the file,
   // if it exists; if it doesn't exist, we look up the path-ref resource.
-  
+
   lookupResource(blobId, handleResponse, function () {
     lookupResource(pathId,
                    function (response) {
@@ -485,7 +486,7 @@ function functionBuilder(container, resources, args) {
       saveWork
     }
   }, 30000);
-  
+
 
   var reviews = resources.reviews;
   if (gradeMode) {
@@ -498,7 +499,7 @@ function functionBuilder(container, resources, args) {
               review,
               success,
               failure
-            ); 
+            );
           },
           lookup: function(success, failure) {
             lookupReview(
@@ -551,7 +552,7 @@ function multipleChoice(container, resources, args)  {
     });
     container.append(form);
   }
-  lookupResource(id, 
+  lookupResource(id,
     function(response) {
       addElements();
       colorify(response);
@@ -574,7 +575,7 @@ function multipleChoice(container, resources, args)  {
             colorify(data);
           },
           function(xhr, error) {
-            ct_error("Save failed: ", xhr, error); 
+            ct_error("Save failed: ", xhr, error);
           });
         return false;
       });
@@ -633,7 +634,7 @@ function ct_transform(dom) {
   });
 }
 
-function worldB(init, handlers, transformers) 
+function worldB(init, handlers, transformers)
 /*: ∀ α . α
         * Array<∃ β . {0: EventStream<β>, 1: α * β -> α}>
         * ∃ (γ₁ ...) { key₁: α -> γ₁, ... }
@@ -665,4 +666,3 @@ function worldB(init, handlers, transformers)
   });
   return facets;
 }
-

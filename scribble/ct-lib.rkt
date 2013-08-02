@@ -286,10 +286,13 @@
                  (list
                    (cons 'data-ct-node "1")
                    (cons 'data-activity-id unique-id)
-                   (cons 'data-resources (jsexpr->string
-                                          (make-hash
-                                           (list (cons 'path (mk-resource "p" "rw" unique-id (make-hash)))
-                                                 (cons 'blob (mk-resource "b" "rw" unique-id (make-hash)))))))
+                   (cons 'data-resources
+                         (jsexpr->string
+                          (make-hash
+                           (list (cons 'path
+                                       (mk-resource "p" "rw" unique-id
+                                                    (make-hash (list (cons 'reviews reviews)))))
+                                 (cons 'blob (mk-resource "b" "rw" unique-id (make-hash)))))))
                    (cons 'data-parts (jsexpr->string (parts-steps data)))
                    (cons 'data-type "code-assignment")
                    (cons 'data-args (jsexpr->string
@@ -299,9 +302,9 @@
                           (cons 'codeDelimiters (append (parts-code-delimiters data) (list "\n")))
                           (cons 'parts (parts-part-names data))))))))))
        "")))
-         
 
-    
+
+
 
 (define-syntax-rule (include elt ...)
   (holder (list elt ...)))
@@ -312,4 +315,3 @@
 
 (define-syntax-rule (journey unique-id)
   (current-id-prefix unique-id))
-

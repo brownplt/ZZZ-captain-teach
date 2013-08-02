@@ -39,7 +39,7 @@ describe ResourceController do
 
       get :lookup, :resource => Resource::mk_resource("b","rw","bazfoo",{},"not-an-id"), :format => :json
       response.response_code.should(eq(404))
-      
+
     end
 
     it "POST with rw should succeed" do
@@ -109,7 +109,7 @@ describe ResourceController do
       get :lookup, :resource => Resource::mk_resource("p","rw","foo",{},"#{@user.id}"), :format => :json
       response.response_code.should(eq(200))
       JSON::parse(response.body)["file"].should(eq(@file))
-      
+
       get :lookup, :resource => Resource::mk_resource("p","rc","foo",{},"#{@user.id}"), :format => :json
       response.response_code.should(eq(200))
       JSON::parse(response.body)["file"].should(eq(@file))
@@ -126,7 +126,7 @@ describe ResourceController do
     it "POST with rw should succeed" do
       @user.user_repo.create_file("foo1", @file,
                                 "message", DEFAULT_GIT_USER)
-      
+
       path_ref = PathRef.new(:user_repo => @user.user_repo, :path => "foo1")
       before_versions = path_ref.versions.length
       new_data = "My New File"
@@ -135,17 +135,17 @@ describe ResourceController do
       response.response_code.should(eq(200))
       resp = JSON::parse(response.body)
       resp["success"].should(be_true)
-      
+
       path_ref.contents.should(eq(new_data))
       path_ref.versions.length.should(eq(before_versions + 1))
     end
-    
+
     it "POST with rc when the item exists should fail" do
       post :save, :resource => Resource::mk_resource("p","rc","foo",{},"#{@user.id}"), :data => "Blah blah blah",
       :format => :json
       response.response_code.should(eq(405))
     end
-    
+
     it "POST with r should fail" do
       post :save, :resource => Resource::mk_resource("p","r","foo",{},"#{@user.id}"), :data => "[1]",
       :format => :json
@@ -317,11 +317,10 @@ describe ResourceController do
 
   describe "Submitted" do
     def create_sub(id)
-      part_ref = AssignmentController.part_ref(@activity_id, "check")
       Submitted.create!(
         :submission_type => "check",
         :activity_id => @activity_id,
-        :resource => Resource::mk_resource('b', 'r', part_ref, {}, id),
+        :resource => Resource::mk_resource('b', 'r', @activity_id, {}, id),
         :user_id => id,
         :submission_time => Time.zone.now
       )
@@ -340,7 +339,7 @@ describe ResourceController do
 
       post :submit,
         :resource => resource_to_submit,
-        :data => { type: "done" },
+        :data => JSON.dump({ step_type: "done" }),
         :format => :json
       response.response_code.should(eq(200))
 
@@ -365,7 +364,7 @@ describe ResourceController do
 
       post :submit,
         :resource => resource_to_submit,
-        :data => { type: "check" },
+        :data => JSON.dump({ step_type: "check" }),
         :format => :json
       response.response_code.should(eq(200))
 
@@ -397,6 +396,38 @@ describe ResourceController do
 
     end
 
+    it "should assign reviews to a second user submitting" do
+      @second_user = User.create!
+      b = Blob.create!(:user => @user, :ref => @activity_id, :data => "{}")
+      resource_to_submit =
+        Resource::mk_resource('b', 'r', @activity_id, { reviews: 3 }, @user.id)
+
+      post :submit,
+        :resource => resource_to_submit,
+        :data => JSON.dump({ step_type: "check2" }),
+        :format => :json
+
+      b2 = Blob.create!(:user => @second_user, :ref => @activity_id, :data => "{}")
+      second_resource_to_submit =
+        Resource::mk_resource('b', 'r', @activity_id, { reviews: 3 },
+                              @second_user.id)
+
+      post :submit,
+        :resource => second_resource_to_submit,
+        :data => JSON.dump({ step_type: "check2" }),
+        :format => :json
+
+      part_ref = AssignmentController.part_ref(@activity_id, "check2")
+      review_ref = AssignmentController.reviews_ref(part_ref)
+
+      puts review_ref
+
+      review_blob = Blob.find_by(:user => @second_user, :ref => review_ref)
+      data = JSON.parse(review_blob.data)
+
+      data.length.should(eq(1))
+    end
+
     it "should only assign reviews once" do
       part_ref = AssignmentController.part_ref(@activity_id, "check")
 
@@ -411,7 +442,7 @@ describe ResourceController do
 
       post :submit,
         :resource => resource_to_submit,
-        :data => { type: "check" },
+        :data => JSON.dump({ step_type: "check" }),
         :format => :json
       response.response_code.should(eq(200))
 
@@ -423,7 +454,7 @@ describe ResourceController do
 
       post :submit,
         :resource => resource_to_submit,
-        :data => { type: "check" },
+        :data => JSON.dump({ step_type: "check" }),
         :format => :json
       response.response_code.should(eq(200))
 
@@ -439,12 +470,12 @@ describe ResourceController do
 
       post :submit,
         :resource => resource_to_submit,
-        :data => { type: "done" },
+        :data => JSON.dump({ step_type: "done" }),
         :format => :json
       response.response_code.should(eq(200))
       post :submit,
         :resource => resource_to_submit,
-        :data => { type: "done again" },
+        :data => JSON.dump({ step_type: "done again" }),
         :format => :json
       response.response_code.should(eq(200))
 
@@ -465,11 +496,11 @@ describe ResourceController do
 
     it "should change submissions to read-only" do
       b = Blob.create!(:user => @user, :ref => @activity_id, :data => "{}")
-      resource_to_submit = 
+      resource_to_submit =
         Resource.mk_resource('b', 'rw', @activity_id, {}, @user.id)
       post :submit,
         :resource => resource_to_submit,
-        :data => { type: "done" },
+        :data => JSON.dump({ step_type: "done" }),
         :format => :json
       response.response_code.should(eq(200))
       s = Submitted.first
@@ -477,5 +508,5 @@ describe ResourceController do
       s.user_id.should(eq(@user.id))
     end
   end
-  
+
 end

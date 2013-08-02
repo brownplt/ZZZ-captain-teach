@@ -45,27 +45,27 @@ class TestController < ApplicationController
       Blob.create!(
           :ref => ref,
           :user => u,
-          :data => JSON.dump({
+          :data => JSON.dump({file: JSON.dump({
               status: { step: "check", reviewing: true },
               parts: {
                 check: "\nmy checks are unforgable",
                 scratch: "\n# Foo was hard",
                 foo: "\n"
               }
-            })
+            })})
         )
       u2 = User.create!(:email => reviewee_email_b)
       Blob.create!(
           :ref => ref,
           :user => u2,
-          :data => JSON.dump({
+          :data => JSON.dump({file: JSON.dump({
               status: { step: "check", reviewing: true },
               parts: {
                 check: "\nmy checks have already been forged",
                 scratch: "\n# Foo was so easy, man",
                 foo: "\n"
               }
-            })
+            })})
         )
       data = [{ resource: Resource::mk_resource("b", "r", ref, {}, u.id),
                 save_review: Resource::mk_resource("inbox-for-write", "rw", part_ref,
@@ -76,16 +76,16 @@ class TestController < ApplicationController
                                                    { blob_user_id: u2.id, key: u_curr.id },
                                                    u_curr.id)}]
       Blob.create!(:ref => review_ref, :user => u_curr, :data => JSON.dump(data))
-      Blob.create!(:ref => review_ref_foo, :user => u_curr, :data => "[]")
 
-      Blob.create!(:ref => ref, :user => u_curr, :data => JSON.dump({
+      Blob.create!(:ref => ref, :user => u_curr,
+                   :data => JSON.dump({file: JSON.dump({
           status: { step: "check", reviewing: true },
           parts: {
             check: "\n1 is 4",
             scratch: "\n# I think foo is gonna be hard",
             foo: "\n"
           }
-        }))
+        })}))
 
       data2 = [{ resource: Resource::mk_resource("b", "r", ref, {}, u_curr.id),
                 save_review: Resource::mk_resource("inbox-for-write", "rw", part_ref,
@@ -96,7 +96,6 @@ class TestController < ApplicationController
                                                    { blob_user_id: u2.id, key: u.id },
                                                    u.id)}]
       Blob.create!(:ref => review_ref, :user => u, :data => JSON.dump(data2))
-      Blob.create!(:ref => review_ref_foo, :user => u, :data => "[]")
 
     else
       u_curr = maybe_u_curr
@@ -109,10 +108,10 @@ class TestController < ApplicationController
               name: "FooThing",
               codeDelimiters: [ "check:", "\nend", "\nFoo Stage", "\nend" ],
               parts: ["check", "scratch", "foo"]
-            }, 
+            },
           resources: {
               blob: Resource::mk_resource("b", "rw", ref + "+drafts", {}, u_curr.id),
-              path: Resource::mk_resource("b", "rw", ref, {}, u_curr.id),
+              path: Resource::mk_resource("b", "rw", ref, {reviews: 2}, u_curr.id),
               steps: [{
                   name: "check",
                   read_reviews: Resource::mk_resource("inbox-for-read", "r", part_ref, {}, u_curr.id),
@@ -129,10 +128,10 @@ class TestController < ApplicationController
               name: "FooThing",
               codeDelimiters: [ "check:", "\nend", "\nFoo Stage", "\nend" ],
               parts: ["check", "scratch", "foo"]
-            }, 
+            },
           resources: {
               blob: Resource::mk_resource("b", "rw", ref + "+drafts", {}, u.id),
-              path: Resource::mk_resource("b", "rw", ref, {}, u.id),
+              path: Resource::mk_resource("b", "rw", ref, {reviews: 2}, u.id),
               steps: [{
                   name: "check",
                   read_reviews: Resource::mk_resource("inbox-for-read", "r", part_ref, {}, u.id),
@@ -146,7 +145,7 @@ class TestController < ApplicationController
       }
     })
   end
-  
+
   private
 
   def run_scribble(name)
@@ -156,5 +155,5 @@ class TestController < ApplicationController
     stdin, stdout, stderr = Open3.popen3('racket', ct_lang, file)
     stdout.gets()
   end
-  
+
 end

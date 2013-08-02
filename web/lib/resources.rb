@@ -26,7 +26,7 @@ module Resource
   # actually used by a user. So when a user loads a journey, we don't
   # have to create any of the resources until they actually start doing
   # exercises.
-  
+
   # Security: Resources are encrypted before they are sent down the
   # wire, and decrypted here. So having stuff like permission and user
   # id is actually okay, because once the resource is created, it is
@@ -99,13 +99,13 @@ module Resource
     # TODO(dbp): error handling - exceptions? return types?
     type,perm,ref,args,uid = resource.split(":")
     args = JSON.parse(Base64.urlsafe_decode64(args))
-    
+
     begin
       user = User.find(uid)
     rescue Exception => e
       return false
     end
-    
+
     return type,perm,ref,args,user
   end
 
@@ -232,7 +232,7 @@ module Resource
           repo.create_file(ref, data, "save",
                            DEFAULT_GIT_USER)
           return Success.new
-        end 
+        end
       elsif type == 'inbox-for-write'
         b = find_blob_for_inbox(args["blob_user_id"], ref)
         if b.nil?
@@ -296,7 +296,7 @@ module Resource
       return Invalid.new
     end
   end
-  
+
   def assign_reviews(user, ref, type, reviews)
     if reviews.nil? or reviews == 0
       return
@@ -332,31 +332,35 @@ module Resource
     end
   end
 
-  def submit(type, perm, ref, args, user, data, resource)
+  def submit(type, perm, ref, args, user, _data, resource)
+    data = JSON.parse(_data)
     maybe_resource_versions = versions(type, perm, ref, args, user, resource)
     if maybe_resource_versions.instance_of?(Normal)
       resource_versions = maybe_resource_versions.data
       if resource_versions.length == 0
         return Invalid.new
       else
-        type = args["type"] || data["type"] || ""
+        step_type = data["step_type"]
+        if step_type.nil?
+          raise Exception, "type is nil"
+        end
         read_only_resource = Resource::read_only(resource_versions[0][:resource])
         not_already_submitted = Submitted.find_by(
           :user => user,
           :resource => read_only_resource,
           :activity_id => ref,
-          :submission_type => type
+          :submission_type => step_type
         ).nil?
         submitted = Submitted.create!(
           :user => user,
           :resource => read_only_resource,
           :activity_id => ref,
-          :submission_type => type, #TODO(joe): review -- allow client-chosen type?
+          :submission_type => step_type, #TODO(joe): review -- allow client-chosen type?
           :submission_time => Time.zone.now
         )
-        
+
         if not_already_submitted
-          assign_reviews(user, ref, type, args["reviews"])
+          assign_reviews(user, ref, step_type, args["reviews"])
         end
         return Success.new
       end
