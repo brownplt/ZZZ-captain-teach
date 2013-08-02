@@ -1,13 +1,13 @@
-.CodeMirror { border: 1px solid black; background: #262626; color: #cccccc; }
-.CodeMirror div.CodeMirror-cursor { border-left: 1px solid #cccccc; }
-.cm-s-default .cm-builtin { color: #66cdaa; }
-.cm-s-default .cm-comment { color: #add8e6; }
-.cm-s-default .cm-function-name { color: #66cdaa; font-weight: bold; }
-.cm-s-default .cm-keyword { color: #68838b; font-weight: bold; }
-.cm-s-default .cm-string { color: #87cefa; }
-.cm-s-default .cm-variable { color: #8b7355; font-weight: bold; }
-.cm-s-default .cm-type { color: #87ceeb; font-weight: bold; }
-.cptteach-fixed { background: #484848; }
+.CodeMirror { line-height: 1.5; border: 1px solid black; background: #eee; color: #111; }
+.CodeMirror div.CodeMirror-cursor { border-left: 1px solid #bbb; }
+.cm-s-default .cm-comment { color: #39f; }
+.cm-s-default .cm-builtin { color: #555; }
+.cm-s-default .cm-function-name { color: #111; }
+.cm-s-default .cm-variable { color: #111; }
+.cm-s-default .cm-keyword { color: #636; }
+.cm-s-default .cm-string { color: #c30; }
+.cm-s-default .cm-type { color: #339; }
+.cptteach-fixed { line-height: 1.5; background: #ddd; }
 
 /* from http://codemirror.net/demo/resize.html */
 .CodeMirror {

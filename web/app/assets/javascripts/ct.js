@@ -250,8 +250,10 @@ function codeAssignment(container, resources, args) {
                   attachWorkToReview: function(editorContainer, f, e) {
                     function wrapReviewContent(_content) {
                       var content = JSON.parse(_content.file);
-                      readOnlyEditorFromParts(editorContainer, content.parts);
-                      f();
+                      var editor = readOnlyEditorFromParts(editorContainer, content.parts);
+                      var reviewsInline = $("<div>");
+                      editor.addWidgetAt(step.name, reviewsInline[0]);
+                      f(reviewsInline);
                     }
                     ct_log(rd);
                     lookupResource(rd.resource, wrapReviewContent, e);
@@ -278,6 +280,7 @@ function codeAssignment(container, resources, args) {
       });
       var editor = createEditor(cm, args.codeDelimiters, thisEditorOptions);
       editor.disableAll();
+      return editor;
     }
 
     var editorOptions = merge(sharedOptions, {
@@ -294,8 +297,8 @@ function codeAssignment(container, resources, args) {
                     var reviewContainer = drawReviewContainer();
                     reviewsDiv.append(reviewContainer);
                     var data = JSON.parse(_data.file);
-                    readOnlyEditorFromParts(reviewContainer, data.parts);
-                    reviewContainer.append(drawReview(r));
+                    var editor = readOnlyEditorFromParts(reviewContainer, data.parts);
+                    editor.addWidgetAt(stepName, drawReview(r)[0]);
                   });
                 });
                 window.PANEL.addTab("Rev: " + args.name + ":" + stepName, reviewsDiv);

@@ -232,6 +232,21 @@ function createEditor(cm, uneditables, options) {
   var i = 0;
   var marks = [];
   var disabled_regions = {};
+  function forLines(start, end, f) {
+    for (var lineNumber = start; lineNumber < end + 1; lineNumber++) {
+      f(lineNumber);
+    }
+  }
+  function disableLines(start, end) {
+    forLines(start, end, function(lineNumber) {
+      cm.addLineClass(lineNumber, 'background', 'cptteach-fixed');
+    });
+  }
+  function enableLines(start, end) {
+    forLines(start, end, function(lineNumber) {
+      cm.removeLineClass(lineNumber, 'background', 'cptteach-fixed');
+    });
+  }
   uneditables.forEach(function(u) {
     var oldEnd = end.find();
     var isFirst = (i === 0);
@@ -239,6 +254,7 @@ function createEditor(cm, uneditables, options) {
     doc.replaceRange(uneditables[i], end.find());
     var newEnd = end.find();
     var markEnd = { line: newEnd.line, ch: newEnd.ch };
+    disableLines(oldEnd.line, markEnd.line);
     marks.push(doc.markText(
       oldEnd,
       markEnd, {
@@ -296,7 +312,9 @@ function createEditor(cm, uneditables, options) {
   }
   function enableAt(indexOrName) {
     if (disabled_regions[indexOrName]) {
-      disabled_regions[indexOrName].clear()
+      var region = disabled_regions[indexOrName];
+      enableLines(region.find().from.line, region.find().to.line);
+      region.clear()
       delete disabled_regions[indexOrName];
     }
   }
@@ -314,6 +332,7 @@ function createEditor(cm, uneditables, options) {
       var start = marks[i].find().to;
       var end =  marks[i + 1].find().from;
       var region = doc.markText(start, end, readOnlyOptions);
+      disableLines(start.line, end.line);
       disabled_regions[indexOrName] = region;
     }
   }
@@ -355,9 +374,29 @@ function createEditor(cm, uneditables, options) {
     allRegion = false;
   }
 
+  var lineWidgets = {};
+  function addWidgetAt(indexOrName, dom) {
+    if (lineWidgets[indexOrName]) {
+      clearWidgetAt(indexOrName);
+    }
+    var i = getIndex(indexOrName);
+    var end =  marks[i + 1].find().from;
+    cm.addLineWidget(end.line, dom);
+
+  }
+  
+  function clearWidgetAt(indexOrName) {
+    if (lineWidgets[indexOrName]) {
+      lineWidgets[indexOrName].clear()
+      delete lineWidgets[indexOrName];
+    }
+  }
+
   return {
     setAt: setAt,
     getAt: getAt,
+    addWidgetAt: addWidgetAt,
+    clearWidgetAt: clearWidgetAt,
     lineOf: lineOf,
     enableAt: enableAt,
     disableAt: disableAt,
@@ -398,9 +437,6 @@ function steppedEditor(container, uneditables, options) {
   });
 
   // NOTE(dbp 2013-7-29): hiding the buttons, for now.
-  var stepsContainer = drawStepsContainer();
-  $(container).append(stepsContainer);
-  stepsContainer.hide();
 
   function switchTo(i) {
     if (i > pos) { pos = i; }
@@ -415,22 +451,10 @@ function steppedEditor(container, uneditables, options) {
 
   var draw = function() {
     setCurrentStepTitle(currentSectionTitle, steps[cur]);
-    stepsContainer.empty();
     cm.clearGutter(gutterId);
     cm.clearGutter(partGutter);
     progress.set(pos);
     steps.forEach(function(e, i) {
-      var b = drawStepButton(e);
-      stepsContainer.append(b);
-      if (i <= pos) {
-        b.on("click", function() {
-          switchTo(i);
-          return false;
-        });
-      } else {
-        b.prop("disabled", true);
-      }
-
       if (options.drawPartGutter) {
         options.drawPartGutter(e, function(gutterElement) {
           cm.setGutterMarker(
@@ -551,8 +575,8 @@ function reviewTabs(tabPanel, step, resume) {
 
           var editorContainer = drawReviewEditorContainer();
           reviewsTab.append(editorContainer);
-          reviewDatum.attachWorkToReview(editorContainer, function() {
-            writeReviews(reviewsTab, {
+          reviewDatum.attachWorkToReview(editorContainer, function(reviewsInline) {
+            writeReviews(reviewsInline, {
                 hasReviews: true,
                 noResubmit: true,
                 reviews: {
