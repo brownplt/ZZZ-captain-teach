@@ -1,4 +1,9 @@
+"use strict";
 var LOG = true;
+function merge(obj, extension) {
+  return _.merge(_.clone(obj), extension);
+}
+
 function ct_log(/* varargs */) {
   if (window.console && LOG) {
     console.log.apply(console, arguments);
@@ -12,7 +17,7 @@ function ct_error(/* varargs */) {
 
 var NO_INSTANCE_DATA = {no_instance_data: true};
 
-var rails_host = "http://localhost:3000";
+var rails_host = RAILS_HOST;
 
 function clean(str) {
   return str.replace(/^\n/, "");//.replace(/\n+$/, "");
@@ -243,10 +248,12 @@ function codeAssignment(container, resources, args) {
                     lookupResource(rd.save_review, present, absent);
                   },
                   attachWorkToReview: function(editorContainer, f, e) {
-                    function wrapReviewContent(content) {
+                    function wrapReviewContent(_content) {
+                      var content = JSON.parse(_content.file);
                       readOnlyEditorFromParts(editorContainer, content.parts);
                       f();
                     }
+                    ct_log(rd);
                     lookupResource(rd.resource, wrapReviewContent, e);
                   }
                 }
@@ -258,6 +265,7 @@ function codeAssignment(container, resources, args) {
     }
 
     function readOnlyEditorFromParts(container, parts) {
+      ct_log("Parts: ", parts);
       var cm = makeEditor(
         container,
         {
@@ -265,14 +273,14 @@ function codeAssignment(container, resources, args) {
           run: function() {}
         }
       );
-      var thisEditorOptions = _.merge(sharedOptions, {
+      var thisEditorOptions = merge(sharedOptions, {
         initial: parts
       });
       var editor = createEditor(cm, args.codeDelimiters, thisEditorOptions);
       editor.disableAll();
     }
 
-    var editorOptions = _.merge(sharedOptions, {
+    var editorOptions = merge(sharedOptions, {
         initial: activityState.parts,
         drawPartGutter: function(stepName, insert) {
           var toRead = _.findWhere(resources.steps, { name: stepName }).read_reviews;
@@ -282,9 +290,10 @@ function codeAssignment(container, resources, args) {
               elt.on("click", function() {
                 var reviewsDiv = drawReviewsDiv(args.name, stepName);
                 reviews.forEach(function(r) {
-                  lookupResource(r.resource, function(data) {
+                  lookupResource(r.resource, function(_data) {
                     var reviewContainer = drawReviewContainer();
                     reviewsDiv.append(reviewContainer);
+                    var data = JSON.parse(_data.file);
                     readOnlyEditorFromParts(reviewContainer, data.parts);
                     reviewContainer.append(drawReview(r));
                   });
@@ -634,35 +643,3 @@ function ct_transform(dom) {
   });
 }
 
-function worldB(init, handlers, transformers)
-/*: ∀ α . α
-        * Array<∃ β . {0: EventStream<β>, 1: α * β -> α}>
-        * ∃ (γ₁ ...) { key₁: α -> γ₁, ... }
-        -> { key₁: EventStream<γ₁>, ... }
-        */
-{
-  var theWorld = mergeE.apply(zeroE,
-    handlers.map(function(handler)
-    /*: ∃ β . {0: EventStream<β>, 1: α * β -> α} -> EventStream<α -> α> */
-    {
-      return handler[0].mapE(function(eventValue) /*: β -> (α -> α) */ {
-        return function(world) /*: α -> α */ {
-          return handler[1](world, eventValue);
-        };
-      });
-    }))
-   .collectE(init, function(handler, world) /*: (α -> α) * α -> α */ {
-      return handler(world);
-    })
-   .startsWith(init);
-
-  var facets = {};
-  Object.keys(transformers).forEach(function(key) {
-    if (typeof transformers[key] === 'function') {
-      facets[key] = theWorld.liftB(transformers[key]);
-    } else {
-      facets[key] = transformers[key];
-    }
-  });
-  return facets;
-}

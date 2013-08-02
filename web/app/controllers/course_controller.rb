@@ -68,6 +68,7 @@ class CourseController < ApplicationController
 
   
   def require_teacher
+    logger.error "Showing for user #{current_user.email}"
     if !@course.teachers.exists?(current_user)
       application_not_found
     end

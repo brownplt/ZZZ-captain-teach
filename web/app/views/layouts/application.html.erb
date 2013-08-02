@@ -3,17 +3,18 @@
 <head>
   <title>App</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <script>var RAILS_HOST = "<%= "//#{request.env["SERVER_NAME"]}:#{request.env["SERVER_PORT"]}" %>";</script>
   <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
   <%= stylesheet_link_tag    "ui", media: "all", "data-turbolinks-track" => true %>
   <%= stylesheet_link_tag    "editor", media: "all", "data-turbolinks-track" => true %>
   <%= stylesheet_link_tag    "print", media: "print", "data-turbolinks-track" => true %>
   <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
   <%= csrf_meta_tags %>
-  <% if Rails.env.development? %>
+  <% if Rails.env.development? or Rails.env.test? %>
     <%= javascript_include_tag "awesome" %>
     <%= stylesheet_link_tag "awesome" %>
   <% end %>
-  <% if not Rails.env.development? %>
+  <% if not (Rails.env.development? or Rails.env.test?) %>
     <%= setup_browserid() %>
   <% end %>
 
@@ -25,7 +26,7 @@
   
 </head>
 <body data-no-turbolink>
-<% if Rails.env.development? %>
+<% if Rails.env.development? or Rails.env.test? %>
   <div id="awesome-panel"></div>
 <% end %>
 

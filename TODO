@@ -53,7 +53,8 @@ that caching can work (right now, we create path refs many times)
 [] Sensible front-end on finding that the assigned reviews are completely missing
 [] Refactor save/submit/lookupResource to share more
 NEXT STEP
-[] Test submission and subsequent review lookup
+[x] Test submission and subsequent review lookup
+[] Scrollability behavior of reviews pane
 
 [] Extend code-assignment builder to do versioning
 

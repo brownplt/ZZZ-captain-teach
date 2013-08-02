@@ -22,7 +22,11 @@ class TestController < ApplicationController
   end
 
   def end_masquerade
-    User.find(session[:masquerade_user]).destroy
+    u = User.find_by(id: session[:masquerade_user])
+    if u.nil?
+    else
+      u.destroy
+    end
     session.delete(:masquerade_user)
     redirect_to :back
   end

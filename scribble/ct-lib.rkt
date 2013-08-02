@@ -9,12 +9,15 @@
 
 (define current-id-prefix (make-parameter ""))
 
+(define (mk-id id)
+  (string-append (current-id-prefix) "/" id))
+
 (define (mk-resource type perms id args)
   (make-hash
     (list
       (cons 'type type)
       (cons 'perms perms)
-      (cons 'ref (string-append (current-id-prefix) "/" id))
+      (cons 'ref (mk-id id))
       (cons 'args args))))
 
 (define-struct holder (elt))
@@ -97,7 +100,7 @@
               (attributes
                 (list
                   (cons 'data-ct-node "1")
-                  (cons 'data-activity-id unique-id)
+                  (cons 'data-activity-id (mk-id unique-id))
                   (cons 'data-resources (single-resource 'blob (mk-resource "b" "rc" unique-id (make-hash))))
                   (cons 'data-type "multiple-choice")
                   (cons 'data-args (jsexpr->string
@@ -122,7 +125,7 @@
                 (attributes
                   (list
                     (cons 'data-ct-node "1")
-                    (cons 'data-activity-id unique-id)
+                    (cons 'data-activity-id (mk-id unique-id))
                     (cons 'data-resources (jsexpr->string
                                            (make-hash
                                             (list (cons 'path (mk-resource "p" "rw" unique-id (make-hash)))
@@ -150,7 +153,7 @@
              (attributes
               (list
                (cons 'data-ct-node "1")
-               (cons 'data-activity-id unique-id)
+               (cons 'data-activity-id (mk-id unique-id))
                (cons 'data-resources (jsexpr->string
                                       (make-hash
                                        (list (cons 'path (mk-resource "p" "rw" unique-id (make-hash (list (cons 'reviews 2)))))
@@ -239,7 +242,7 @@
 (define-syntax-rule (header str ...)
   (_header (string-append* (list str ...))))
 
-(define-syntax-rule (code-assignment unique-id reviews elt ...)
+(define-syntax-rule (code-assignment unique-id review-count elt ...)
   (let ()
     (define (genstr) (symbol->string (gensym name)))
     (define elts (list elt ...))
@@ -285,13 +288,13 @@
                (attributes
                  (list
                    (cons 'data-ct-node "1")
-                   (cons 'data-activity-id unique-id)
+                   (cons 'data-activity-id (mk-id unique-id))
                    (cons 'data-resources
                          (jsexpr->string
                           (make-hash
                            (list (cons 'path
                                        (mk-resource "p" "rw" unique-id
-                                                    (make-hash (list (cons 'reviews reviews)))))
+                                                    (make-hash (list (cons 'reviews review-count)))))
                                  (cons 'blob (mk-resource "b" "rw" unique-id (make-hash)))))))
                    (cons 'data-parts (jsexpr->string (parts-steps data)))
                    (cons 'data-type "code-assignment")

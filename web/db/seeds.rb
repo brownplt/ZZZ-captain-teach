@@ -7,7 +7,7 @@
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
 
-if Rails.env.development?
+if Rails.env.development? or Rails.env.test?
 
   FileUtils.rm_rf(USER_GIT_REPO_PATH)
   FileUtils.mkdir(USER_GIT_REPO_PATH)
@@ -55,6 +55,7 @@ if Rails.env.development?
   user2 = User.create!(:email => "cedric@cs.brown.edu")
   course.students << user2
 
+  APP_URL = "http://localhost:3000"
   print("Visit the demo course at: #{APP_URL}/course/#{course.id}\n")
 
 end
