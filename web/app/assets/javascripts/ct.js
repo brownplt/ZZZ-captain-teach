@@ -56,6 +56,7 @@ function lookupResource(resource, present, absent, error) {
     },
     error: function(xhr, errorMsg) {
       if (xhr.status === 404) {
+        ct_log("Not found (expected): ", resource, xhr);
         absent();
       } else {
         error(xhr, errorMsg);
@@ -183,6 +184,8 @@ function codeAssignment(container, resources, args) {
   };
 
   function setupAssignment(activityState) {
+    activityState = JSON.parse(activityState.file);
+    console.log("as: ", activityState);
     var currentState = activityState.status;
     var names = args.parts;
     var steps = [];

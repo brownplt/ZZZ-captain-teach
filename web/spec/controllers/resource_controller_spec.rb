@@ -243,7 +243,7 @@ describe ResourceController do
       ref = "some-id-for-activity/reviews"
       Blob.count.should(eq(0))
       resource = Resource::mk_resource("inbox-for-write", "rw", ref, { blob_user_id: @user.id, key: "1" }, @user.id)
-      data = {"review" => "My review, or whatever"}
+      data = JSON.dump({"review" => "My review, or whatever"})
       post :save, :resource => resource, :data => data, :format => :json
       response.response_code.should(eq(200))
 
@@ -252,25 +252,25 @@ describe ResourceController do
       get :lookup, :resource => resource
 
       response.response_code.should(eq(200))
-      JSON.parse(response.body).should(eq(data))
+      response.body.should(eq(data))
     end
 
     it "should always echo the most recent version" do
       ref = "some-id-for-activity/reviews"
       b = Blob.create!(:user => @user, :ref => ref, :data => "{}")
       resource = Resource::mk_resource("inbox-for-write", "rw", ref, { blob_user_id: @user.id, key: "1" }, @user.id)
-      data = {"review" => "My review, or whatever"}
+      data = JSON.dump({"review" => "My review, or whatever"})
       post :save, :resource => resource, :data => data, :format => :json
       response.response_code.should(eq(200))
 
-      data2 = {"review" => "My review, after some reflection"}
+      data2 = JSON.dump({"review" => "My review, after some reflection"})
       post :save, :resource => resource, :data => data2, :format => :json
       response.response_code.should(eq(200))
 
       get :lookup, :resource => resource
 
       response.response_code.should(eq(200))
-      JSON.parse(response.body).should(eq(data2))
+      response.body.should(eq(data2))
     end
 
     it "should allow a reader to see all the versions" do
@@ -296,11 +296,11 @@ describe ResourceController do
           { blob_user_id: @user.id, key: "84" },
           @user.id)
 
-      data = {"review" => "First review"}
+      data = JSON.dump({"review" => "First review"})
       post :save, :resource => write_resource1, :data => data, :format => :json
       response.response_code.should(eq(200), "First review write")
 
-      data2 = {"review" => "Second review"}
+      data2 = JSON.dump({"review" => "Second review"})
       post :save, :resource => write_resource2, :data => data2, :format => :json
       response.response_code.should(eq(200), "Second attempt")
 
@@ -309,8 +309,8 @@ describe ResourceController do
       response.response_code.should(eq(200))
 
       resp = JSON::parse(response.body)
-      resp[0].should(eq(data))
-      resp[1].should(eq(data2))
+      resp[0].should(eq(JSON.parse(data)))
+      resp[1].should(eq(JSON.parse(data2)))
     end
 
   end

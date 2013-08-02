@@ -83,7 +83,9 @@ class AssignmentController < ApplicationController
               read_reviews: Resource::mk_resource(
                   "inbox-for-read",
                   "r",
-                  AssignmentController.part_ref(activity_id, k),
+                  AssignmentController.reviews_ref(
+                      AssignmentController.part_ref(activity_id, k)
+                    ),
                   {},
                   user.id
                 ),

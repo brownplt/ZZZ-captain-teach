@@ -110,9 +110,10 @@
 (define-syntax-rule (function mode1 unique-id elt ...)
    (begin
      (letrec [(mode (validate-mode mode1))
-              (parts (filter holder? (list elt ...)))
+              (elts (list elt ...))
+              (parts (filter holder? elts))
               ;;(include (holder-elt (first parts)))
-              (header (_header-header (first parts)))
+              (header (_header-header (first (filter _header? elts))))
               (check (holder-elt (second parts)))]
      (element
        (style #f

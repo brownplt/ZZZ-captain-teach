@@ -529,7 +529,7 @@ function progressBar(container, numberSteps) {
 }
 
 function reviewTabs(tabPanel, step, resume) {
-  step.getReviewData(function(reviewData) {
+  function setupReviews(reviewData) {
     var doneCount = 0;
     function incrementDone() {
       doneCount += 1;
@@ -572,7 +572,9 @@ function reviewTabs(tabPanel, step, resume) {
           });
         });
     });
-  });
+  }
+  // TODO(joe Aug 1 2013): To consider: is empty reviews the right "not found" behavior?
+  step.getReviewData(setupReviews, function() { setupReviews([]); });
 
 }
 
