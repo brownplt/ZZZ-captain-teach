@@ -184,8 +184,7 @@ function codeAssignment(container, resources, args) {
   };
 
   function setupAssignment(activityState) {
-    activityState = JSON.parse(activityState.file);
-    console.log("as: ", activityState);
+    ct_log("as: ", activityState);
     var currentState = activityState.status;
     var names = args.parts;
     var steps = [];
@@ -344,7 +343,7 @@ function codeAssignment(container, resources, args) {
 
   lookupResource(
       resources.path,
-      setupAssignment,
+      function(state) { setupAssignment(JSON.parse(state.file)); },
       function() { setupAssignment(defaultActivityState); }
   );
 

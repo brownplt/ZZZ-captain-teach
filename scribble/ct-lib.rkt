@@ -251,33 +251,33 @@
       (match a-part
         [(_library-part part-name code)
          (parts
-            (append (parts-code-delimiters a-parts)
-                    (list (string-append maybe-line code)))
-            (append (parts-part-names a-parts) (list (genstr)))
+            (append (list (string-append maybe-line code))
+                    (parts-code-delimiters a-parts))
+            (append (list (genstr)) (parts-part-names a-parts))
             (parts-steps a-parts))]
         [(_data-part part-name data-name)
          (define v-step (format "~a-variants" part-name))
          (define c-step (format "~a-checks" part-name))
          (parts
-            (append (parts-code-delimiters a-parts)
-                    (list
+            (append (list
                       (format "~adata ~a:" maybe-line data-name)
                       "\ncheck:"
-                      "\nend"))
-            (append (parts-part-names a-parts) (list v-step c-step (genstr)))
-            (append (parts-steps a-parts) (list v-step c-step)))]
+                      "\nend")
+                    (parts-code-delimiters a-parts))
+            (append (list v-step c-step (genstr)) (parts-part-names a-parts))
+            (append (list c-step v-step) (parts-steps a-parts)))]
         [(_fun-part part-name fun-header)
          (define b-step (format "~a-body" part-name))
          (define c-step (format "~a-checks" part-name))
          (parts
-            (append (parts-code-delimiters a-parts)
-                    (list
+            (append (list
                       (format "~afun ~a:" maybe-line fun-header)
                       "\ncheck:"
-                      "\nend"))
-            (append (parts-part-names a-parts) (list b-step c-step (genstr)))
-            (append (parts-steps a-parts) (list b-step c-step)))]))
-    (define data (foldl add-part (parts (list) (list) (list)) assignment-parts))
+                      "\nend")
+                    (parts-code-delimiters a-parts))
+            (append (list b-step c-step (genstr)) (parts-part-names a-parts))
+            (append (list c-step b-step) (parts-steps a-parts)))]))
+    (define data (foldr add-part (parts (list) (list) (list)) assignment-parts))
     (element
       (style #f
              (list
