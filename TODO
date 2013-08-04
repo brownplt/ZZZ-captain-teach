@@ -1,44 +1,56 @@
-[x] Marks for function activities
-  - track beginning/end of header/check blocks
-[x] Locks for control of Whalesong printing
-[x] Have check mode just return the data structure of check results and
-   let the context figure it out (cmdline.rkt, repl.js, etc.), rather
-   than printing by itself
-[] Prettier test output
-[] Highlight error messages in output
-[] Make CodeMirror behave with respect to zooming
-
-[] Column on submitted for how many have reviewed
-
 [] Simple assignment test for summer students@
 
-[] Group by user_id and take the first by time in assign_reviews
 
+Deployment & Performance;
+[] Remove every hardcoded localhost
+[] Encryption
+[] Caching/torture testing for performance
+[] Get names for users? (or find something other than their email for Git
+   commits in the name field)
 [] Figure out how pathrefs should be created in the database... so
 that caching can work (right now, we create path refs many times)
 
-[x] Libraries
-[x] Versions
-[] Reviews
-[] Design recipe step
-
-[] Remove every hardcoded localhost
-[] Get names for users? (or find something other than their email for Git
-   commits in the name field)
+Grading/Teacher view
 [] How will we show reviews that students did for one another in the grading
    interface?
-
-[] Consistent on("event") vs .event()
-
 [] Don't try to save versions in teacher review mode when switching versions
 
+Scribble:
+[] Get instructions in flow with the assignment parts
+[] Choosing identifier names?
+[] To turn on/off or # reviews by part, change args[reviews] to be a
+   dictionary of part->reviews count
 [] Indicate reviewability of activity instances in markup
   - Indicate this by creating and passing args
 
+UI/JS:
+[] Prettier test output
+[] Highlight error messages in output
+[] Make CodeMirror behave with respect to zooming
+[x] Scrollability behavior of reviews pane
+[] Do something with scrolling at the bottom of the REPL
+[] Pretty-printing in the REPL
+[] Width of editor
+[] Clearing REPL output
 [] Auto-save:
   - blob stores the most recent version (if any)
   - on reload, the blob is authoritative if its version matches the path's most recent version
   - otherwise, the blob is discarded
+[] Extend code-assignment builder to do versioning
+  - and save intermediate code!
+[] Put submit buttons inline with the element you're working on
+[] Copy to beginning of the file even with atomic
+
+Curricular:
+[] Sensible front-end on finding that the assigned reviews are completely
+   missing
+[] Group by user_id and take the first by time in assign_reviews
+
+Refactoring
+[] data-parts needs to become data-steps
+[] Refactor save/submit/lookupResource to share more
+[] Consistent on("event") vs .event()
+
 
 [x] Refactor server_tests.js into draw and ui components
 [x] Write code-assignment builder in ct.js that uses these
@@ -47,20 +59,21 @@ that caching can work (right now, we create path refs many times)
 [x] Hook up frontend to call submission on each part
 [] Test finishing assignments --- something odd with {done:true} that may just
    be browser refresh problem
-[] To turn on/off or # reviews by part, change args[reviews] to be a dictionary
-   of part->reviews count
-[] data-parts needs to become data-steps
-[] Sensible front-end on finding that the assigned reviews are completely missing
-[] Refactor save/submit/lookupResource to share more
-NEXT STEP
 [x] Test submission and subsequent review lookup
-[] Scrollability behavior of reviews pane
-
-[] Extend code-assignment builder to do versioning
-  - and save intermediate code!
-[] Put submit buttons inline with the element you're working on
-[] Copy to beginning of the file even with atomic
-
-[] TEST TEST TEST
 
 [?] Refactor parts/steps to be a list of more descriptive objects
+
+[x] Marks for function activities
+  - track beginning/end of header/check blocks
+[x] Locks for control of Whalesong printing
+[x] Have check mode just return the data structure of check results and
+   let the context figure it out (cmdline.rkt, repl.js, etc.), rather
+   than printing by itself
+
+[x] Column on submitted for how many have reviewed
+
+[x] Libraries
+[x] Versions
+[x] Reviews
+[~] Design recipe step
+
