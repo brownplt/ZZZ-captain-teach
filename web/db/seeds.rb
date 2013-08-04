@@ -49,6 +49,12 @@ if Rails.env.development? or Rails.env.test?
     :course => course
   })
 
+  path6 = PathRef.create!(:user_repo => captains_log, :path => "sortacle.jrny")
+  example_assignment6 = Assignment.create!({
+    :path_ref => path6,
+    :course => course
+  })
+
   user1 = User.create!(:email => "henry@cs.brown.edu")
   course.students << user1
 
