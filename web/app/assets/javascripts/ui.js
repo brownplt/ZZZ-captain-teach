@@ -528,7 +528,7 @@ function steppedEditor(container, uneditables, options) {
 function progressBar(container, numberSteps) {
   var progressContainer = drawProgressContainer();
 
-  var percentPerStep = 100 / (numberSteps - 1);
+  var percentPerStep = 80 / (numberSteps - 1);
   var steps = [];
   _.times(numberSteps, function () {
     var step = drawProgressStep(percentPerStep);

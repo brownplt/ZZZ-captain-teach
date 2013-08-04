@@ -1,4 +1,4 @@
-.CodeMirror { line-height: 1.5; border: 1px solid black; background: #eee; color: #111; }
+.CodeMirror { line-height: 1.5; border: 1px solid black; background: #eee; color: #eee; }
 .CodeMirror div.CodeMirror-cursor { border-left: 1px solid #bbb; }
 .cm-s-default .cm-comment { color: #39f; }
 .cm-s-default .cm-builtin { color: #555; }
@@ -43,15 +43,20 @@
 }
 
 .steppedGutter {
-    width: 17px;
+    width: 25px;
 }
 
 .gutterButton {
-    width: 17px;
-    height: 1em;
+    width: 25px;
+    border-radius: 5px 0 0 5px;
+    height: 1.5em;
     display: inline-block;
     text-align: center;
-    background-color: green;
+    background-color: #9cf;
+}
+
+.gutterButton.active {
+  background-color: #06f;
 }
 
 .gutterButton:hover {
@@ -59,7 +64,7 @@
 }
 
 .gutterButton.inactive {
-    background-color: red;
+    background-color: #f60;
 }
 
 .gutterButton.inactive:hover {

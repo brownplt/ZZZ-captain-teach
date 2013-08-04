@@ -197,7 +197,7 @@ function codeAssignment(container, resources, args) {
       steps.push(elt.name);
     });
     var sharedOptions = {
-      run: function() {},
+      run: RUN_CODE,
       names: names,
       steps: steps,
       afterHandlers: {}
@@ -272,7 +272,7 @@ function codeAssignment(container, resources, args) {
         container,
         {
           initial: "",
-          run: function() {}
+          run: RUN_CODE
         }
       );
       var thisEditorOptions = merge(sharedOptions, {

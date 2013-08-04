@@ -22,7 +22,8 @@ function makeEditor(container, options) {
       "Tab": "indentAuto"
     },
     indentUnit: 2,
-    viewportMargin: Infinity
+    viewportMargin: Infinity,
+    lineNumbers: true
   };
 
   cmOptions = _.merge(cmOptions, options.cmOptions);

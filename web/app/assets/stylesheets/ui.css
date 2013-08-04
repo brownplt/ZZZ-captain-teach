@@ -110,6 +110,8 @@
   border: 1px dotted #060;
   background-color: #cfc;
   padding: 1em;
+  color: #111;
+  font-family: sans-serif;
 }
 
 .reviewContainer {
@@ -117,4 +119,6 @@
   border: 1px dotted #630;
   background-color: #ffc;
   padding: 1em;
+  color: #111;
+  font-family: sans-serif;
 }
