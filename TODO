@@ -43,8 +43,8 @@ that caching can work (right now, we create path refs many times)
 [x] Refactor server_tests.js into draw and ui components
 [x] Write code-assignment builder in ct.js that uses these
 [x] See the reviews you got
-[] Design/write code-assignment scribble
-[] Hook up frontend to call submission on each part
+[x] Design/write code-assignment scribble
+[x] Hook up frontend to call submission on each part
 [] Test finishing assignments --- something odd with {done:true} that may just
    be browser refresh problem
 [] To turn on/off or # reviews by part, change args[reviews] to be a dictionary
@@ -57,6 +57,9 @@ NEXT STEP
 [] Scrollability behavior of reviews pane
 
 [] Extend code-assignment builder to do versioning
+  - and save intermediate code!
+[] Put submit buttons inline with the element you're working on
+[] Copy to beginning of the file even with atomic
 
 [] TEST TEST TEST
 
