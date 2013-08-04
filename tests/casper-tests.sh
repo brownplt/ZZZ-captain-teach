@@ -4,9 +4,21 @@ cd web/
 
 rake db:setup RAILS_ENV=test
 
-rails s --daemon -e test -p 4000
+PIDFILE="../tests/casper-test-server.pid"
+
+rails s -e test -p 4000 -P $PIDFILE &
+
+PID=$!
+echo "PID is $PID"
+
+while [ ! -s $PIDFILE ]
+  do
+  printf "%10s \r" waiting...
+done
+
+cat $PIDFILE
 
 casperjs ../tests/casper-tests.js
 
-kill `cat ../web/tmp/pids/server.pid`
+kill $PID
 
