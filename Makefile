@@ -24,3 +24,6 @@ editors:
 	touch __blank; \
 	git add .; \
 	git commit -m "initial commit"
+
+casper-tests:
+	tests/casper-tests.sh
