@@ -100,8 +100,16 @@
     color: #111;
     padding: 3px;
     margin: 5px;
-    position: relative;
     cursor: pointer;
+    margin: 5px 5px 5px auto;
+}
+
+.instructionsWidget.hidden {
+    width: 90px;
+}
+
+.instructionsWidget .instructionsContent {
+    font-family: serif;
 }
 
 .instructionsWidget .toggleInstructions {

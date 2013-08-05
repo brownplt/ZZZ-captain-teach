@@ -211,7 +211,7 @@ function createTabPanel(container) {
   container.append(tabContainer);
   return {
     addTab: function(title, dom, inputOptions)
-    /*: String, Dom, { cannotClose: Bool } -> Undef */ 
+    /*: String, Dom, { cannotClose: Bool } -> Undef */
     {
       var options = inputOptions ? inputOptions : {};
       function switchHere() {
@@ -261,19 +261,44 @@ function drawReviewEditorContainer() {
   return $("<div>").addClass("reviewEditorContainer");
 }
 
-function drawInstructionsWidget(text) {
-  var content = $("<div>").text(text);
-  var instr = $("<span>")
-    .addClass("toggleInstructions")
-    .text("click to hide");
-  var dom = $("<div>")
-    .addClass("instructionsWidget")
+function drawInstructionsWidget(html) {
+  var visible = true;
+  var instr = $("<div>")
+    .addClass("toggleInstructions");
+  function setInstrMessage() {
+    if (visible) {
+      instr.text("click to hide");
+    } else {
+      instr.text("click to show");
+    }
+  }
+  setInstrMessage();
+
+  var content = $("<div>")
+    .addClass("instructionsContent")
+    .html(html);
+
+  var container = $("<div>")
+    .addClass("instructionsWidget");
+
+  var dom = container
     .append(instr)
-    .append(content);
+    .append(content)
+    .append($("<div>").addClass("clearfix"));
+
   dom.on("click", function () {
-    content.toggle();
-    instr.toggle();
+    if (visible) {
+      visible = false;
+      content.hide();
+      setInstrMessage();
+      container.addClass("hidden");
+    } else {
+      visible = true;
+      content.show();
+      setInstrMessage();
+      container.removeClass("hidden");
+    }
   });
-  
+
   return dom;
 }

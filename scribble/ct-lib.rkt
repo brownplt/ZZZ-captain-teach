@@ -226,6 +226,7 @@
 (struct _library-part _part (code))
 (struct _data-part _step (name))
 (struct _fun-part _step (header))
+(struct _instructions _part (text))
 
 (struct _name (name))
 (struct _header (header))
@@ -236,6 +237,11 @@
   (_data-part part-name (_name-name (findf _name? (list str ...)))))
 (define-syntax-rule (fun-part part-name str ...)
   (_fun-part part-name (_header-header (findf _header? (list str ...)))))
+(define (newline-para-transform str)
+  (string-replace str "\n\n" "</p><p>"))
+(define-syntax-rule (instructions str ...)
+  ;; NOTE(dbp 2013-08-05): instructions don't have names
+  (_instructions "" (format "<p>~a</p>" (newline-para-transform (string-append* (list str ...))))))
 
 (define-syntax-rule (name str ...)
   (_name (string-append* (list str ...))))
@@ -249,12 +255,17 @@
     (define name (_name-name (findf _name? elts)))
     (define assignment-parts (filter _part? elts))
     (struct parts (code-delimiters part-names steps))
+    (define (code-delimiters-transform cds)
+      (map (λ (cons-pair)
+              (make-hash (list (cons 'type (symbol->string (car cons-pair)))
+                               (cons 'value (cdr cons-pair)))))
+           cds))
     (define (add-part a-part a-parts)
       (define maybe-line (if (empty? (parts-code-delimiters a-parts)) "" "\n"))
       (match a-part
         [(_library-part part-name code)
          (parts
-            (append (list (string-append maybe-line code))
+            (append (list (cons 'code (string-append maybe-line code)))
                     (parts-code-delimiters a-parts))
             (append (list (genstr)) (parts-part-names a-parts))
             (parts-steps a-parts))]
@@ -263,9 +274,9 @@
          (define c-step (format "~a-checks" part-name))
          (parts
             (append (list
-                      (format "~adata ~a:" maybe-line data-name)
-                      "\ncheck:"
-                      "\nend")
+                      (cons 'code (format "~adata ~a:" maybe-line data-name))
+                      (cons 'code "\ncheck:")
+                      (cons 'code "\nend"))
                     (parts-code-delimiters a-parts))
             (append (list v-step c-step (genstr)) (parts-part-names a-parts))
             (append (list c-step v-step) (parts-steps a-parts)))]
@@ -274,12 +285,17 @@
          (define c-step (format "~a-checks" part-name))
          (parts
             (append (list
-                      (format "~afun ~a:" maybe-line fun-header)
-                      "\ncheck:"
-                      "\nend")
+                      (cons 'code (format "~afun ~a:" maybe-line fun-header))
+                      (cons 'code "\ncheck:")
+                      (cons 'code "\nend"))
                     (parts-code-delimiters a-parts))
             (append (list b-step c-step (genstr)) (parts-part-names a-parts))
-            (append (list c-step b-step) (parts-steps a-parts)))]))
+            (append (list c-step b-step) (parts-steps a-parts)))]
+        [(_instructions _ instr)
+         (parts
+          (append (list (cons 'instructions instr)) (parts-code-delimiters a-parts))
+          (parts-part-names a-parts)
+          (parts-steps a-parts))]))
     (define data (foldr add-part (parts (list) (list) (list)) assignment-parts))
     (element
       (style #f
@@ -302,7 +318,8 @@
                       (make-hash
                         (list
                           (cons 'name name)
-                          (cons 'codeDelimiters (append (parts-code-delimiters data) (list "\n")))
+                          (cons 'codeDelimiters (code-delimiters-transform
+                                                 (append (parts-code-delimiters data) (list (cons 'code "\n")))))
                           (cons 'parts (parts-part-names data))))))))))
        "")))
 

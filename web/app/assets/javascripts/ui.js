@@ -387,7 +387,7 @@ function createEditor(cm, uneditables, options) {
     }
   }
 
-  function clearWidget(indexOrName, widget) {
+  function clearWidgetAt(indexOrName, widget) {
     if (lineWidgets[indexOrName]) {
       var na = [];
       lineWidgets[indexOrName].forEach(function (lw) {
@@ -400,7 +400,7 @@ function createEditor(cm, uneditables, options) {
       lineWidgets[indexOrName] = na;
     }
   }
-  
+
   function clearAllWidgetsAt(indexOrName) {
     if (lineWidgets[indexOrName]) {
       lineWidgets[indexOrName].forEach(function (lw) {
@@ -414,6 +414,7 @@ function createEditor(cm, uneditables, options) {
     setAt: setAt,
     getAt: getAt,
     addWidgetAt: addWidgetAt,
+    clearWidgetAt: clearWidgetAt,
     clearAllWidgetsAt: clearAllWidgetsAt,
     lineOf: lineOf,
     enableAt: enableAt,
@@ -423,6 +424,15 @@ function createEditor(cm, uneditables, options) {
   };
 }
 
+// push_set wraps up the pattern of appending to an array inside an
+// object when the array may not exist yet
+function push_set(obj, key, value) {
+  if (obj[key]) {
+    obj[key].push(value);
+  } else {
+    obj[key] = [value];
+  }
+}
 
 function steppedEditor(container, uneditables, options) {
 
@@ -449,7 +459,31 @@ function steppedEditor(container, uneditables, options) {
     }
   );
 
-  var editor = createEditor(cm, uneditables, {
+  // NOTE(dbp 2013-08-05): we extract the unedible 'dom' elements, and
+  // place them carefully.
+  var codeUneditables = [];
+  var domUneditables = {};
+  var domOffset = 0;
+  uneditables.forEach(function (ue, index) {
+    if (ue.type === "code") {
+      codeUneditables.push(ue.value);
+    } else if (ue.type === "dom") {
+      // NOTE(dbp 2013-08-05): We get more out of sync with
+      // options.names with each dom uneditable.
+      domOffset += 1;
+      var i;
+      if (index === 0) {
+        i = 0;
+      } else {
+        i = index - domOffset;
+      }
+      push_set(domUneditables, options.names[i], ue.value);
+    } else {
+      ct_error("steppedEditor: got an uneditable I can't understand: ", ue);
+    }
+  });
+
+  var editor = createEditor(cm, codeUneditables, {
       names: options.names,
       initial: options.initial
   });
@@ -468,17 +502,34 @@ function steppedEditor(container, uneditables, options) {
   }
 
   var instructionWidgets = [];
-  
+  var domUneditableWidgets = [];
+
   function draw() {
     setCurrentStepTitle(currentSectionTitle, steps[cur]);
     cm.clearGutter(gutterId);
     cm.clearGutter(partGutter);
     progress.set(pos);
-    
+
     instructionWidgets.forEach(function (iw) {
       editor.clearWidget(iw[0], iw[1]);
     });
     instructionWidgets = [];
+
+    domUneditableWidgets.forEach(function (iw) {
+      editor.clearWidgetAt(iw[0], iw[1]);
+    });
+    domUneditableWidgets = [];
+
+    ct_log(domUneditables);
+
+    options.names.forEach(function (e) {
+      if (domUneditables[e]) {
+        var doms = domUneditables[e];
+        doms.forEach(function (dom) {
+          domUneditableWidgets.push([e, editor.addWidgetAt(e, dom)]);
+        });
+      }
+    });
 
     steps.forEach(function(e, i) {
       if (options.drawPartGutter) {

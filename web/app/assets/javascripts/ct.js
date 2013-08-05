@@ -175,6 +175,17 @@ function codeAssignment(container, resources, args) {
   var editorContainer = drawEditorContainer();
   tabs.addTab("Code", editorContainer, { cannotClose: true });
 
+  var codeDelimiters =
+    args.codeDelimiters.map(function (cd) {
+    if (cd.type === "code") {
+      return cd;
+    } else if (cd.type === "instructions") {
+      return {type: "dom", value: drawInstructionsWidget(cd.value)[0]};
+    } else {
+      ct_error("codeAssignment: got a code delimiter I didn't understand: ", cd);
+    }
+  });
+
   var defaultParts = {};
   args.parts.forEach(function(n) {
     defaultParts[n] = "\n";
@@ -278,7 +289,7 @@ function codeAssignment(container, resources, args) {
       var thisEditorOptions = merge(sharedOptions, {
         initial: parts
       });
-      var editor = createEditor(cm, args.codeDelimiters, thisEditorOptions);
+      var editor = createEditor(cm, codeDelimiters, thisEditorOptions);
       editor.disableAll();
       return editor;
     }
@@ -333,7 +344,7 @@ function codeAssignment(container, resources, args) {
 
     var editor = steppedEditor(
         editorContainer,
-        args.codeDelimiters,
+        codeDelimiters,
         editorOptions
       );
 
@@ -645,4 +656,3 @@ function ct_transform(dom) {
     }
   });
 }
-
