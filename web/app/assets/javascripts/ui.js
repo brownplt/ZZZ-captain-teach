@@ -684,3 +684,94 @@ function reviewTabs(tabPanel, step, resume) {
   step.getReviewData(setupReviews, function() { setupReviews([]); });
 
 }
+
+function makeHighlightingRunCode(codeRunner) {
+  var markedLines = [];
+  return function(src, uiOptions, options) {
+    function highlightingCheckReturn(output) { return function(obj) {
+      function drawSuccess(name, message) {
+        return $("<div>").text(name +  ": " + message)
+          .addClass("check check-success")
+          .append("<br/>");
+      }
+      function drawFailure(name, message) {
+        return $('<div>').text(name + ": " + message)
+          .addClass("check check-failure")
+          .append("<br/>");
+      }
+
+      var blockResultsJSON = pyretMaps.pyretToJSON(obj);
+
+      function locToStr(loc) {
+        return "Line " + loc.line + ", Column " + loc.column;
+      }
+
+      blockResultsJSON.results.map(function(result) {
+        result.map(function(checkBlockResult) {
+          var container = $("<div>");
+          var message = $("<p>");
+          var errorLink = $("<a>");
+          var name = checkBlockResult.name;
+          container.append($("<p>").text(name));
+          container.append(message).append(errorLink);
+          container.addClass("check-block");
+          var messageText = "";
+          if (checkBlockResult.err) {
+            if (checkBlockResult.err.message) {
+              messageText = checkBlockResult.err.message;
+            }
+            else {
+              messageText = checkBlockResult.err;
+            }
+            var loc = checkBlockResult.err.location;
+            errorLink.text(locToStr(loc) + ": " + messageText);
+            errorLink.attr("href", "#");
+            errorLink.on("click", function(e) {
+              clear();
+              markedLines.push(loc.line - 1);
+              uiOptions.cm.addLineClass(
+                  loc.line - 1,
+                  'background',
+                  'lineError'
+              );
+              var coords = uiOptions.cm.charCoords({ line: loc.line - 1, ch: loc.column - 1 });
+              $("body").animate({
+                scrollTop: coords.top - 10
+              });
+              e.preventDefault();
+              return false;
+            });
+            container.css({
+              "background-color": "red"
+            });
+          }
+          checkBlockResult.results.forEach(function(individualResult) {
+            if (individualResult.reason) {
+              container.append(
+                drawFailure(individualResult.name, individualResult.reason));
+            } else {
+              container.append(drawSuccess(individualResult.name, "Success!"));
+            }
+          });
+          output.append(container);
+        });
+      });
+      return true;
+    };}
+
+    function clear() {
+      markedLines.forEach(function(l) {
+        uiOptions.cm.removeLineClass(l, 'background', 'lineError')
+      });
+      markedLines = [];
+    };
+    var theseUIOptions = merge(uiOptions, {
+        error: false // highlightingOnError
+    });
+    if (options.check) {
+      theseUIOptions.wrappingReturnHandler = highlightingCheckReturn;
+    }
+    clear();
+    codeRunner(src, theseUIOptions, options);
+  }
+}

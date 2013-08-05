@@ -11,7 +11,7 @@ function makeEditor(container, options) {
   var runFun = function (code, options) {};
   if (options.hasOwnProperty("run")) {
     runFun = function (code, replOptions) {
-      options.run(code, {}, replOptions);
+      options.run(code, {cm: CM}, replOptions);
     }
   }
 
@@ -34,6 +34,6 @@ function makeEditor(container, options) {
 }
 
 function formatCode(container, src) {
-    CodeMirror.runMode(src, "pyret", container);
+  CodeMirror.runMode(src, "pyret", container);
 }
 

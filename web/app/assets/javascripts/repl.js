@@ -107,15 +107,20 @@ function makeRepl(container) {
     promptContainer.hide();
     promptContainer.fadeIn(100);
     var defaultReturnHandler = options.check ? checkModePrettyPrint : prettyPrint;
-    var thisReturnHandler = uiOptions.handleReturn || defaultReturnHandler;
+    var thisReturnHandler;
+    if (uiOptions.wrappingReturnHandler) {
+      thisReturnHandler = uiOptions.wrappingReturnHandler(output);
+    } else {
+      thisReturnHandler = uiOptions.handleReturn || defaultReturnHandler;
+    }
     var thisWrite = uiOptions.write || write;
-    evaluator.run("run", src, clear, thisReturnHandler, thisWrite, options);
+    var thisError = uiOptions.error || onError;
+    evaluator.run("run", src, clear, thisReturnHandler, thisWrite, thisError, options);
   };
 
   
   var CM = makeEditor(prompt, {
     run: function(code, opts, replOpts) {
-      console.log("code: ", code);
       items.unshift(code);
       pointer = -1;
       write(jQuery('<span>&gt;&nbsp;</span>'));
@@ -245,7 +250,7 @@ function makeRepl(container) {
     prompt.css('background-color', 'white');*/
   };
 
-  var evaluator = makeEvaluator(container, prettyPrint, onError, onReady);
+  var evaluator = makeEvaluator(container, prettyPrint, onReady);
 
   
   var onBreak = function() { 
@@ -293,7 +298,7 @@ function makeRepl(container) {
   return runCode;
 }
 
-function makeEvaluator(container, handleReturnValue, onError, onReady) {
+function makeEvaluator(container, handleReturnValue, onReady) {
   var repl;
   setWhalesongReturnHandlerLock(handleReturnValue, function() {
     plt.runtime.makeRepl({
@@ -309,7 +314,7 @@ function makeEvaluator(container, handleReturnValue, onError, onReady) {
     releaseWhalesongReturnHandlerLock();
   })
 
-  var runCode = function(name, src, afterRun, returnHandler, writer, options) {
+  var runCode = function(name, src, afterRun, returnHandler, writer, onError, options) {
     setWhalesongReturnHandlerLock(returnHandler, function() {
       setWhalesongWriteLock(writer, function() {
         repl.compileAndExecuteProgram(name, src, options, afterRun, onError);
@@ -326,7 +331,6 @@ function makeEvaluator(container, handleReturnValue, onError, onReady) {
   var resetFun = function(afterReset) {
     repl.reset(afterReset);
   };
-  
 
   return {run: runCode, requestBreak: breakFun, requestReset: resetFun};
 }

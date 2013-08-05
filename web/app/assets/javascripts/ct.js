@@ -208,7 +208,7 @@ function codeAssignment(container, resources, args) {
       steps.push(elt.name);
     });
     var sharedOptions = {
-      run: RUN_CODE,
+      run: makeHighlightingRunCode(RUN_CODE),
       names: names,
       steps: steps,
       afterHandlers: {}
@@ -283,7 +283,7 @@ function codeAssignment(container, resources, args) {
         container,
         {
           initial: "",
-          run: RUN_CODE
+	      run: makeHighLightingRunCode(RUN_CODE)
         }
       );
       var thisEditorOptions = merge(sharedOptions, {
