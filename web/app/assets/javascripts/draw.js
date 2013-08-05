@@ -261,3 +261,19 @@ function drawReviewEditorContainer() {
   return $("<div>").addClass("reviewEditorContainer");
 }
 
+function drawInstructionsWidget(text) {
+  var content = $("<div>").text(text);
+  var instr = $("<span>")
+    .addClass("toggleInstructions")
+    .text("click to hide");
+  var dom = $("<div>")
+    .addClass("instructionsWidget")
+    .append(instr)
+    .append(content);
+  dom.on("click", function () {
+    content.toggle();
+    instr.toggle();
+  });
+  
+  return dom;
+}

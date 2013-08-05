@@ -376,18 +376,36 @@ function createEditor(cm, uneditables, options) {
 
   var lineWidgets = {};
   function addWidgetAt(indexOrName, dom) {
-    if (lineWidgets[indexOrName]) {
-      clearWidgetAt(indexOrName);
-    }
     var i = getIndex(indexOrName);
     var end =  marks[i + 1].find().from;
-    cm.addLineWidget(end.line, dom);
+    ct_log("adding widget at line ", end.line);
+    var lw = cm.addLineWidget(end.line, dom, {above: true});
+    if (!lineWidgets[indexOrName]) {
+      lineWidgets[indexOrName] = [lw];
+    } else {
+      lineWidgets[indexOrName].push(lw);
+    }
+  }
 
+  function clearWidget(indexOrName, widget) {
+    if (lineWidgets[indexOrName]) {
+      var na = [];
+      lineWidgets[indexOrName].forEach(function (lw) {
+        if (lw === widget) {
+          widget.clear();
+        } else {
+          na.push(lw);
+        }
+      });
+      lineWidgets[indexOrName] = na;
+    }
   }
   
-  function clearWidgetAt(indexOrName) {
+  function clearAllWidgetsAt(indexOrName) {
     if (lineWidgets[indexOrName]) {
-      lineWidgets[indexOrName].clear()
+      lineWidgets[indexOrName].forEach(function (lw) {
+        lw.clear();
+      });
       delete lineWidgets[indexOrName];
     }
   }
@@ -396,7 +414,7 @@ function createEditor(cm, uneditables, options) {
     setAt: setAt,
     getAt: getAt,
     addWidgetAt: addWidgetAt,
-    clearWidgetAt: clearWidgetAt,
+    clearAllWidgetsAt: clearAllWidgetsAt,
     lineOf: lineOf,
     enableAt: enableAt,
     disableAt: disableAt,
@@ -449,11 +467,19 @@ function steppedEditor(container, uneditables, options) {
     draw();
   }
 
-  var draw = function() {
+  var instructionWidgets = [];
+  
+  function draw() {
     setCurrentStepTitle(currentSectionTitle, steps[cur]);
     cm.clearGutter(gutterId);
     cm.clearGutter(partGutter);
     progress.set(pos);
+    
+    instructionWidgets.forEach(function (iw) {
+      editor.clearWidget(iw[0], iw[1]);
+    });
+    instructionWidgets = [];
+
     steps.forEach(function(e, i) {
       if (options.drawPartGutter) {
         options.drawPartGutter(e, function(gutterElement) {
@@ -470,6 +496,11 @@ function steppedEditor(container, uneditables, options) {
                            gutterId,
                            marker);
         editor.enableAt(e);
+
+        if (options.instructions && options.instructions[e]) {
+          var dom = drawInstructionsWidget(options.instructions[e])[0];
+          instructionWidgets.push([e, editor.addWidgetAt(e, dom)]);
+        }
       } else {
         if (i <= pos) {
           var marker = drawSwitchToStepGutterMarker(i+1);

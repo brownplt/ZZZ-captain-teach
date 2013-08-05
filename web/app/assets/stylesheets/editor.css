@@ -93,3 +93,20 @@
     width: 3em;
     padding-right: 3px;
 }
+
+.instructionsWidget {
+    background-color: #fcf;
+    border: 1px dotted #c0c;
+    color: #111;
+    padding: 3px;
+    margin: 5px;
+    position: relative;
+    cursor: pointer;
+}
+
+.instructionsWidget .toggleInstructions {
+    color: #666;
+    float: right;
+    font-size: 0.8em;
+    padding: 3px;
+}
