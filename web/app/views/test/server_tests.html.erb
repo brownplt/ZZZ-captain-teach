@@ -1,6 +1,6 @@
 
   <%= stylesheet_link_tag    "jasmine", media: "all" %>
-  
+
   <!-- include spec files here... -->
   <%= javascript_include_tag "jasmine" %>
   <%= javascript_include_tag "jasmine-html" %>
@@ -40,7 +40,13 @@
 var TESTDATA = <%= raw(@data) %>;
 $(function() {
   console.log("The index for the user is: ", TESTDATA.user_index);
+  var repl = $("<div>").addClass("repl");
+  repl.css({height: "100%"});
   window.PANEL = createTabPanel($("#REPL"));
+  PANEL.addTab("Interactions", repl, { cannotClose: true });
+  window.REPL = repl;
+  window.RUN_CODE = makeRepl(repl);
+
 });
 </script>
 <div id="REPL" class="replContainer"></div>
@@ -48,4 +54,3 @@ $(function() {
 
 <div id="review-editor1" style="width: 50%"></div>
 <div id="review-editor2" style="width: 50%"></div>
-

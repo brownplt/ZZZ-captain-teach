@@ -289,7 +289,10 @@ function codeAssignment(container, resources, args) {
       var thisEditorOptions = merge(sharedOptions, {
         initial: parts
       });
-      var editor = createEditor(cm, codeDelimiters, thisEditorOptions);
+      var delimiterValues = codeDelimiters.map(function (codeDelimiter) {
+        return codeDelimiter.value;
+      });
+      var editor = createEditor(cm, delimiterValues, thisEditorOptions);
       editor.disableAll();
       return editor;
     }

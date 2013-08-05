@@ -110,7 +110,10 @@ class TestController < ApplicationController
       user1: {
           args: {
               name: "FooThing",
-              codeDelimiters: [ "check:", "\nend", "\nFoo Stage", "\nend" ],
+              codeDelimiters: [ {type: "code", value: "check:"},
+                                {type: "code", value: "\nend"},
+                                {type: "code", value: "\nFoo Stage"},
+                                {type: "code", value: "\nend"} ],
               parts: ["check", "scratch", "foo"]
             },
           resources: {
@@ -130,7 +133,10 @@ class TestController < ApplicationController
       user2: {
           args: {
               name: "FooThing",
-              codeDelimiters: [ "check:", "\nend", "\nFoo Stage", "\nend" ],
+              codeDelimiters: [ {type: "code", value: "check:"},
+                                {type: "code", value: "\nend"},
+                                {type: "code", value: "\nFoo Stage"},
+                                {type: "code", value: "\nend"} ],
               parts: ["check", "scratch", "foo"]
             },
           resources: {

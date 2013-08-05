@@ -70,7 +70,6 @@ function versions(container, options) {
               var reviewContainer = drawReviewContainer();
               reviewsDiv.append(reviewContainer);
               r.lookup(function(revData) {
-                ct_log("Revdata: ", revData);
                 reviewContainer.append(drawReview(revData));
               });
             });
@@ -378,7 +377,6 @@ function createEditor(cm, uneditables, options) {
   function addWidgetAt(indexOrName, dom) {
     var i = getIndex(indexOrName);
     var end =  marks[i + 1].find().from;
-    ct_log("adding widget at line ", end.line);
     var lw = cm.addLineWidget(end.line, dom, {above: true});
     if (!lineWidgets[indexOrName]) {
       lineWidgets[indexOrName] = [lw];
@@ -519,8 +517,6 @@ function steppedEditor(container, uneditables, options) {
       editor.clearWidgetAt(iw[0], iw[1]);
     });
     domUneditableWidgets = [];
-
-    ct_log(domUneditables);
 
     options.names.forEach(function (e) {
       if (domUneditables[e]) {
