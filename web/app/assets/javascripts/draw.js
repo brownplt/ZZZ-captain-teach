@@ -120,10 +120,12 @@ function setReviewText(rt, text) {
 
 function drawReviewsButton(count) {
   if (count === 0) {
-    return $("<span></span>");
+    return $("<div></div>");
   }
   else {
-    return $("<a href='#'>R:" + count + "</a>").addClass("reviewLink");
+    return $("<div>" + count + "*</div>")
+      .attr("title", count + " reviews")
+      .addClass("reviewLink");
   }
 }
 

@@ -314,6 +314,9 @@ $(function() {
              "down_tests", "down_def"],
       instructions: {
         "find_tests": "Write test cases for find:"
+      },
+      drawPartGutter: function(step, f) {
+        f(drawReviewsButton(1)[0]);
       }
     });
 });

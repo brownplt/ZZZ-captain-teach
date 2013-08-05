@@ -17,7 +17,7 @@
 }
 
 .versionButton {
-  
+
 }
 
 .invalidScore {
@@ -26,6 +26,17 @@
 
 .reviewText {
   width: 80%;
+}
+
+.reviewLink {
+    background-color: #0c0;
+    border-radius: 0 5px 5px 0;
+    width: 20px;
+    text-align: center;
+    color: #eee;
+}
+.reviewLink:hover {
+    cursor: pointer;
 }
 
 .replContainer {
