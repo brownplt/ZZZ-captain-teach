@@ -27,7 +27,6 @@ UI/JS:
 [] Prettier test output
 [] Highlight error messages in output
 [] Make CodeMirror behave with respect to zooming
-[x] Scrollability behavior of reviews pane
 [] Do something with scrolling at the bottom of the REPL
 [] Pretty-printing in the REPL
 [] Width of editor
@@ -38,7 +37,6 @@ UI/JS:
   - otherwise, the blob is discarded
 [] Extend code-assignment builder to do versioning
   - and save intermediate code!
-[] Put submit buttons inline with the element you're working on
 [] Copy to beginning of the file even with atomic
 
 Curricular:
@@ -77,3 +75,4 @@ Refactoring
 [x] Reviews
 [~] Design recipe step
 
+[x] Scrollability behavior of reviews pane

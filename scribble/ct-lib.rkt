@@ -117,7 +117,7 @@
               (parts (filter holder? elts))
               ;;(include (holder-elt (first parts)))
               (header (_header-header (first (filter _header? elts))))
-              (check (holder-elt (second parts)))]
+              (check (holder-elt (first parts)))]
      (element
        (style #f
               (list
