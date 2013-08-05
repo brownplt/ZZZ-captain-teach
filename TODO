@@ -2,12 +2,14 @@ Simple assignment test for summer students@
 [] Pick assignment
 [] Error reporting
 [] Pretty printing
-[] Review instructions / make them look nicer
+[x] Review instructions / make them look nicer
 [] Run button
 [] Save button
 [] Submit button in better location
 [x] Reviews button de-uglify
 [] Tab closing for reviews (prioritize other reviews)
+[] Figure out proper above / below for widgets. Instructions should be
+   above, but reviews should be below... An option
 
 Deployment & Performance;
 [] Remove every hardcoded localhost

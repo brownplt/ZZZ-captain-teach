@@ -28,6 +28,34 @@
   width: 80%;
 }
 
+.reviewButton {
+    display: inline-block;
+    height: 2em;
+    min-width: 2em;
+    text-align: center;
+    padding: 3px;
+}
+
+.reviewScore {
+    margin: 5px auto;
+}
+
+.reviewScoreTitle {
+    font-weight: bold;
+    display: inline-block;
+    vertical-align: top;
+    width: 120px;
+    text-align: right;
+}
+
+.reviewTextSubmit {
+    margin: 20px auto;
+}
+
+.reviewTextSubmit textarea {
+    height: 70px;
+}
+
 .reviewLink {
     background-color: #0c0;
     border-radius: 0 5px 5px 0;
@@ -141,4 +169,3 @@
 .lineError.cptteach-fixed {
   background-color: #f03;
 }
-

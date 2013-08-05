@@ -40,17 +40,25 @@ function drawVersionsList(visible, initialButtons) {
 }
 
 
-function drawReviewScore(name, labels, values) {
+function drawReviewScore(title, name, labels, values) {
   var radioContainer = $("<div>");
+  radioContainer.append($("<div>").text(title + ":").addClass("reviewScoreTitle"));
   var id;
-  for(var i = 0; i < labels.length; i++) {
+  _.times(labels.length, function (i) {
     id = name + i;
-    radioContainer.append($("<label for='" + id + "'>")
-      .text(labels[i])
-      .append($("<input type='radio' id='" + id + "' name='" + name + "'>")
-      .attr("value", values[i])));
-  }
+    radioContainer.append(
+      $("<div>")
+        .addClass("reviewButton")
+        .append($("<label for='" + id + "'>").text(labels[i]))
+        .append("<br>")
+        .append($("<input type='radio' id='" + id + "' name='" + name + "'>")
+                .attr("value", values[i])));
+  });
   return radioContainer.addClass("reviewScore reviewScore-" + name);
+}
+
+function drawReviewTextSubmitContainer() {
+  return $("<div>").addClass("reviewTextSubmit");
 }
 
 function getScore(reviewScore) {
@@ -91,23 +99,25 @@ function drawWriteReviewContainer() {
 
 function drawSubmitReviewButton() {
   return $("<button>")
-    .text("Save this review")
+    .text("Submit review")
     .css({float: 'right'})
     .addClass("submitReview");
 }
 
 function drawReviewText(enabled) {
-  return $("<textarea>")
-    .addClass("reviewText")
-    .prop("disabled", !enabled);
+  return $("<div>")
+    .append($("<h4>").text("Comments:"))
+    .append($("<textarea>")
+            .addClass("reviewText")
+            .prop("disabled", !enabled));
 }
 
 function disableReviewText(rt) {
-  rt.prop("disabled", true);
+  rt.find("textarea").prop("disabled", true);
 }
 
 function enableReviewText(rt) {
-  rt.prop("disabled", false);
+  rt.find("textarea").prop("disabled", false);
 }
 
 function disableReviewScore(score) {

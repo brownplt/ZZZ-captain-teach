@@ -143,12 +143,14 @@ function writeReviews(container, options) {
   var reviewContainer = drawWriteReviewContainer();
 
   var designScores = drawReviewScore(
+      "Design",
       "design",
-      ["(Worst design) 1", 2, 3, 4, 5, 6, 7, 8, 9, "10 (Best design)"],
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, "10 (best)"],
       [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
   var correctScores = drawReviewScore(
+      "Correctness",
       "correct",
-      ["(Completely incorrect) 1", 2, 3, 4, 5, 6, 7, 8, 9, "10 (Completely correct)"],
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, "10 (best)"],
       [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 
   var submitReviewButton = drawSubmitReviewButton()
@@ -209,10 +211,12 @@ function writeReviews(container, options) {
       });
   }
 
+  var textSubmitContainer = drawReviewTextSubmitContainer();
+  textSubmitContainer.append(reviewText).append(submitReviewButton);
+
   reviewContainer.append(designScores)
     .append(correctScores)
-    .append(reviewText)
-    .append(submitReviewButton);
+    .append(textSubmitContainer);
 
   container.append(reviewContainer);
 }
