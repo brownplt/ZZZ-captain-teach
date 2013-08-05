@@ -283,7 +283,7 @@ function codeAssignment(container, resources, args) {
         container,
         {
           initial: "",
-	      run: makeHighLightingRunCode(RUN_CODE)
+	      run: makeHighlightingRunCode(RUN_CODE)
         }
       );
       var thisEditorOptions = merge(sharedOptions, {
