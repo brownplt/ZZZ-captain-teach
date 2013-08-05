@@ -1,9 +1,9 @@
 [submodule "pyret-editor-backend"]
 	path = pyret-editor-backend
-	url = https://github.com:brownplt/pyret-editor-backend.git
+	url = https://github.com/brownplt/pyret-editor-backend.git
 [submodule "CodeMirror"]
 	path = CodeMirror
-	url = https://github.com:jpolitz/CodeMirror.git
+	url = https://github.com/jpolitz/CodeMirror.git
 [submodule "ct-assignments"]
 	path = ct-assignments
-	url = https://github.com:brownplt/captain-teach-assignments.git
+	url = https://github.com/brownplt/captain-teach-assignments.git
