@@ -380,21 +380,21 @@ function createEditor(cm, uneditables, options) {
   var lineWidgets = {};
   function addWidgetAt(indexOrName, dom, options) {
     var i = getIndex(indexOrName);
-    var above = false;
-    if (options && options.above) {
-      above = options.above;
+    var atTop = false;
+    if (options && options.atTop) {
+      atTop = options.atTop;
     }
 
     // NOTE(dbp 2013-08-06): `above` changes not only the immediate
     // position, but also the line where the widget is attached.
     var target;
-    if (above) {
+    if (atTop) {
       target = marks[i].find().to.line;
     } else {
       target = marks[i + 1].find().from.line;
     }
 
-    var lw = cm.addLineWidget(target, dom, {above: above});
+    var lw = cm.addLineWidget(target, dom, {above: !atTop});
     if (!lineWidgets[indexOrName]) {
       lineWidgets[indexOrName] = [lw];
     } else {

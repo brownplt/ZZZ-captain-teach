@@ -9,8 +9,8 @@ Simple assignment test for summer students@
 [] Submit button in better location
 [x] Reviews button de-uglify
 [] Tab closing for reviews (prioritize other reviews)
-[] Figure out proper above / below for widgets. Instructions should be
-   above, but reviews should be below... An option
+[x] Figure out proper above / below for widgets. Instructions should
+    be above, but reviews should be below... An option
 
 Deployment & Performance;
 [] Report abuse for students on cross-feedback
