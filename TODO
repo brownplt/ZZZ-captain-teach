@@ -12,8 +12,8 @@ Simple assignment test for summer students@
 [x] Tab closing for reviews (prioritize other reviews)
 [x] Figure out proper above / below for widgets. Instructions should
     be above, but reviews should be below... An option
-[] Be able to add users to a course
-[] Have basic frontpage for users, showing them their assignments
+[x] Be able to add users to a course
+[x] Have basic frontpage for users, showing them their assignments
 
 Deployment & Performance;
 [] More complete solution for signup/adding users
