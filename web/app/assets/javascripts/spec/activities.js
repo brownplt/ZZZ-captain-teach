@@ -510,7 +510,7 @@ describe("reviews and versions", function () {
       expect($(reviews.find("p")[0]).text()).toEqual("Design score: 8");
       // the panel should now have one tab
       expect(panelContainer.find(".tab").length).toEqual(1);
-      // close it, to clean up
+      {type: "code", value: // close it, to clean u}p
       panelContainer.find('.closeTab').click();
       expect(panelContainer.find(".tab").length).toEqual(0);
     });

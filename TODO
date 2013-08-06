@@ -6,10 +6,10 @@ Simple assignment test for summer students@
 [] Pretty printing
 [x] Review instructions / make them look nicer
 [] Run button
-[] Save button
+[x] Save button
 [x] Submit button in better location
 [x] Reviews button de-uglify
-[] Tab closing for reviews (prioritize other reviews)
+[x] Tab closing for reviews (prioritize other reviews)
 [x] Figure out proper above / below for widgets. Instructions should
     be above, but reviews should be below... An option
 

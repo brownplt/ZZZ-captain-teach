@@ -394,7 +394,7 @@ function createEditor(cm, uneditables, options) {
       target = marks[i + 1].find().from.line;
     }
 
-    var lw = cm.addLineWidget(target, dom, {above: !atTop});
+    var lw = cm.addLineWidget(target, dom, {above: atTop});
     if (!lineWidgets[indexOrName]) {
       lineWidgets[indexOrName] = [lw];
     } else {
@@ -534,7 +534,7 @@ function steppedEditor(container, uneditables, options) {
       if (domUneditables[e]) {
         var doms = domUneditables[e];
         doms.forEach(function (dom) {
-          var widget = editor.addWidgetAt(e, dom, {above: true});
+          var widget = editor.addWidgetAt(e, dom, {atTop: true});
           domUneditableWidgets.push([e, widget]);
         });
       }
@@ -570,7 +570,7 @@ function steppedEditor(container, uneditables, options) {
 
         if (options.instructions && options.instructions[e]) {
           var dom = drawInstructionsWidget(options.instructions[e])[0];
-          var widget = editor.addWidgetAt(e, dom, {above: true});
+          var widget = editor.addWidgetAt(e, dom, {atTop: true});
           instructionWidgets.push([e, widget]);
         }
       } else {
@@ -664,7 +664,8 @@ function reviewTabs(tabPanel, step, resume) {
       reviewDatum.getReview(incrementDone, function(/* notFound */) {
           var reviewsTab = drawReviewsTab();
           var reviewTabHandle =
-            tabPanel.addTab("Reviews", reviewsTab, { cannotClose: true, prioritize: true });
+            tabPanel.addTab("Reviews", reviewsTab, { cannotClose: true,
+                                                     prioritize: true });
 
           var editorContainer = drawReviewEditorContainer();
           reviewsTab.append(editorContainer);
@@ -806,7 +807,7 @@ function autoSaver(container, options) {
   };
 
   container.append(statusElt);
-  
+
   return {
     onEdit: function() {
       if(!goingToSave) {
@@ -816,7 +817,7 @@ function autoSaver(container, options) {
               setSaved();
             },
             function() {
-              setFailure(); 
+              setFailure();
             });
         }, minSaveInterval);
       }
@@ -824,4 +825,3 @@ function autoSaver(container, options) {
   };
 
 }
-

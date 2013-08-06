@@ -231,6 +231,12 @@ function createTabPanel(container) {
     if (current.tab && current.title) {
       current.tab.show();
       current.title.addClass("currentTab");
+      // NOTE(dbp 2013-08-06): This is somewhat of a hack - Codemirror
+      // instances can't really work until they are shown, and need
+      // a manual refresh() (or mouse / keyboard input) to work.
+      current.tab.find(".CodeMirror").each(function(_, cmDom) {
+        cmDom.CodeMirror.refresh();
+      });
     }
   }
   tabContainer.append(titleRow).append(panelRow);
