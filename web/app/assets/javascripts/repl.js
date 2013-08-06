@@ -113,8 +113,13 @@ function makeRepl(container) {
     } else {
       thisReturnHandler = uiOptions.handleReturn || defaultReturnHandler;
     }
+    var thisError;
+    if (uiOptions.wrappingOnError) {
+      thisError = uiOptions.wrappingOnError(output);
+    } else {
+      thisError = uiOptions.error || onError;
+    }
     var thisWrite = uiOptions.write || write;
-    var thisError = uiOptions.error || onError;
     evaluator.run("run", src, clear, thisReturnHandler, thisWrite, thisError, options);
   };
 
@@ -161,7 +166,8 @@ function makeRepl(container) {
     allowInput(CM, true)();
   };
 
-  var onError = function(err) {
+  var onError = function(err, editor) {
+    ct_log("onError: ", err);
     if (err.message) {
       write(jQuery('<span/>').css('color', 'red').append(err.message));
       write(jQuery('<br/>'));
@@ -320,7 +326,6 @@ function makeEvaluator(container, handleReturnValue, onReady) {
   var runCode = function(name, src, afterRun, returnHandler, writer, onError, options) {
     setWhalesongReturnHandlerLock(returnHandler, function() {
       setWhalesongWriteLock(writer, function() {
-        console.log(onError);
         repl.compileAndExecuteProgram(name, src, options, afterRun, onError);
         releaseWhalesongWriteLock();
       });

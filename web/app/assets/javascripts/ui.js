@@ -700,7 +700,55 @@ function reviewTabs(tabPanel, step, resume) {
 
 function makeHighlightingRunCode(codeRunner) {
   var markedLines = [];
+
   return function(src, uiOptions, options) {
+    function makeScrollingLocationLink(cm, loc) {
+      function locToStr(loc) {
+        return "Line " + loc.line + ", Column " + loc.column;
+      }
+      var errorLink = $("<a>");
+      errorLink.text(locToStr(loc));
+      errorLink.attr("href", "#");
+      errorLink.on("click", function(e) {
+        clear();
+        markedLines.push(loc.line - 1);
+        cm.addLineClass(
+            loc.line - 1,
+            'background',
+            'lineError'
+        );
+        var coords = cm.charCoords({ line: loc.line - 1, ch: loc.column - 1 });
+        $("body").animate({
+          scrollTop: coords.top - 10
+        });
+        e.preventDefault();
+        return false;
+      });
+      return errorLink;
+    }
+
+    function clear() {
+      markedLines.forEach(function(l) {
+        uiOptions.cm.removeLineClass(l, 'background', 'lineError')
+      });
+      markedLines = [];
+    };
+
+    uiOptions.cm.on("change", clear);
+
+    function highlightingOnError(output) { return function(err) {
+      ct_log(err);
+      if (err.locs) {
+        output.append($("<div>").text(err.message));
+        err.locs.forEach(function(l) {
+          output.append($("<div>").append(makeScrollingLocationLink(uiOptions.cm, l)));
+        });
+      }
+      else if (err.message) {
+        output.append($("<div>").text(err.message));
+      }
+    };}
+
     function highlightingCheckReturn(output) { return function(obj) {
       function drawSuccess(name, message) {
         return $("<div>").text(name +  ": " + message)
@@ -715,18 +763,16 @@ function makeHighlightingRunCode(codeRunner) {
 
       var blockResultsJSON = pyretMaps.pyretToJSON(obj);
 
-      function locToStr(loc) {
-        return "Line " + loc.line + ", Column " + loc.column;
-      }
 
       blockResultsJSON.results.map(function(result) {
         result.map(function(checkBlockResult) {
           var container = $("<div>");
           var message = $("<p>");
-          var errorLink = $("<a>");
+          var errorLink;
+          var errorMessage = $("<span>");
           var name = checkBlockResult.name;
           container.append($("<p>").text(name));
-          container.append(message).append(errorLink);
+          container.append(message).append(errorLink).append(errorMessage);
           container.addClass("check-block");
           var messageText = "";
           if (checkBlockResult.err) {
@@ -737,23 +783,8 @@ function makeHighlightingRunCode(codeRunner) {
               messageText = checkBlockResult.err;
             }
             var loc = checkBlockResult.err.location;
-            errorLink.text(locToStr(loc) + ": " + messageText);
-            errorLink.attr("href", "#");
-            errorLink.on("click", function(e) {
-              clear();
-              markedLines.push(loc.line - 1);
-              uiOptions.cm.addLineClass(
-                  loc.line - 1,
-                  'background',
-                  'lineError'
-              );
-              var coords = uiOptions.cm.charCoords({ line: loc.line - 1, ch: loc.column - 1 });
-              $("body").animate({
-                scrollTop: coords.top - 10
-              });
-              e.preventDefault();
-              return false;
-            });
+            errorLink = makeScrollingLocationLink(uiOptions.cm, loc);
+            errorMessage.text(messageText);
             container.css({
               "background-color": "red"
             });
@@ -772,14 +803,8 @@ function makeHighlightingRunCode(codeRunner) {
       return true;
     };}
 
-    function clear() {
-      markedLines.forEach(function(l) {
-        uiOptions.cm.removeLineClass(l, 'background', 'lineError')
-      });
-      markedLines = [];
-    };
     var theseUIOptions = merge(uiOptions, {
-        error: false // highlightingOnError
+        wrappingOnError: highlightingOnError
     });
     if (options.check) {
       theseUIOptions.wrappingReturnHandler = highlightingCheckReturn;
