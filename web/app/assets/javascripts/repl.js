@@ -289,6 +289,7 @@ function makeRepl(container) {
                   clear,
                   prettyPrint,
                   write,
+                  onError,
                   {});
   };
 
@@ -318,6 +319,7 @@ function makeEvaluator(container, handleReturnValue, onReady) {
   var runCode = function(name, src, afterRun, returnHandler, writer, onError, options) {
     setWhalesongReturnHandlerLock(returnHandler, function() {
       setWhalesongWriteLock(writer, function() {
+        console.log(onError);
         repl.compileAndExecuteProgram(name, src, options, afterRun, onError);
         releaseWhalesongWriteLock();
       });
