@@ -279,5 +279,19 @@ function drawSaveContainer() {
 
 
 function drawRunButton() {
-  return $("<div>").addClass("runButton").html("run &rarr;");
+  return $("<div>")
+    .addClass("runButton")
+    .addClass("blueButton")
+    .html("run &rarr;");
+}
+
+function drawResetButton() {
+  return $("<div>")
+    .addClass("blueButton")
+    .addClass("resetButton")
+    .html("reset");
+}
+
+function drawClearFix() {
+  return $("<div>").addClass("clearfix");
 }

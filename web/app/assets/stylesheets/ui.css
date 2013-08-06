@@ -182,21 +182,30 @@
   color: #f33;
 }
 
-.runButton {
+.blueButton {
     background-color: #06f;
     border: 1px solid #06f;
     border-radius: 3px;
     color: #eee;
-    margin: 3px 3px 3px auto;
-    width: 50px;
-    padding: 5px;
     text-align: center;
+    margin: 3px 3px 3px auto;
 }
 
-.runButton:hover {
+.blueButton:hover {
     background-color: #eee;
     color: #06f;
     cursor: pointer;
+}
+
+.runButton {
+    width: 50px;
+    padding: 5px;
+}
+
+.resetButton {
+    width: 40px;
+    padding: 5px;
+    float: left;
 }
 
 .submitStep {

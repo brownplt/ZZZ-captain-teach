@@ -151,18 +151,21 @@ function inlineExample(container, resources, args){
   container.css("display", "inline-block");
   var elem = $("<span class='inlineExample cm-s-default'>");
   container.append(elem);
-  ct_log("inline code: ", args.code);
   formatCode(elem[0], args.code);
 }
 
 function codeExample(container, resources, args) {
   var code = args.code;
   var codeContainer = jQuery("<div>");
+  var resetButton = drawResetButton();
+  container.append(resetButton);
+
+  resetButton.on("click", function () {
+    cm.setValue(code);
+  });
+
   container.append(codeContainer);
   var cm = makeEditor(codeContainer, {
-      cmOptions: {
-        readOnly: 'nocursor'
-      },
       initial: code,
       run: window.RUN_CODE
    });

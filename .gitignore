@@ -8,3 +8,4 @@ tests/*.pid
 \.#*
 \#*
 user-repos
+web/public

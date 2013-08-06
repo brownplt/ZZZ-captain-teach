@@ -7,6 +7,7 @@ function makeEditor(container, options) {
   var runButton = drawRunButton();
   if (options.run && !options.simpleEditor) {
     container.append(runButton);
+    container.append(drawClearFix());
   }
 
   var textarea = jQuery("<textarea>");
