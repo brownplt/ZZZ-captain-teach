@@ -11,7 +11,7 @@ if Rails.env.development? or Rails.env.test?
 
   FileUtils.rm_rf(USER_GIT_REPO_PATH)
   FileUtils.mkdir(USER_GIT_REPO_PATH)
-  
+
   captain = User.create!(:email => "edward@captainteach.org")
   captains_log = UserRepo.create!(:path => ASSIGNMENTS_PATH)
 
@@ -55,6 +55,13 @@ if Rails.env.development? or Rails.env.test?
     :course => course
   })
 
+
+  path7 = PathRef.create!(:user_repo => captains_log, :path => "sorting.jrny")
+  example_assignment7 = Assignment.create!({
+    :path_ref => path7,
+    :course => course
+  })
+
   user1 = User.create!(:email => "henry@cs.brown.edu")
   course.students << user1
 
@@ -65,4 +72,3 @@ if Rails.env.development? or Rails.env.test?
   print("Visit the demo course at: #{APP_URL}/course/#{course.id}\n")
 
 end
-
