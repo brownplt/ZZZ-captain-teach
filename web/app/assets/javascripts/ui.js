@@ -664,7 +664,7 @@ function reviewTabs(tabPanel, step, resume) {
       reviewDatum.getReview(incrementDone, function(/* notFound */) {
           var reviewsTab = drawReviewsTab();
           var reviewTabHandle =
-            tabPanel.addTab("Reviews", reviewsTab, { cannotClose: true });
+            tabPanel.addTab("Reviews", reviewsTab, { cannotClose: true, prioritize: true });
 
           var editorContainer = drawReviewEditorContainer();
           reviewsTab.append(editorContainer);

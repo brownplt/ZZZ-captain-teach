@@ -223,18 +223,21 @@ function createTabPanel(container) {
   var tabContainer = $("<div>").addClass("tabPanel");
   var panelRow = $("<div>").addClass("tabPanels");
   var current = false;
+  var tabs = [];
   var titleRow = $("<div>").addClass("tabTitles");
   function switchToCurrent() {
     tabContainer.find(".tab").hide();
     tabContainer.find(".tabTitle").removeClass("currentTab");
-    current.tab.show();
-    current.title.addClass("currentTab");
+    if (current.tab && current.title) {
+      current.tab.show();
+      current.title.addClass("currentTab");
+    }
   }
   tabContainer.append(titleRow).append(panelRow);
   container.append(tabContainer);
   return {
     addTab: function(title, dom, inputOptions)
-    /*: String, Dom, { cannotClose: Bool } -> Undef */
+    /*: String, Dom, { cannotClose: Bool, prioritize: Bool } -> Undef */
     {
       var options = inputOptions ? inputOptions : {};
       function switchHere() {
@@ -246,13 +249,32 @@ function createTabPanel(container) {
         .addClass("tabTitle")
         .text(title)
         .on("click", switchHere);
+      var tabData = {title: title, tab: tab, index: tabs.length};
+      if (options.prioritize) {
+        tabData.prioritize = true;
+      } else {
+        tabData.prioritize = false;
+      }
+      tabs.push(tabData);
       function close() {
         tab.remove();
         title.remove();
+        ct_log("tabs: ", tabs);
+        tabs = tabs.filter(function (tabStructure) {
+          return tabStructure.tab !== tab;
+        });
+
         if (current.tab.length > 0 && current.tab[0] === tab[0]) {
+          var newTab = _.find(tabs,
+                              function (t) { return t.prioritize });
+          ct_log("tab: ", newTab);
+          if (!newTab) {
+            newTab = tabs[0];
+          }
+          newTab = newTab || {};
           current = {
-            tab: $(tabContainer.find(".tab")[0]),
-            title: $(tabContainer.find(".tabTitle")[0])
+            tab: newTab.tab,
+            title: newTab.title
           };
           switchToCurrent();
         }
