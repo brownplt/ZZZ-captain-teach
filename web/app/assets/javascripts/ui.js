@@ -378,10 +378,23 @@ function createEditor(cm, uneditables, options) {
   }
 
   var lineWidgets = {};
-  function addWidgetAt(indexOrName, dom) {
+  function addWidgetAt(indexOrName, dom, options) {
     var i = getIndex(indexOrName);
-    var end =  marks[i + 1].find().from;
-    var lw = cm.addLineWidget(end.line, dom, {above: true});
+    var above = false;
+    if (options && options.above) {
+      above = options.above;
+    }
+
+    // NOTE(dbp 2013-08-06): `above` changes not only the immediate
+    // position, but also the line where the widget is attached.
+    var target;
+    if (above) {
+      target = marks[i].find().to.line;
+    } else {
+      target = marks[i + 1].find().from.line;
+    }
+
+    var lw = cm.addLineWidget(target, dom, {above: above});
     if (!lineWidgets[indexOrName]) {
       lineWidgets[indexOrName] = [lw];
     } else {
@@ -526,7 +539,8 @@ function steppedEditor(container, uneditables, options) {
       if (domUneditables[e]) {
         var doms = domUneditables[e];
         doms.forEach(function (dom) {
-          domUneditableWidgets.push([e, editor.addWidgetAt(e, dom)]);
+          var widget = editor.addWidgetAt(e, dom, {above: true});
+          domUneditableWidgets.push([e, widget]);
         });
       }
     });
@@ -550,7 +564,8 @@ function steppedEditor(container, uneditables, options) {
 
         if (options.instructions && options.instructions[e]) {
           var dom = drawInstructionsWidget(options.instructions[e])[0];
-          instructionWidgets.push([e, editor.addWidgetAt(e, dom)]);
+          var widget = editor.addWidgetAt(e, dom, {above: true});
+          instructionWidgets.push([e, widget]);
         }
       } else {
         if (i <= pos) {
