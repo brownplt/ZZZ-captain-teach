@@ -149,8 +149,10 @@ function saveReview(saveLink, data, success, failure) {
 
 function inlineExample(container, resources, args){
   container.css("display", "inline-block");
-  args.mode = "inert";
-  codeExample(container, resources, args);
+  var elem = $("<span class='inlineExample cm-s-default'>");
+  container.append(elem);
+  ct_log("inline code: ", args.code);
+  formatCode(elem[0], args.code);
 }
 
 function codeExample(container, resources, args) {
@@ -162,7 +164,7 @@ function codeExample(container, resources, args) {
         readOnly: 'nocursor'
       },
       initial: code,
-      run: function() {}
+      run: window.RUN_CODE
    });
 
   ASSIGNMENT_PIECES.push({id: resources, editor: cm, mode: args.mode});
