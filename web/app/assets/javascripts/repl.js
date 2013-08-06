@@ -94,7 +94,7 @@ function makeRepl(container) {
 
     
   var output = jQuery("<div id='output' class='cm-s-default'>");
-  var breakButton = jQuery("<img id='break' src='http://localhost:8080/break.png'>");
+  var breakButton = jQuery("<img id='break' src='" + WHALESONG_URL + "/break.png'>");
   
   var clearDiv = jQuery("<div class='clear'>");
 
