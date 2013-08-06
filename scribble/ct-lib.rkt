@@ -250,7 +250,10 @@
 
 (define-syntax-rule (code-assignment unique-id review-count elt ...)
   (let ()
-    (define (genstr) (symbol->string (gensym name)))
+    (define i 0)
+    (define (genstr)
+      (set! i (add1 i))
+      (format "~a~a" name i))
     (define elts (list elt ...))
     (define name (_name-name (findf _name? elts)))
     (define assignment-parts (filter _part? elts))
