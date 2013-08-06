@@ -182,7 +182,6 @@
   color: #f33;
 }
 
-
 .runButton {
     background-color: #06f;
     border: 1px solid #06f;
@@ -198,4 +197,22 @@
     background-color: #eee;
     color: #06f;
     cursor: pointer;
+}
+
+.submitStep {
+  height: 2em;
+  margin: 7px 0 0 0;
+}
+
+.submitStep span {
+  padding: 5px;
+  border-radius: 0 5px 5px 0;
+  background-color: #06f;
+  cursor: pointer;
+  border: 2px solid #06f;
+}
+
+.submitStep span:hover {
+  background-color: white;
+  color: #06f;
 }

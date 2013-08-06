@@ -191,8 +191,8 @@ function drawCurrentStepGutterMarker(isSubmittable) {
   return b;
 }
 
-function drawSubmitStepButton() {
-  return $("<span>").addClass("submittable").text("submit this step");
+function drawSubmitStepButton(stepName) {
+  return $("<div>").addClass("submitStep").append($("<span>").text("submit " + stepName));
 }
 
 function drawSwitchToStepGutterMarker(n) {

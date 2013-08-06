@@ -391,15 +391,16 @@ function createEditor(cm, uneditables, options) {
     if (atTop) {
       target = marks[i].find().to.line;
     } else {
-      target = marks[i + 1].find().from.line;
+      target = cm_advance_char(cm.doc, marks[i + 1].find().from).line;
     }
 
-    var lw = cm.addLineWidget(target, dom, {above: atTop});
+    var lw = cm.addLineWidget(target, dom, {above: !atTop});
     if (!lineWidgets[indexOrName]) {
       lineWidgets[indexOrName] = [lw];
     } else {
       lineWidgets[indexOrName].push(lw);
     }
+    return lw;
   }
 
   function clearWidgetAt(indexOrName, widget) {
@@ -522,7 +523,7 @@ function steppedEditor(container, uneditables, options) {
     progress.set(pos);
 
     ephemeralWidgets.forEach(function(ew) {
-      editor.clearWidget(ew[0], ew[1]);
+      editor.clearWidgetAt(ew[0], ew[1]);
     });
     ephemeralWidgets = [];
 
@@ -549,8 +550,8 @@ function steppedEditor(container, uneditables, options) {
       if (i === cur) {
         var isSubmittable = cur === pos;
         var marker = drawCurrentStepGutterMarker(isSubmittable);
-        var submitButton = drawSubmitStepButton();
         if (isSubmittable) {
+          var submitButton = drawSubmitStepButton(steps[pos]);
           submitButton.on("click", function () {
             if (options.afterHandlers &&
                 options.afterHandlers[steps[pos]]) {
@@ -560,7 +561,8 @@ function steppedEditor(container, uneditables, options) {
             }
           });
           ct_log(editor.lineOf(e));
-          editor.addWidgetAt(e, submitButton[0], {atTop: false});
+          var submitW = editor.addWidgetAt(e, submitButton[0], {atTop: false});
+          ephemeralWidgets.push([e, submitW]);
         }
         cm.setGutterMarker(editor.lineOf(e),
                            gutterId,
