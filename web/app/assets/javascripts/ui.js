@@ -514,28 +514,24 @@ function steppedEditor(container, uneditables, options) {
   var instructionWidgets = [];
   var domUneditableWidgets = [];
 
+  var ephemeralWidgets = [];
   function draw() {
     setCurrentStepTitle(currentSectionTitle, steps[cur]);
     cm.clearGutter(gutterId);
     cm.clearGutter(partGutter);
     progress.set(pos);
 
-    instructionWidgets.forEach(function (iw) {
-      editor.clearWidget(iw[0], iw[1]);
+    ephemeralWidgets.forEach(function(ew) {
+      editor.clearWidget(ew[0], ew[1]);
     });
-    instructionWidgets = [];
-
-    domUneditableWidgets.forEach(function (iw) {
-      editor.clearWidgetAt(iw[0], iw[1]);
-    });
-    domUneditableWidgets = [];
+    ephemeralWidgets = [];
 
     options.names.forEach(function (e) {
       if (domUneditables[e]) {
         var doms = domUneditables[e];
         doms.forEach(function (dom) {
           var widget = editor.addWidgetAt(e, dom, {atTop: true});
-          domUneditableWidgets.push([e, widget]);
+          ephemeralWidgets.push([e, widget]);
         });
       }
     });
@@ -553,15 +549,18 @@ function steppedEditor(container, uneditables, options) {
       if (i === cur) {
         var isSubmittable = cur === pos;
         var marker = drawCurrentStepGutterMarker(isSubmittable);
+        var submitButton = drawSubmitStepButton();
         if (isSubmittable) {
-          marker.on("click", function () {
+          submitButton.on("click", function () {
             if (options.afterHandlers &&
                 options.afterHandlers[steps[pos]]) {
               options.afterHandlers[steps[pos]](editor, resume);
             } else {
-              resume()
+              resume();
             }
           });
+          ct_log(editor.lineOf(e));
+          editor.addWidgetAt(e, submitButton[0], {atTop: false});
         }
         cm.setGutterMarker(editor.lineOf(e),
                            gutterId,
@@ -571,7 +570,7 @@ function steppedEditor(container, uneditables, options) {
         if (options.instructions && options.instructions[e]) {
           var dom = drawInstructionsWidget(options.instructions[e])[0];
           var widget = editor.addWidgetAt(e, dom, {atTop: true});
-          instructionWidgets.push([e, widget]);
+          ephemeralWidgets.push([e, widget]);
         }
       } else {
         if (i <= pos) {

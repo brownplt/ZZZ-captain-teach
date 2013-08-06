@@ -187,12 +187,12 @@ function drawStepButton(text) {
 
 function drawCurrentStepGutterMarker(isSubmittable) {
   var b = $("<span>").addClass("gutterButton active");
-  if (isSubmittable) {
-      b.addClass("submittable").html("submit");
-  } else {
-    b.html("&rarr;");
-  }
+  b.text("→");
   return b;
+}
+
+function drawSubmitStepButton() {
+  return $("<span>").addClass("submittable").text("submit this step");
 }
 
 function drawSwitchToStepGutterMarker(n) {
