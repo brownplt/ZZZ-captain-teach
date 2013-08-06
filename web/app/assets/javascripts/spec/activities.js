@@ -23,7 +23,7 @@ function lookupInTable(table, type, resource, present, absent, error, postProces
   if (typeof postProcess === 'undefined') {
     postProcess = function (x) { return x; };
   }
-  
+
   if (table.hasOwnProperty(resource)) {
     console.log("Mock server fetching ", type, ", ",
                 resource, table);
@@ -189,7 +189,7 @@ window.saveReview = function(review, data, success, failure) {
 };
 
 window.getReviewStatus = function(reviewStatus, success, failure) {
-  
+
 };
 
 window.fail = function() {
@@ -234,7 +234,7 @@ describe("mock server", function() {
     expect(val2.user).toEqual("1");
     expect(val2.type).toEqual("done");
     expect(typeof val2.time).toBe("number");
-    
+
     expect(val2.time < val1.time).toBe(true);
   });
 });
@@ -248,7 +248,7 @@ describe("function activities", function() {
     resetMockServer();
     functionData = builders["function"]($("<div>"), {path: functionPathRef, blob: functionBlobRef}, functionArgs);
   });
-  
+
   it("should create codemirror", function () {
     expect(functionData.container.find(".CodeMirror").length).not.toEqual(0);
   });
@@ -274,7 +274,7 @@ describe("function activities", function() {
       ["g:r:1:1", {body: 'my new program', userChecks: ''}]
       ,["g:r:0:1", {body: 'my cool program', userChecks: ''}]
     ];
-    
+
     var container = $("<div>");
     container.hide();
     $("body").append(container);
@@ -320,19 +320,24 @@ describe("function activities", function() {
       var comments = "My review body"
       reviewText.text(comments);
 
-      var reviewButton = c.find("button:contains(Review)");
+      var reviewButton = c.find("button.writeReview");
       reviewButton.click();
 
       var dScore = '5';
       var cScore = '7';
       var revD = c.find(".reviewScore-design");
       var revC = c.find(".reviewScore-correct");
-      console.log("Input for revD: ", revD.find("input[value=" + dScore + "]"));
-      // NOTE(dbp): on Firefox, for me, the "click()" did not result in them being checked.
-      revD.find("input[value=" + dScore + "]").prop("checked", true).click();
-      revC.find("input[value=" + cScore + "]").prop("checked", true).click();
-      
-      var submitButton = c.find("button:contains(Save this review)");
+
+      // NOTE(dbp): on Firefox, for me, the "click()" alone did not
+      // result in them being checked.
+      revD.find("input[value=" + dScore + "]")
+        .prop("checked", true)
+        .click();
+      revC.find("input[value=" + cScore + "]")
+        .prop("checked", true)
+        .click();
+
+      var submitButton = c.find("button.submitReview");
       submitButton.click();
 
       lookupReview("lookup/42", function(r) {
@@ -340,10 +345,10 @@ describe("function activities", function() {
         expect(r.review.design).toEqual(dScore);
         expect(r.review.correct).toEqual(cScore);
       });
-      
+
     });
   });
-    
+
 });
 
 describe("multiple-choice activities", function() {
@@ -359,7 +364,7 @@ describe("multiple-choice activities", function() {
   function mkId(base) {
     return base + idCounter++;
   }
-  
+
   beforeEach(function() {
     resetMockServer();
     id1 = mkId("option1");
@@ -400,7 +405,7 @@ describe("multiple-choice activities", function() {
     opt1.click();
     // NOTE(dbp): on Firefox, without this, the search for :checked fails, so selected in undefined
     opt1.prop("checked", true);
-    
+
     preDiv.find("button").click();
     expect(mockBlobTable[rcId]).toEqual({selected: id1});
     var correctLabel = $(preDiv.find("label")[0]);
@@ -416,7 +421,7 @@ describe("multiple-choice activities", function() {
       i = $(i);
       expect(i.attr("disabled")).toBe('disabled');
     });
-    
+
   });
 });
 
@@ -426,7 +431,7 @@ describe("reviews and versions", function () {
   var versionsContainer;
   var versionLoadLog;
   var versionsUI;
-  
+
   beforeEach(function () {
     panelContainer = $("<div>");
     panel = createTabPanel(panelContainer);
@@ -492,14 +497,14 @@ describe("reviews and versions", function () {
   });
 
   it("should have rev. links for each version w/ revs", function () {
-    expect(versionsContainer.find("a.reviewLink").length)
+    expect(versionsContainer.find(".reviewLink").length)
       .toEqual(2);
   });
 
   it("should put the contents of review in tab when you click",
     function () {
       // the first link is for the Jun 5 one, which has two reviews
-      $(versionsContainer.find("a.reviewLink")[0]).click();
+      $(versionsContainer.find(".reviewLink")[0]).click();
       var reviews = panelContainer.find(".reviewContents");
       expect(reviews.length).toEqual(2);
       expect($(reviews.find("p")[0]).text()).toEqual("Design score: 8");
@@ -512,8 +517,8 @@ describe("reviews and versions", function () {
 
   it("should create two tabs if you click the review button twice",
     function () {
-      $(versionsContainer.find("a.reviewLink")[0]).click();
-      $(versionsContainer.find("a.reviewLink")[0]).click();
+      $(versionsContainer.find(".reviewLink")[0]).click();
+      $(versionsContainer.find(".reviewLink")[0]).click();
       expect(panelContainer.find(".tab").length).toEqual(2);
       $(panelContainer.find('.closeTab')[0]).click();
       expect(panelContainer.find(".tab").length).toEqual(1);
@@ -560,7 +565,7 @@ describe("reviews and versions", function () {
         }
       );
       var comments = "Not so fast, bucko.";
-      container.find("button.writeReview").click(); 
+      container.find("button.writeReview").click();
       container.find("textarea.reviewText").val(comments);
 
       var dScore = '5';
@@ -601,7 +606,7 @@ describe("reviews and versions", function () {
         }
       );
 
-      container.find("button.writeReview").click(); 
+      container.find("button.writeReview").click();
       var rt = container.find("textarea.reviewText");
       expect(rt.val()).toEqual(theReview.review.comments);
       expect(rt.prop("disabled")).toEqual(true);
@@ -621,7 +626,7 @@ describe("reviews and versions", function () {
 describe("Student review interface", function() {
 
   it("should start with a button that starts the review", function() {
-    
+
   });
 
 });

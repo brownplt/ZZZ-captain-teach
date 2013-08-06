@@ -169,7 +169,7 @@ function writeReviews(container, options) {
         options.reviews.save({
             review: {
               done: true, // NOTE(joe, 25 Jul 2013): This is a client UI hint, not binding
-              comments: reviewText.val(),
+              comments: getReviewText(reviewText),
               design: currentDesignScore,
               correct: currentCorrectScore
             }

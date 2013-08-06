@@ -125,8 +125,13 @@ function disableReviewScore(score) {
 }
 
 function setReviewText(rt, text) {
-  rt.val(text);
+  rt.find("textarea").val(text);
 }
+
+function getReviewText(rt) {
+  return rt.find("textarea").val();
+}
+
 
 function drawReviewsButton(count) {
   if (count === 0) {
