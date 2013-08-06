@@ -7,7 +7,9 @@
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
 
-if Rails.env.development? or Rails.env.test?
+# NOTE(dbp 2013-08-06): For now, including production, but it should
+# probably NOT be here.
+if Rails.env.development? or Rails.env.test? or Rails.env.production?
 
   FileUtils.rm_rf(USER_GIT_REPO_PATH)
   FileUtils.mkdir(USER_GIT_REPO_PATH)

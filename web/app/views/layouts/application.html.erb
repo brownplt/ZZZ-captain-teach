@@ -39,10 +39,12 @@
 <%= login_link "Login" %>
 <% end %>
 
+<% if Rails.env.development? or Rails.env.test? %>
 <% if masquerading? %>
 <%= link_to "End Masquerade", "/end_masquerade", "data-no-turbolink" => true %>
 <% else %>
 <%= link_to "Begin Masquerade", "/begin_masquerade", "data-no-turbolink" => true %>
+<% end %>
 <% end %>
 
 <%= yield %>
