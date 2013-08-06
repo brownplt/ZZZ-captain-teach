@@ -16,10 +16,20 @@ class CourseController < ApplicationController
                                             :add_teacher,
                                             :add_student]
 
-  def show    
+  def index
+    if current_user
+      @student_courses = current_user.student_courses
+      @teacher_courses = current_user.teacher_courses
+    else
+      @student_courses = []
+      @teacher_courses = []
+    end
   end
 
-  def new    
+  def show
+  end
+
+  def new
   end
 
   def create
@@ -59,19 +69,19 @@ class CourseController < ApplicationController
     @course.students << s
     redirect_to course_path(@course)
   end
-  
+
   private
 
   def lookup_course
     @course = Course.find(params[:id])
   end
 
-  
+
   def require_teacher
     logger.error "Showing for user #{current_user.email}"
     if !@course.teachers.exists?(current_user)
       application_not_found
     end
   end
-  
+
 end
