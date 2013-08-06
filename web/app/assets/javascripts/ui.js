@@ -825,3 +825,85 @@ function autoSaver(container, options) {
   };
 
 }
+
+
+function createTabPanel(container) {
+  var tabContainer = $("<div>").addClass("tabPanel");
+  var panelRow = $("<div>").addClass("tabPanels");
+  var current = false;
+  var tabs = [];
+  var titleRow = $("<div>").addClass("tabTitles");
+  function switchToCurrent() {
+    tabContainer.find(".tab").hide();
+    tabContainer.find(".tabTitle").removeClass("currentTab");
+    if (current.tab && current.title) {
+      current.tab.show();
+      current.title.addClass("currentTab");
+      // NOTE(dbp 2013-08-06): This is somewhat of a hack - Codemirror
+      // instances can't really work until they are shown, and need
+      // a manual refresh() (or mouse / keyboard input) to work.
+      current.tab.find(".CodeMirror").each(function(_, cmDom) {
+        cmDom.CodeMirror.refresh();
+      });
+    }
+  }
+  tabContainer.append(titleRow).append(panelRow);
+  container.append(tabContainer);
+  return {
+    addTab: function(title, dom, inputOptions)
+    /*: String, Dom, { cannotClose: Bool, prioritize: Bool } -> Undef */
+    {
+      var options = inputOptions ? inputOptions : {};
+      function switchHere() {
+        current = { tab: tab, title: title };
+        switchToCurrent();
+      }
+      var tab = $("<div>").addClass("tab").append(dom);
+      var title = $("<div>")
+        .addClass("tabTitle")
+        .text(title)
+        .on("click", switchHere);
+      var tabData = {title: title, tab: tab, index: tabs.length};
+      if (options.prioritize) {
+        tabData.prioritize = true;
+      } else {
+        tabData.prioritize = false;
+      }
+      tabs.push(tabData);
+      function close() {
+        tab.remove();
+        title.remove();
+        ct_log("tabs: ", tabs);
+        tabs = tabs.filter(function (tabStructure) {
+          return tabStructure.tab !== tab;
+        });
+
+        if (current.tab.length > 0 && current.tab[0] === tab[0]) {
+          var newTab = _.find(tabs,
+                              function (t) { return t.prioritize });
+          ct_log("tab: ", newTab);
+          if (!newTab) {
+            newTab = tabs[0];
+          }
+          newTab = newTab || {};
+          current = {
+            tab: newTab.tab,
+            title: newTab.title
+          };
+          switchToCurrent();
+        }
+      }
+      if(!options.cannotClose) {
+        var closeButton = $("<span>×</span>").addClass("closeTab").on("click", close);
+        title.append(closeButton);
+      }
+
+      titleRow.append(title);
+      panelRow.append(tab);
+
+      switchHere();
+
+      return { close: close };
+    }
+  };
+}
