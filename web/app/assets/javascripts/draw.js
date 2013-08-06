@@ -276,3 +276,8 @@ function drawInstructionsWidget(html) {
 function drawSaveContainer() {
   return $("<div>").addClass("saveIndicator");
 }
+
+
+function drawRunButton() {
+  return $("<div>").addClass("runButton").html("run &rarr;");
+}

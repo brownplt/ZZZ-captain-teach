@@ -4,6 +4,11 @@ function makeEditor(container, options) {
     initial = options.initial;
   }
 
+  var runButton = drawRunButton();
+  if (options.run) {
+    container.append(runButton);
+  }
+
   var textarea = jQuery("<textarea>");
   textarea.val(initial);
   container.append(textarea);
@@ -27,8 +32,15 @@ function makeEditor(container, options) {
   };
 
   cmOptions = _.merge(cmOptions, options.cmOptions);
-  
+
   var CM = CodeMirror.fromTextArea(textarea[0], cmOptions);
+
+  if (options.run) {
+    runButton.on("click", function () {
+      runFun(CM.getValue(), {check: true});
+    });
+  }
+
 
   return CM;
 }
@@ -36,4 +48,3 @@ function makeEditor(container, options) {
 function formatCode(container, src) {
   CodeMirror.runMode(src, "pyret", container);
 }
-

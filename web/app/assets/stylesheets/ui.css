@@ -178,6 +178,24 @@
   color: #393;
 }
 
-.saving {
+.saving {b
   color: #f33;
+}
+
+
+.runButton {
+    background-color: #06f;
+    border: 1px solid #06f;
+    border-radius: 3px;
+    color: #eee;
+    margin: 0 0 0 auto;
+    width: 50px;
+    padding: 5px;
+    text-align: center;
+}
+
+.runButton:hover {
+    background-color: #eee;
+    color: #06f;
+    cursor: pointer;
 }
