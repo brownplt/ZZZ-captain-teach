@@ -1,6 +1,7 @@
 Simple assignment test for summer students@
 [] Pick assignment
 [] Error reporting
+[x] Check-results reporting
 [] Pretty printing
 [x] Review instructions / make them look nicer
 [] Run button
@@ -12,6 +13,7 @@ Simple assignment test for summer students@
    above, but reviews should be below... An option
 
 Deployment & Performance;
+[] Report abuse for students on cross-feedback
 [] Remove every hardcoded localhost
 [] Encryption
 [] Caching/torture testing for performance
