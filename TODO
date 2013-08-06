@@ -54,6 +54,7 @@ UI/JS:
 [] Extend code-assignment builder to do versioning
   - and save intermediate code!
 [] Copy to beginning of the file even with atomic
+[] Focus interactions when things run
 
 Curricular:
 [] Sensible front-end on finding that the assigned reviews are completely
