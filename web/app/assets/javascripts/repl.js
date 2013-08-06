@@ -306,7 +306,7 @@ function makeEvaluator(container, handleReturnValue, onReady) {
       write: globalWhalesongWriter,
       // TODO(joe): It's unfortunate that naming is by path here
       language: "root/lang/pyret-lang-whalesong.rkt",
-      compilerUrl: "http://localhost:8080/rpc.html"
+      compilerUrl: WHALESONG_URL + "/rpc.html"
     }, function (theRepl) {
       repl = theRepl;
       onReady();
