@@ -80,8 +80,8 @@ function makeRepl(container) {
       pointer--;
     }
   }
-  
-  
+
+
 
   var promptContainer = jQuery("<div id='prompt-container'>");
   var prompt = jQuery("<div>").css({
@@ -90,12 +90,12 @@ function makeRepl(container) {
   });
   promptContainer.append($("<span>&gt;&nbsp;</span>"))
     .append(prompt);
-  
 
-    
+
+
   var output = jQuery("<div id='output' class='cm-s-default'>");
   var breakButton = jQuery("<img id='break' src='" + WHALESONG_URL + "/break.png'>");
-  
+
   var clearDiv = jQuery("<div class='clear'>");
 
   container.append(output).append(promptContainer).
@@ -118,9 +118,10 @@ function makeRepl(container) {
     evaluator.run("run", src, clear, thisReturnHandler, thisWrite, thisError, options);
   };
 
-  
+
   var CM = makeEditor(prompt, {
-    run: function(code, opts, replOpts) {
+    simpleEditor: true,
+    run: function(code, opts, replOpts){
       items.unshift(code);
       pointer = -1;
       write(jQuery('<span>&gt;&nbsp;</span>'));
@@ -170,12 +171,12 @@ function makeRepl(container) {
   var prettyPrint = function(result) {
     if (result.hasOwnProperty('_constructorName')) {
       switch(result._constructorName.val) {
-      case 'p-num': 
+      case 'p-num':
       case 'p-bool':
       case 'p-str':
         write(jQuery("<span class='repl-output'>").append(pyretMaps.getPrim(result)));
         write(jQuery('<br/>'));
-        return true;       
+        return true;
       case 'p-nothing':
         return true;
       default:
@@ -252,8 +253,8 @@ function makeRepl(container) {
 
   var evaluator = makeEvaluator(container, prettyPrint, onReady);
 
-  
-  var onBreak = function() { 
+
+  var onBreak = function() {
     evaluator.requestBreak(clear);
   };
 
@@ -269,13 +270,13 @@ function makeRepl(container) {
     CM.focus();
   } };
 
-  var onReset = function() { 
+  var onReset = function() {
     evaluator.requestReset(function() {
       output.empty();
       clear();
     });
-  };      
-  
+  };
+
 
   var onExpressionEntered = function(srcElt) {
     var src = CM.getDoc().getValue();
@@ -291,10 +292,10 @@ function makeRepl(container) {
                   {});
   };
 
-  
+
   breakButton.hide();
   breakButton.click(onBreak);
-  
+
   return runCode;
 }
 
@@ -334,4 +335,3 @@ function makeEvaluator(container, handleReturnValue, onReady) {
 
   return {run: runCode, requestBreak: breakFun, requestReset: resetFun};
 }
-

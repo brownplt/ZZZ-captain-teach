@@ -5,7 +5,7 @@ function makeEditor(container, options) {
   }
 
   var runButton = drawRunButton();
-  if (options.run) {
+  if (options.run && !options.simpleEditor) {
     container.append(runButton);
   }
 
@@ -20,6 +20,8 @@ function makeEditor(container, options) {
     }
   }
 
+  var useLineNumbers = !options.simpleEditor;
+
   var cmOptions = {
     extraKeys: {
       "Shift-Enter": function(cm) { runFun(cm.getValue(), {check: true}); },
@@ -28,7 +30,7 @@ function makeEditor(container, options) {
     },
     indentUnit: 2,
     viewportMargin: Infinity,
-    lineNumbers: true
+    lineNumbers: useLineNumbers
   };
 
   cmOptions = _.merge(cmOptions, options.cmOptions);
