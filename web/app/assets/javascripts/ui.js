@@ -426,6 +426,7 @@ function createEditor(cm, uneditables, options) {
   }
 
   return {
+    cm: cm,
     setAt: setAt,
     getAt: getAt,
     addWidgetAt: addWidgetAt,
@@ -785,3 +786,42 @@ function makeHighlightingRunCode(codeRunner) {
     codeRunner(src, theseUIOptions, options);
   }
 }
+
+function autoSaver(container, options) {
+  // save every 5 seconds, if things have been edited
+  var minSaveInterval = 5000;
+  var statusElt = $("<span>").text("Saved").addClass("saved");
+  var goingToSave = false;
+  var setSaving = function() {
+    statusElt.text("Saving...").removeClass("saved").addClass("saving");
+    goingToSave = true;
+  };
+  var setSaved = function() {
+    statusElt.text("Saved").addClass("saved").removeClass("saving");
+    goingToSave = false;
+  };
+  var setFailure = function() {
+    statusElt.text("Unable to save.");
+    goingToSave = false;
+  };
+
+  container.append(statusElt);
+  
+  return {
+    onEdit: function() {
+      if(!goingToSave) {
+        setSaving();
+        setTimeout(function() {
+          options.save(function() {
+              setSaved();
+            },
+            function() {
+              setFailure(); 
+            });
+        }, minSaveInterval);
+      }
+    }
+  };
+
+}
+

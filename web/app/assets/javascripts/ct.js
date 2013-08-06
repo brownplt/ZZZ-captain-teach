@@ -175,6 +175,9 @@ function codeAssignment(container, resources, args) {
   var editorContainer = drawEditorContainer();
   tabs.addTab("Code", editorContainer, { cannotClose: true });
 
+  var saveContainer = drawSaveContainer();
+  editorContainer.append(saveContainer);
+
   var codeDelimiters =
     args.codeDelimiters.map(function (cd) {
     if (cd.type === "code") {
@@ -238,6 +241,7 @@ function codeAssignment(container, resources, args) {
         };
       }
       toSaveAfterReview.status = status;
+      currentState = status;
       saveResource(resources.path, toSaveAfterReview, resumeCoding);
     }
 
@@ -331,7 +335,9 @@ function codeAssignment(container, resources, args) {
         ct_log("after ", step.name);
         var toSave = {};
         toSave.parts = getContents();
-        toSave.status = { step: step.name, reviewing: true };
+        var status = { step: step.name, reviewing: true };
+        toSave.status = status;
+        currentState = status;
 
         saveResource(resources.path, toSave, function() {
             editor.disableAll();
@@ -350,6 +356,20 @@ function codeAssignment(container, resources, args) {
         codeDelimiters,
         editorOptions
       );
+
+    var saver = autoSaver(saveContainer, {
+        save: function(f, e) {
+          saveResource(resources.path, {
+              parts: getContents(),
+              status: currentState
+            },
+            f,
+            e
+          );
+        }
+      });
+
+    editor.cm.on("change", saver.onEdit);
 
     if (currentState.reviewing) {
       editor.disableAll();

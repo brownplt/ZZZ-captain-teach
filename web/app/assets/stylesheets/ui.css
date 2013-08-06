@@ -169,3 +169,15 @@
 .lineError.cptteach-fixed {
   background-color: #f03;
 }
+
+.saveIndicator {
+  float: right;
+}
+
+.saved {
+  color: #393;
+}
+
+.saving {
+  color: #f33;
+}

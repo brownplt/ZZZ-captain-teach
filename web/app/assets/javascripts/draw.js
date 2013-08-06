@@ -325,3 +325,7 @@ function drawInstructionsWidget(html) {
 
   return dom;
 }
+
+function drawSaveContainer() {
+  return $("<div>").addClass("saveIndicator");
+}
