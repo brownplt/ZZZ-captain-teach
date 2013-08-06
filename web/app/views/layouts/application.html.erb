@@ -3,6 +3,7 @@
 <head>
   <title>App</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <script>var RAILS_HOST = "<%= "//#{request.env["SERVER_NAME"]}:#{request.env["SERVER_PORT"]}" %>";</script>
   <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
   <%= stylesheet_link_tag    "ui", media: "all", "data-turbolinks-track" => true %>
   <%= stylesheet_link_tag    "editor", media: "all", "data-turbolinks-track" => true %>
