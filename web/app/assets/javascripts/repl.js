@@ -136,6 +136,7 @@ function makeRepl(container) {
                   clear,
                   prettyPrint,
                   write,
+                  onError,
                   {});
     },
     initial: "",
