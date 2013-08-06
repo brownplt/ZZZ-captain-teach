@@ -6,7 +6,7 @@ Simple assignment test for summer students@
 [x] Review instructions / make them look nicer
 [] Run button
 [] Save button
-[] Submit button in better location
+[x] Submit button in better location
 [x] Reviews button de-uglify
 [] Tab closing for reviews (prioritize other reviews)
 [x] Figure out proper above / below for widgets. Instructions should

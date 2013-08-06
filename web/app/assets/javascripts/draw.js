@@ -185,8 +185,14 @@ function drawStepButton(text) {
   return $("<button>").text(text);
 }
 
-function drawCurrentStepGutterMarker() {
-  return $("<span>").addClass("gutterButton active").html("&rarr;")[0];
+function drawCurrentStepGutterMarker(isSubmittable) {
+  var b = $("<span>").addClass("gutterButton active");
+  if (isSubmittable) {
+      b.addClass("submittable").html("submit");
+  } else {
+    b.html("&rarr;");
+  }
+  return b;
 }
 
 function drawSwitchToStepGutterMarker(n) {

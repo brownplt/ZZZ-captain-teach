@@ -262,6 +262,7 @@ $(function() {
 </div>
 <script>
 $(function() {
+  var reviewButtonShown = false;
   var editor = steppedEditor(
     $("#stepped-editor"),
     [
@@ -316,7 +317,13 @@ $(function() {
         "find_tests": "Write test cases for find:"
       },
       drawPartGutter: function(step, f) {
-        f(drawReviewsButton(1)[0]);
+        // NOTE(dbp 2013-08-06): This is just a hack to only show
+        // one review button
+        if(reviewButtonShown) {
+          f(drawReviewsButton(1)[0]);
+        } else {
+          reviewButtonShown = true;
+        }
       }
     });
 });

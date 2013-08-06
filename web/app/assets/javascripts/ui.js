@@ -503,16 +503,10 @@ function steppedEditor(container, uneditables, options) {
       initial: options.initial
   });
 
-  // NOTE(dbp 2013-7-29): hiding the buttons, for now.
 
   function switchTo(i) {
     if (i > pos) { pos = i; }
     cur = i;
-    if (i === pos) {
-      doneButton.show();
-    } else {
-      doneButton.hide();
-    }
     draw();
   }
 
@@ -556,10 +550,21 @@ function steppedEditor(container, uneditables, options) {
         });
       }
       if (i === cur) {
-        var marker = drawCurrentStepGutterMarker();
+        var isSubmittable = cur === pos;
+        var marker = drawCurrentStepGutterMarker(isSubmittable);
+        if (isSubmittable) {
+          marker.on("click", function () {
+            if (options.afterHandlers &&
+                options.afterHandlers[steps[pos]]) {
+              options.afterHandlers[steps[pos]](editor, resume);
+            } else {
+              resume()
+            }
+          });
+        }
         cm.setGutterMarker(editor.lineOf(e),
                            gutterId,
-                           marker);
+                           marker[0]);
         editor.enableAt(e);
 
         if (options.instructions && options.instructions[e]) {
@@ -595,16 +600,6 @@ function steppedEditor(container, uneditables, options) {
       draw();
     }
   }
-  var doneButton = drawNextStepButton();
-  doneButton.on("click", function () {
-    if (options.afterHandlers && options.afterHandlers[steps[pos]]) {
-      options.afterHandlers[steps[pos]](editor, resume);
-    } else {
-      resume()
-    }
-  });
-
-  $(container).append(doneButton);
 
   return _.merge(editor, {
     resumeAt: function(step) {

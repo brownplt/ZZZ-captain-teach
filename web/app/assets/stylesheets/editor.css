@@ -59,6 +59,17 @@
   background-color: #06f;
 }
 
+.gutterButton.active.submittable {
+  border: 1px solid #06f;
+  width: 55px;
+  margin-left: -25px;
+}
+
+.gutterButton.active.submittable:hover {
+  background-color: #eee;
+  color: #06f;
+  }
+
 .gutterButton:hover {
     cursor: pointer;
 }
