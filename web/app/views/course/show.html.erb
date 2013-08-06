@@ -21,6 +21,21 @@
   <% end %>
 </ul>
 
+<div>
+  <button onclick="$(this).next().toggle()">Add From List</button>
+  <div style="display: none">
+    <% User.all.each do |u| %>
+      <% if u.email and (!u.student_courses.exists?(@course)) %>
+        <%= form_tag(add_student_path) do %>
+        <%= label_tag(:email, u.email) %>
+        <%= hidden_field_tag(:email, u.email) %>
+        <%= submit_tag("+") %>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+
 <%= form_tag(add_student_path) do %>
 <%= label_tag(:email, "Email:") %>
 <%= text_field_tag(:email) %>
