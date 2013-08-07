@@ -261,7 +261,7 @@ function createEditor(cm, uneditables, options) {
     marks.push(doc.markText(
       oldEnd,
       markEnd, {
-        atomic: true,
+        //atomic: true,
         readOnly: true,
         inclusiveLeft: isFirst,
         inclusiveRight: isLast,
