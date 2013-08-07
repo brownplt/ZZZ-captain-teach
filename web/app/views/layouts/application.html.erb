@@ -32,7 +32,9 @@
   <div id="awesome-panel"></div>
 <% end %>
 
+<% if current_user %>
 <%= link_to "Course Dashboard", "/course" %>
+<% end %>
 
 <% if authenticated? %>
 <%= logout_link  %>

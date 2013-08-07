@@ -2,7 +2,7 @@
   <h3>Courses I'm Taking:</h3>
   <% @student_courses.each do |c| %>
   <div>
-    <h4><%= link_to c.title, c %></h4>
+    <h4>c.title</h4>
     <ul>
       <% c.assignments.each do |a| %>
       <li><%= link_to a.path_ref.path, assignment_path(a.uid) %></li>

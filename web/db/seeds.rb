@@ -6,10 +6,26 @@
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
+if Rails.env.production?
+  FileUtils.rm_rf(USER_GIT_REPO_PATH)
+  FileUtils.mkdir(USER_GIT_REPO_PATH)
 
-# NOTE(dbp 2013-08-06): For now, including production, but it should
-# probably NOT be here.
-if Rails.env.development? or Rails.env.test? or Rails.env.production?
+  captains_log = UserRepo.create!(:path => ASSIGNMENTS_PATH)
+
+  joe = User.create!(:email => "joe.politz@gmail.com")
+  dbp = User.create!(:email => "dbp@dbpmail.net")
+  course = Course.create!(:title => "Experimental Course")
+  course.teachers << joe
+  course.teachers << dbp
+
+  sorting = PathRef.create!(:user_repo => captains_log, :path => "sorting.jrny")
+  sorting_assignment = Assignment.create!({
+    :path_ref => sorting,
+    :course => course
+  })
+end
+
+if Rails.env.development? or Rails.env.test?
 
   FileUtils.rm_rf(USER_GIT_REPO_PATH)
   FileUtils.mkdir(USER_GIT_REPO_PATH)
