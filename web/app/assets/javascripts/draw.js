@@ -299,7 +299,7 @@ function drawClearFix() {
 function drawErrorMessageWithLoc(message, link) {
   var errorMessage = $("<span>").text(message);
   return $("<div>").addClass("errorMessage")
-    .append(link)
+    .append(link.addClass("errorLocation"))
     .append("<span>:&nbsp;</span>")
     .append(errorMessage);
 }
@@ -307,8 +307,8 @@ function drawErrorMessageWithLoc(message, link) {
 function drawErrorLocations(links) {
   var container = $("<div>").addClass("errorLocations");
   links.forEach(function(l) {
-    container.append($("<div>").append(l));
+    container.append($("<div>").addClass("errorLocation")
+                               .append(l));
   })
   return container;
 }
-

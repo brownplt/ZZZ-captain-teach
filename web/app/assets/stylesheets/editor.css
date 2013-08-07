@@ -10,6 +10,7 @@
 .cptteach-fixed { line-height: 1.5; background: #ddd; }
 
 .inlineExample {
+    font-family: monospace;
     padding: 0 2px;
 }
 
