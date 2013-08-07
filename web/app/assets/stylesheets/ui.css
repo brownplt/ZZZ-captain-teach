@@ -189,6 +189,7 @@
     color: #eee;
     text-align: center;
     margin: 3px 3px 3px auto;
+    padding: 5px;
 }
 
 .blueButton:hover {
@@ -199,12 +200,9 @@
 
 .runButton {
     width: 50px;
-    padding: 5px;
 }
 
 .resetButton {
-    width: 40px;
-    padding: 5px;
     float: left;
 }
 
@@ -224,4 +222,9 @@
 .submitStep span:hover {
   background-color: white;
   color: #06f;
+}
+
+
+.repl-echo {
+    padding: 0 2px;
 }
