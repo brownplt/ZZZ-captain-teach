@@ -553,6 +553,7 @@ function steppedEditor(container, uneditables, options) {
         if (isSubmittable) {
           var submitButton = drawSubmitStepButton(steps[pos]);
           submitButton.on("click", function () {
+            submitButton.hide();
             if (options.afterHandlers &&
                 options.afterHandlers[steps[pos]]) {
               options.afterHandlers[steps[pos]](editor, resume);
@@ -577,8 +578,9 @@ function steppedEditor(container, uneditables, options) {
       } else {
         if (i <= pos) {
           var marker = drawSwitchToStepGutterMarker(i+1);
-          $(marker).on("click", function () {
+          $(marker).on("click", function (e) {
             switchTo(i);
+            e.preventDefault();
             return false;
           });
         } else {
@@ -704,7 +706,15 @@ function makeHighlightingRunCode(codeRunner) {
   return function(src, uiOptions, options) {
     function makeScrollingLocationLink(cm, loc) {
       function locToStr(loc) {
-        return "Line " + loc.line + ", Column " + loc.column;
+        if (loc.line > 0) {
+          return "Line " + loc.line + ", Column " + loc.column;
+        }
+        else {
+          return "Unknown location";
+        }
+      }
+      if(!loc) {
+        loc = { line: -1, column: -1 };
       }
       var errorLink = $("<a>");
       errorLink.text(locToStr(loc));
@@ -748,9 +758,6 @@ function makeHighlightingRunCode(codeRunner) {
         ct_log("Error is: ", err.racketError);
         var cms = err.racketError._fields[1];
         var loc = err.racketError._fields[2];
-        function racketLocToJSON(loc) {
-          ct_log("Loc is: ", loc);
-        }
         whalesongFFI.callRacketFun(
             whalesongFFI.getPyretLib("p:mk-exn"),
             [err.racketError],
@@ -803,14 +810,12 @@ function makeHighlightingRunCode(codeRunner) {
       blockResultsJSON.results.map(function(result) {
         result.map(function(checkBlockResult) {
           var container = $("<div>");
-          var message = $("<p>");
           var errorLink;
-          var errorMessage = $("<span>");
           var name = checkBlockResult.name;
           container.append($("<p>").text(name));
-          container.append(message).append(errorLink).append(errorMessage);
           container.addClass("check-block");
           var messageText = "";
+          console.log(checkBlockResult);
           if (checkBlockResult.err) {
             if (checkBlockResult.err.message) {
               messageText = checkBlockResult.err.message;
@@ -818,9 +823,9 @@ function makeHighlightingRunCode(codeRunner) {
             else {
               messageText = checkBlockResult.err;
             }
-            var loc = checkBlockResult.err.location;
+            var loc = checkBlockResult.location;
             errorLink = makeScrollingLocationLink(uiOptions.cm, loc);
-            errorMessage.text(messageText);
+            container.append(drawErrorMessageWithLoc(messageText, errorLink));
             container.css({
               "background-color": "red"
             });
