@@ -300,6 +300,8 @@ function codeAssignment(container, resources, args) {
       });
       var delimiterValues = codeDelimiters.map(function (codeDelimiter) {
         return codeDelimiter.value;
+      }).filter(function (val) {
+        return typeof val === "string";
       });
       var editor = createEditor(cm, delimiterValues, thisEditorOptions);
       editor.disableAll();
