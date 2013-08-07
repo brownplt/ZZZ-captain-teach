@@ -289,7 +289,7 @@ function drawResetButton() {
   return $("<div>")
     .addClass("blueButton")
     .addClass("resetButton")
-    .html("reset");
+    .html("reset editor");
 }
 
 function drawClearFix() {

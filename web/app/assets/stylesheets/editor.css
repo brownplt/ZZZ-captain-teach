@@ -1,4 +1,4 @@
-.CodeMirror, .inlineExample { line-height: 1.5; border: 1px solid black; background: #eee; color: #eee; }
+.CodeMirror, .inlineExample { line-height: 1.5; border: 1px solid black; background: #f8f8f8; color: #eee; }
 .CodeMirror div.CodeMirror-cursor { border-left: 1px solid #bbb; }
 .cm-s-default .cm-comment { color: #39f; }
 .cm-s-default .cm-builtin { color: #555; }
