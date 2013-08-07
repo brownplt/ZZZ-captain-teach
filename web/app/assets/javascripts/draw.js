@@ -295,3 +295,20 @@ function drawResetButton() {
 function drawClearFix() {
   return $("<div>").addClass("clearfix");
 }
+
+function drawErrorMessageWithLoc(message, link) {
+  var errorMessage = $("<span>").text(message);
+  return $("<div>").addClass("errorMessage")
+    .append(link)
+    .append("<span>:&nbsp;</span>")
+    .append(errorMessage);
+}
+
+function drawErrorLocations(links) {
+  var container = $("<div>").addClass("errorLocations");
+  links.forEach(function(l) {
+    container.append($("<div>").append(l));
+  })
+  return container;
+}
+

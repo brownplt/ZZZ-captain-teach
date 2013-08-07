@@ -744,6 +744,42 @@ function makeHighlightingRunCode(codeRunner) {
           output.append($("<div>").append(makeScrollingLocationLink(uiOptions.cm, l)));
         });
       }
+      else if (err.racketError) {
+        ct_log("Error is: ", err.racketError);
+        var cms = err.racketError._fields[1];
+        var loc = err.racketError._fields[2];
+        function racketLocToJSON(loc) {
+          ct_log("Loc is: ", loc);
+        }
+        whalesongFFI.callRacketFun(
+            whalesongFFI.getPyretLib("p:mk-exn"),
+            [err.racketError],
+            function(pErr) {
+              var err = pyretMaps.pyretToJSON(pErr);
+              ct_log("I expect a pyret error as json here: ", err);
+              var messageText;
+              if (err.value && err.value.message) {
+                messageText = err.value.message;
+              }
+              else if (err.value) {
+                messageText = err.value;
+              }
+              else {
+                messageText = "Runtime error";
+              }
+              var loc = { line: err.line, column: err.column };
+              var errorLink = makeScrollingLocationLink(uiOptions.cm, loc);
+              var errDom = drawErrorMessageWithLoc(messageText, errorLink);
+              output.append(errDom);
+              var traceDom = drawErrorLocations(
+                err.trace.map(function (l) { return makeScrollingLocationLink(uiOptions.cm,l) }));
+              output.append(traceDom);
+            },
+            function(e) {
+              ct_error("Couldn't get trace: ", e);
+            }
+          );
+      }
       else if (err.message) {
         output.append($("<div>").text(err.message));
       }
