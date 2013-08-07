@@ -167,7 +167,7 @@ function codeExample(container, resources, args) {
   container.append(codeContainer);
   var cm = makeEditor(codeContainer, {
       initial: code,
-      run: window.RUN_CODE
+      run: makeHighlightingRunCode(RUN_CODE)
    });
 
   ASSIGNMENT_PIECES.push({id: resources, editor: cm, mode: args.mode});
