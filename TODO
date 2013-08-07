@@ -2,8 +2,10 @@ Simple assignment test for summer students@
 [x] Pick assignment
   - Quicksort
 [] Error reporting
+  [x] Static errors
+  [] Runtime errors
 [x] Check-results reporting
-[] Pretty printing
+[x] Pretty printing
 [x] Review instructions / make them look nicer
 [x] Run button
 [x] Save button

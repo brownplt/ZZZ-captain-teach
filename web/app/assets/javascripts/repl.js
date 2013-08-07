@@ -181,8 +181,19 @@ function makeRepl(container) {
       case 'p-num':
       case 'p-bool':
       case 'p-str':
-        write(jQuery("<span class='repl-output'>").append(pyretMaps.getPrim(result)));
-        write(jQuery('<br/>'));
+      case 'p-object':
+      case 'p-fun':
+      case 'p-method':
+        whalesongFFI.callPyretFun(
+            whalesongFFI.getPyretLib("tostring"),
+            [result],
+            function(s) {
+              var str = pyretMaps.getPrim(s);
+              write(jQuery("<span class='repl-output'>").text(str));
+              write(jQuery('<br/>'));
+            }, function(e) {
+              ct_err("Failed to tostring: ", result);
+            });
         return true;
       case 'p-nothing':
         return true;
