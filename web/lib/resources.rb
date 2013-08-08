@@ -313,6 +313,8 @@ module Resource
       part_ref = AssignmentController.part_ref(ref, type)
 
       data = submissions_to_review.map do |sub|
+        sub.review_count = sub.review_count + 1
+        sub.save!
         {
           resource: sub.resource,
           save_review: Resource::mk_resource(

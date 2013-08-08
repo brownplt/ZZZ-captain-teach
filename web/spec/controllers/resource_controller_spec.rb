@@ -460,6 +460,19 @@ describe ResourceController do
 
       Blob.count.should(eq(2))
 
+      def assert_review_count(u, n)
+        Submitted.find_by(
+          :activity_id => @activity_id,
+          :submission_type => "check",
+          :user_id => u
+        ).review_count.should(eq(n))
+      end
+      assert_review_count(52, 1)
+      assert_review_count(88, 1)
+      assert_review_count(34, 1)
+      assert_review_count(22, 0)
+      assert_review_count(@user.id, 0)
+
     end
 
 
