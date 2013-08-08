@@ -830,7 +830,7 @@ function makeHighlightingRunCode(codeRunner) {
               "background-color": "red"
             });
           }
-          checkBlockResult.results.reverse().forEach(function(individualResult) {
+          checkBlockResult.results.forEach(function(individualResult) {
             if (individualResult.reason) {
               container.append(
                 drawFailure(individualResult.name, individualResult.reason));
