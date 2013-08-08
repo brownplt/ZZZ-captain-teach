@@ -1,12 +1,14 @@
-#!/bin/bash
+#!/bin/bash --login
 
 cd web/
 
-rake db:setup RAILS_ENV=test
+echo "Starting up rails server, setting up database"
+
+rake db:setup RAILS_ENV=test >&/dev/null
 
 PIDFILE="../tests/casper-test-server.pid"
 
-rails s -e test -p 4000 -P $PIDFILE &
+rails s -e test -p 4000 -P $PIDFILE >&/dev/null &
 
 PID=$!
 echo "PID is $PID"
@@ -16,9 +18,15 @@ while [ ! -s $PIDFILE ]
   printf "%10s \r" waiting...
 done
 
-cat $PIDFILE
+#cat $PIDFILE
+echo "running scripts"
 
-casperjs ../tests/casper-tests.js
+for a in `ls ../tests/casper/*.js`
+do
+    echo $a;
+    casperjs $a;
+done;
+
+#casperjs ../tests/casper-tests.js
 
 kill $PID
-

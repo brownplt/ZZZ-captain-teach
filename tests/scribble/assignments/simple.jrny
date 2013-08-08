@@ -1,0 +1,17 @@
+#lang scribble/base
+
+@(require ct-scribble/ct-lib)
+
+@journey{59033786-0056-11e3-b045-3f0b5dfa049f}
+
+@title{Foozler}
+
+@code-assignment["5d814cf8-0056-11e3-823a-530ef985ffb3" 2]{
+
+  @name{Barfighter}
+
+  @fun-part["add"]{
+    @header{add(a :: Number, b :: Number) -> Number}
+  }
+
+}

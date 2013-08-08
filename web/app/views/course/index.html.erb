@@ -1,7 +1,7 @@
 <% if @student_courses.length != 0 %>
   <h3>Courses I'm Taking:</h3>
   <% @student_courses.each do |c| %>
-  <div>
+  <div class='course'>
     <h4><%= c.title %></h4>
     <ul>
       <% c.assignments.each do |a| %>
@@ -15,7 +15,7 @@
 <% if @teacher_courses.length != 0 %>
   <h3>Courses I'm Teaching:</h3>
   <% @teacher_courses.each do |c| %>
-  <div>
+  <div class='course'>
     <h4><%= link_to c.title, c %></h4>
     <ul>
       <% c.assignments.each do |a| %>

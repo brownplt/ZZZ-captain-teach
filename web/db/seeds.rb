@@ -25,7 +25,32 @@ if Rails.env.production?
   })
 end
 
-if Rails.env.development? or Rails.env.test?
+if Rails.env.test?
+
+  FileUtils.rm_rf(USER_GIT_REPO_PATH)
+  FileUtils.mkdir(USER_GIT_REPO_PATH)
+
+  captain = User.create!(:email => "edward@captainteach.org")
+  mates_log = UserRepo.create!(:path => REPOSITORY_PATH)
+  course = Course.create!(:title => "TEST")
+  course.teachers << captain
+
+  path1 = PathRef.create!(:user_repo => mates_log, :path => "tests/scribble/assignments/simple.jrny")
+  example_assignment1 = Assignment.create!({
+    :path_ref => path1,
+    :course => course
+  })
+
+
+  user1 = User.create!(:email => "henry@cs.brown.edu")
+  course.students << user1
+
+  user2 = User.create!(:email => "cedric@cs.brown.edu")
+  course.students << user2
+
+end
+
+if Rails.env.development?
 
   FileUtils.rm_rf(USER_GIT_REPO_PATH)
   FileUtils.mkdir(USER_GIT_REPO_PATH)

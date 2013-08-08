@@ -8,6 +8,8 @@ require File.expand_path('../../lib/resources.rb', __FILE__)
 # Initialize the rails application.
 App::Application.initialize!
 
+REPOSITORY_PATH = File.expand_path("../../../", __FILE__)
+
 ASSIGNMENTS_PATH = File.expand_path("../../../ct-assignments/", __FILE__)
 
 DEFAULT_GIT_USER = {email: "", name: "Edward Teach"}
