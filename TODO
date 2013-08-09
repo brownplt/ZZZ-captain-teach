@@ -1,4 +1,21 @@
-Feedback from 8/7
+Need To Do:
+[] Rewrite sorting.jrny to be an actual tutorial
+   - change green to pass in copy
+   - s/builtin/builtins/
+   - introduce data, before cases
+   - instructions for Shift-Enter too late - switch Enter and Shift-Enter?
+   - Object literals? Should come later, bring up data first
+   - minus on lists implied by instructions
+   - functional object update syntax is confusing (introduce later?)
+   - symmetric syntax of for is confusing for fold (why does accumulator have to be where it is?)
+   - data versus data type. consistent style / vocabulary.
+   - use identifiers that are NOT the fields in cases
+   - append as identifier
+   - append needs to be described - what should it do?
+   - interactions should come earlier
+   - if they are to use random for pivot, should introduce list.get
+[] Review should have better feedback when you don't fill in values
+[] Background on code in reviews, highlight whole lines
 [] Error Messages
    - empty args for for loop is bizarre
    - Constructor form in messages
@@ -18,50 +35,11 @@ Feedback from 8/7
    - multiple expressions on the same line (should at least be error on repl)
    X check as identifier
    X disallow `is` outside check
-   X unbound identifiers (env with builtins needed)
-   X check as identifier
-   X disallow `is` outside check
-   X unbound identifiers (env with builtins needed)
-[] Colors on everything
-[] Rewrite sorting.jrny to be an actual tutorial
-   - change green to pass in copy
-   - s/builtin/builtins/
-   - introduce data, before cases
-   - instructions for Shift-Enter too late - switch Enter and Shift-Enter?
-   - Object literals? Should come later, bring up data first
-   - minus on lists implied by instructions
-   - functional object update syntax is confusing (introduce later?)
-   - symmetric syntax of for is confusing for fold (why does accumulator have
-     to be where it is?)
-   - data versus data type. consistent style / vocabulary.
-   - use identifiers that are NOT the fields in cases
-   - append as identifier
-   - append needs to be described - what should it do?
-   - interactions should come earlier
-   - if they are to use random for pivot, should introduce list.get
+   - unbound identifiers (env with builtins needed)
 [] UI jump when submitting work and starting reviews
-[] Should we stub out functions so they pass type checking? / Should run only be shown for definition stages.
-[] Review should have better feedback when you don't fill in values
-[] Background on code in reviews, highlight whole lines
-[] Standalone check-blocks (for many reasons, one is you can copy your own into repl for someone elses code)
-   - Run this code on my code?
-[] Printing vs evaling (ie, 2 == 3, run, should print false) the result of program
-[] Distinguish print, and evaluating
-[] Indentation checker
 [] syntax for check-exn
-[] Indentation bugs:
-   - except(e):
-   - fun f():
-     o.{o:x} # not indented
-     end
 [] Refreshing when in reviews doesn't focus review tabs, and doesn't move
    editor to the right step
-[] Doc string on builtins
-[] Handling of unexpected racket errors (like unbound identifiers?)
-[] Highlight the part you are reviewing
-[] Highlight the part you are editing
-[] Run button, title, and saving indicator should follow page down.
-[] Look at ben's state (reloaded, he was put at first step)
 [] Tokens that aren't lexed are invisible! (like ?)
 [] Clear for interactions
 [] Review Interface / Design
@@ -70,6 +48,39 @@ Feedback from 8/7
    - Concern: "same as the last guy" for comments. Maybe don't close tabs until all reviews done?
 [] Highlighting on errors should be removed
 [] <unprintable-expr> on pretty printer
+[] Highlight the part you are reviewing
+[] Highlight the part you are editing
+[] Run button, title, and saving indicator should follow page down.
+[] Plumb name of editor for sending to server, so parse errors aren't in program "run".
+[] Progress is wierd - shouldn't fill when you are on the last step. Maybe use orange/blue?
+[] Submit button got lost sometimes - highlight and delete?
+[] repl loses newlines in echo
+[] phrasing of values not equal in "is" (maybe "expected...")
+[] Handling of unexpected racket errors (like unbound identifiers?)
+[] Indentation bugs:
+   - except(e):
+   - fun f():
+     o.{o:x} # not indented
+     end
+
+Want To Do:
+[] Doc string on builtins
+[] Standalone check-blocks (for many reasons, one is you can copy your own into repl for someone elses code)
+   - Run this code on my code?
+[] Indentation checker
+[] Confused about whether run did anything (for simple examples)
+[] Draw review blocks as code examples (so you can play with them and reset)
+[] Printing vs evaling (ie, 2 == 3, run, should print false) the result of program
+
+Not Necessary:
+[] should print nothing? *note*: we do if you call "print" - it is javascript that skips
+[] Should we stub out functions so they pass type checking? / Should run only be shown for definition stages.
+[] Tab at beginning of line with text should jump to beginning of text
+[] Think about narrow screens
+
+All Feedback:
+[] Colors on everything
+[] Look at ben's state (reloaded, he was put at first step)
 [] Check for termination:
     doubled-numbers = for map(elt from [1, 2, 3]):
       elt * 2
@@ -85,24 +96,14 @@ Feedback from 8/7
       number.modulo(2) == 0
     end
     print(odd-numbers)
-[] Tab at beginning of line with text should jump to beginning of text
-[] Exceptions that occur when computing the the values for comparison in check blocks
-   - `is` could think stuff
-[] If error is already on the screen, don't scroll to it, when clicking on
-   location information
-[] If all tests pass, show that. maybe highlight in editor, and just print
-   summary in interactions
-[] Plumb name of editor for sending to server, so parse errors aren't in program "run".
-[] Think about narrow screens
-[] Progress is wierd - shouldn't fill when you are on the last step. Maybe use orange/blue?
-[] Submit button got lost sometimes - highlight and delete?
-[] check block order printing is reverse (within block it is correct)
-[] Draw review blocks as code examples (so you can play with them and reset)
-[] repl loses newlines in echo
-[] Confused about whether run did anything (for simple examples)
-[] phrasing of values not equal in "is" (maybe "expected...")
-[] should print nothing? *note*: we do if you call "print" - it is javascript that skips
 
+[x] If error is already on the screen, don't scroll to it, when clicking on
+   location information
+[x] If all tests pass, show that. maybe highlight in editor, and just print
+   summary in interactions
+[x] check block order printing is reverse (within block it is correct)
+[x] Exceptions that occur when computing the the values for comparison in check blocks
+   - `is` could thunk stuff
 [x] Disable repl prompt when running
 [x] Paren matching in editor. end matching... would be cool
 [x] string missing lessequal, greaterequal
