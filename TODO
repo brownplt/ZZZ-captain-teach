@@ -14,9 +14,10 @@ Feedback from 8/7
    - random error message is bad
    - cases with missing pipes is bad
 [] Well formedness
+   - ERRORS DONT HAVE SRCLOCS when run with raco pyret.
    - multiple expressions on the same line (should at least be error on repl)
-   - check as identifier
-   - disallow `is` outside check
+   X check as identifier
+   X disallow `is` outside check
    - unbound identifiers (env with builtins needed)
 [] Colors on everything
 [] Rewrite sorting.jrny to be an actual tutorial
@@ -59,8 +60,8 @@ Feedback from 8/7
 [] Highlight the part you are editing
 [] Run button, title, and saving indicator should follow page down.
 [] Look at ben's state (reloaded, he was put at first step)
-[] Paren at the beginning of the document needs to be a PARENSPACE
-[] tostring methods aren't preserved over method partial applications
+[X] Paren at the beginning of the document needs to be a PARENSPACE
+[X] tostring methods aren't preserved over method partial applications
 [] Tokens that aren't lexed are invisible! (like ?)
 [] Clear for interactions
 [] Review Interface / Design
@@ -102,7 +103,7 @@ Feedback from 8/7
 [] repl loses newlines in echo
 [] Confused about whether run did anything (for simple examples)
 [] phrasing of values not equal in "is" (maybe "expected...")
-[] should print nothing?
+[] should print nothing? *note*: we do if you call "print" - it is javascript that skips
 [] string missing lessequal, greaterequal
 
 
