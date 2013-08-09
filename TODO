@@ -49,7 +49,8 @@ Feedback from 8/7
    - fun f():
      o.{o:x} # not indented
      end
-[] Refreshing when in reviews doesn't focus review tabs, and doesn't move editor to the right step
+[] Refreshing when in reviews doesn't focus review tabs, and doesn't move
+   editor to the right step
 [] Submit needs lots of confirmation
 [] Reset needs confirmation (maybe put inside a menu)
 [] Doc string on builtins
@@ -88,8 +89,10 @@ Feedback from 8/7
 [] Paren matching in editor. end matching... would be cool
 [] Exceptions that occur when computing the the values for comparison in check blocks
    - `is` could think stuff
-[] If error is already on the screen, don't scroll to it, when clicking on location information
-[] If all tests pass, show that. maybe highlight in editor, and just print summary in interactions
+[] If error is already on the screen, don't scroll to it, when clicking on
+   location information
+[] If all tests pass, show that. maybe highlight in editor, and just print
+   summary in interactions
 [] Plumb name of editor for sending to server, so parse errors aren't in program "run".
 [] Think about narrow screens
 [] Progress is wierd - shouldn't fill when you are on the last step. Maybe use orange/blue?
@@ -139,7 +142,8 @@ Deployment & Performance;
 [] Get names for users? (or find something other than their email for Git
    commits in the name field)
 [] Figure out how pathrefs should be created in the database... so
-that caching can work (right now, we create path refs many times)
+   that caching can work (right now, we create path refs many times)
+[] Reviews need timestamps (any blob stuff needs timestamp)
 
 Grading/Teacher view
 [] How will we show reviews that students did for one another in the grading
