@@ -728,9 +728,12 @@ function makeHighlightingRunCode(codeRunner) {
             'lineError'
         );
         var coords = cm.charCoords({ line: loc.line - 1, ch: loc.column - 1 });
-        $("body").animate({
-          scrollTop: coords.top - 10
-        });
+        if ((window.pageYOffset > coords.top) ||
+            (window.pageYOffset < coords.top - window.innerHeight)) {
+          $("body").animate({
+            scrollTop: coords.top - (window.innerHeight / 2)
+          });
+        }
         e.preventDefault();
         return false;
       });
