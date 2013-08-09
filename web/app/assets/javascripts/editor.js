@@ -31,7 +31,8 @@ function makeEditor(container, options) {
     },
     indentUnit: 2,
     viewportMargin: Infinity,
-    lineNumbers: useLineNumbers
+    lineNumbers: useLineNumbers,
+    matchBrackets: true
   };
 
   cmOptions = _.merge(cmOptions, options.cmOptions);

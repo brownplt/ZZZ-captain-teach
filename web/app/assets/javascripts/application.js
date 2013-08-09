@@ -15,15 +15,15 @@
 //= require turbolinks
 //= require browserid
 //= require pyretMaps
+//= require codemirror
+//= require runmode
+//= require matchbrackets
 //= require draw
 //= require ui
 //= require ct
 //= require editor
 //= require repl
-//= require codemirror
-//= require runmode
 //= require pyret
 //= require lodash.min
 
 "use strict";
-

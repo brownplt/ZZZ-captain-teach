@@ -9,6 +9,11 @@
 .cm-s-default .cm-type { color: #339; }
 .cptteach-fixed { line-height: 1.5; background: #ddd; }
 
+div.CodeMirror span.CodeMirror-matchingbracket {
+    font-weight: bold;
+    color: #606;
+}
+
 .inlineExample {
     font-family: monospace;
     padding: 0 2px;
