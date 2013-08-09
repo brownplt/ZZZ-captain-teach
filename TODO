@@ -18,11 +18,10 @@ Feedback from 8/7
    - multiple expressions on the same line (should at least be error on repl)
    X check as identifier
    X disallow `is` outside check
-   - unbound identifiers (env with builtins needed)
-   - check as identifier
-   - disallow `is` outside check
    X unbound identifiers (env with builtins needed)
->>>>>>> updates for prettier colors and highlighting on check-block errors
+   X check as identifier
+   X disallow `is` outside check
+   X unbound identifiers (env with builtins needed)
 [] Colors on everything
 [] Rewrite sorting.jrny to be an actual tutorial
    - change green to pass in copy
