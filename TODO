@@ -52,8 +52,8 @@ Feedback from 8/7
      end
 [] Refreshing when in reviews doesn't focus review tabs, and doesn't move
    editor to the right step
-[] Submit needs lots of confirmation
-[] Reset needs confirmation (maybe put inside a menu)
+[x] Submit needs lots of confirmation
+[x] Reset needs confirmation (maybe put inside a menu)
 [] Doc string on builtins
 [] Handling of unexpected racket errors (like unbound identifiers?)
 [] Highlight the part you are reviewing

@@ -161,7 +161,9 @@ function codeExample(container, resources, args) {
   container.append(resetButton);
 
   resetButton.on("click", function () {
-    cm.setValue(code);
+    if (window.confirm("Are you sure you want to reset the editor?")) {
+      cm.setValue(code);
+    }
   });
 
   container.append(codeContainer);

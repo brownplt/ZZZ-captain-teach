@@ -553,12 +553,14 @@ function steppedEditor(container, uneditables, options) {
         if (isSubmittable) {
           var submitButton = drawSubmitStepButton(steps[pos]);
           submitButton.on("click", function () {
-            submitButton.hide();
-            if (options.afterHandlers &&
-                options.afterHandlers[steps[pos]]) {
-              options.afterHandlers[steps[pos]](editor, resume);
-            } else {
-              resume();
+            if (window.confirm("Are you sure you want to submit this part for review?")) {
+              submitButton.hide();
+              if (options.afterHandlers &&
+                  options.afterHandlers[steps[pos]]) {
+                options.afterHandlers[steps[pos]](editor, resume);
+              } else {
+                resume();
+              }
             }
           });
           ct_log(editor.lineOf(e));
