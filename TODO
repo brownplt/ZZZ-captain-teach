@@ -3,7 +3,7 @@ Feedback from 8/7
    - empty args for for loop is bizarre
    - Constructor form in messages
    - field not found
-   - unbound identifier is bad
+   X unbound identifier is bad
    - different parse errors, and bad:
      (add1 5)
      add1(add1 7)
@@ -19,6 +19,10 @@ Feedback from 8/7
    X check as identifier
    X disallow `is` outside check
    - unbound identifiers (env with builtins needed)
+   - check as identifier
+   - disallow `is` outside check
+   X unbound identifiers (env with builtins needed)
+>>>>>>> updates for prettier colors and highlighting on check-block errors
 [] Colors on everything
 [] Rewrite sorting.jrny to be an actual tutorial
    - change green to pass in copy
@@ -28,7 +32,8 @@ Feedback from 8/7
    - Object literals? Should come later, bring up data first
    - minus on lists implied by instructions
    - functional object update syntax is confusing (introduce later?)
-   - symmetric syntax of for is confusing for fold (why does accumulator have to be where it is?)
+   - symmetric syntax of for is confusing for fold (why does accumulator have
+     to be where it is?)
    - data versus data type. consistent style / vocabulary.
    - use identifiers that are NOT the fields in cases
    - append as identifier

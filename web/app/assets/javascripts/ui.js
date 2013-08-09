@@ -706,6 +706,14 @@ function makeHighlightingRunCode(codeRunner) {
   var markedLines = [];
 
   return function(src, uiOptions, options) {
+    function highlightLineAt(cm, loc, className) {
+      markedLines.push([loc.line - 1, className]);
+      cm.addLineClass(
+          loc.line - 1,
+          'background',
+          className
+      );
+    }
     function makeScrollingLocationLink(cm, loc) {
       function locToStr(loc) {
         if (loc.line > 0) {
@@ -723,12 +731,7 @@ function makeHighlightingRunCode(codeRunner) {
       errorLink.attr("href", "#");
       errorLink.on("click", function(e) {
         clear();
-        markedLines.push(loc.line - 1);
-        cm.addLineClass(
-            loc.line - 1,
-            'background',
-            'lineError'
-        );
+        highlightLineAt(uiOptions.cm, loc, 'lineError');
         var coords = cm.charCoords({ line: loc.line - 1, ch: loc.column - 1 });
         if ((window.pageYOffset > coords.top) ||
             (window.pageYOffset < coords.top - window.innerHeight)) {
@@ -744,7 +747,7 @@ function makeHighlightingRunCode(codeRunner) {
 
     function clear() {
       markedLines.forEach(function(l) {
-        uiOptions.cm.removeLineClass(l, 'background', 'lineError')
+        uiOptions.cm.removeLineClass(l[0], 'background', l[1])
       });
       markedLines = [];
     };
@@ -798,14 +801,49 @@ function makeHighlightingRunCode(codeRunner) {
     };}
 
     function highlightingCheckReturn(output) { return function(obj) {
-      function drawSuccess(name, message) {
+      function drawSuccess(name, message, location) {
+        var link = $("<span>");
+        if(location.value) {
+          highlightLineAt(uiOptions.cm, location.value, 'lineSuccess');
+          link = makeScrollingLocationLink(uiOptions.cm, location.value);
+        }
         return $("<div>").text(name +  ": " + message)
           .addClass("check check-success")
           .append("<br/>");
       }
-      function drawFailure(name, message) {
+      function drawFailure(name, message, location) {
+        var link = $("<span>");
+        if(location.value) {
+          highlightLineAt(uiOptions.cm, location.value, 'lineError');
+          link = makeScrollingLocationLink(uiOptions.cm, location.value);
+        }
         return $('<div>').text(name + ": " + message)
           .addClass("check check-failure")
+          .append("<br/>")
+          .append(link)
+          .append("<br/>");
+      }
+      function drawException(name, exception, location) {
+        var link = $("<span>");
+        var loc = exception.trace[0] || location.value;
+        if(loc) {
+          highlightLineAt(uiOptions.cm, location.value, 'lineError');
+          link = makeScrollingLocationLink(uiOptions.cm, location.value);
+        }
+        var traceDom = drawErrorLocations(
+           exception.trace.map(function (l) {
+             return makeScrollingLocationLink(uiOptions.cm,l)
+           }));
+        return $('<div>').text(name + ": " + exception.message)
+          .addClass("check check-failure")
+          .append("<br/>")
+          .append($("<span>").text("In check starting at:"))
+          .append("<br/>")
+          .append(makeScrollingLocationLink(uiOptions.cm, location.value))
+          .append("<br/>")
+          .append($("<span>").text("Using (at least) these lines:"))
+          .append("<br/>")
+          .append(traceDom)
           .append("<br/>");
       }
 
@@ -838,9 +876,27 @@ function makeHighlightingRunCode(codeRunner) {
           checkBlockResult.results.forEach(function(individualResult) {
             if (individualResult.reason) {
               container.append(
-                drawFailure(individualResult.name, individualResult.reason));
+                drawFailure(
+                    individualResult.name,
+                    individualResult.reason,
+                    individualResult.location
+                  ));
+            } else if (individualResult.exception) {
+              container.append(
+                drawException(
+                    individualResult.name,
+                    individualResult.exception,
+                    individualResult.location
+                  ));
             } else {
-              container.append(drawSuccess(individualResult.name, "Success!"));
+              var successDiv = drawSuccess(
+                  individualResult.name,
+                  "Success!",
+                  individualResult.location
+              );
+              if(!individualResult.location.value) {
+                container.append(successDiv);
+              }
             }
           });
           output.append(container);

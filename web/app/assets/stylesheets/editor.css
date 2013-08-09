@@ -37,15 +37,15 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 }
 
 .check-success {
-  background-color: green;
+  background-color: #cfc;
 }
 
 .check-failure {
-  background-color: red;
+  background-color: #fcc;
 }
 
 .check-block {
-  background-color: gray;
+  background-color: #ddd;
   border: 1px solid black;
   border-radius: 3px;
   margin: 5px;

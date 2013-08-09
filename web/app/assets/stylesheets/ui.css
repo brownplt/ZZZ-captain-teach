@@ -163,11 +163,19 @@
 }
 
 .lineError {
-  background-color: #f03;
+  background-color: #fcc;
+}
+
+.lineSuccess {
+  background-color: #cfc;
 }
 
 .lineError.cptteach-fixed {
-  background-color: #f03;
+  background-color: #f66;
+}
+
+.lineSuccess.cptteach-fixed {
+  background-color: #fcc;
 }
 
 .saveIndicator {
@@ -203,7 +211,6 @@
 }
 
 .errorLocation {
-    background-color: #eee;
     color: #f08;
     border: 1px solid #f08;
 }
