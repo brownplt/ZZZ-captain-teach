@@ -103,6 +103,10 @@ function makeRepl(container) {
 
   var runCode = function (src, uiOptions, options) {
     breakButton.show();
+    CM.setOption("readOnly", "nocursor");
+    CM.getDoc().eachLine(function (line) {
+      CM.addLineClass(line, 'background', 'cptteach-fixed');
+    });
     output.empty();
     promptContainer.hide();
     promptContainer.fadeIn(100);
@@ -113,6 +117,13 @@ function makeRepl(container) {
     } else {
       thisReturnHandler = uiOptions.handleReturn || defaultReturnHandler;
     }
+    var enablePrompt = function (result) {
+      CM.setOption("readOnly", false);
+      CM.getDoc().eachLine(function (line) {
+        CM.removeLineClass(line, 'background', 'cptteach-fixed');
+      });
+      return thisReturnHandler(result);
+    }
     var thisError;
     if (uiOptions.wrappingOnError) {
       thisError = uiOptions.wrappingOnError(output);
@@ -120,7 +131,7 @@ function makeRepl(container) {
       thisError = uiOptions.error || onError;
     }
     var thisWrite = uiOptions.write || write;
-    evaluator.run("run", src, clear, thisReturnHandler, thisWrite, thisError, options);
+    evaluator.run("run", src, clear, enablePrompt, thisWrite, thisError, options);
   };
 
 
@@ -136,6 +147,9 @@ function makeRepl(container) {
       write(jQuery('<br/>'));
       breakButton.show();
       CM.setOption("readOnly", "nocursor");
+      CM.getDoc().eachLine(function (line) {
+        CM.addLineClass(line, 'background', 'cptteach-fixed');
+      });
       evaluator.run('interactions',
                   code,
                   clear,
@@ -282,7 +296,10 @@ function makeRepl(container) {
       CM.setValue("");
     }
 
-    CM.setOption("readOnly", false);
+    CM.setOption("readOnly", false);;
+    CM.getDoc().eachLine(function (line) {
+      CM.removeLineClass(line, 'background', 'cptteach-fixed');
+    });
     breakButton.hide();
 
     CM.focus();

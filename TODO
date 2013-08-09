@@ -57,16 +57,12 @@ Feedback from 8/7
      end
 [] Refreshing when in reviews doesn't focus review tabs, and doesn't move
    editor to the right step
-[x] Submit needs lots of confirmation
-[x] Reset needs confirmation (maybe put inside a menu)
 [] Doc string on builtins
 [] Handling of unexpected racket errors (like unbound identifiers?)
 [] Highlight the part you are reviewing
 [] Highlight the part you are editing
 [] Run button, title, and saving indicator should follow page down.
 [] Look at ben's state (reloaded, he was put at first step)
-[X] Paren at the beginning of the document needs to be a PARENSPACE
-[X] tostring methods aren't preserved over method partial applications
 [] Tokens that aren't lexed are invisible! (like ?)
 [] Clear for interactions
 [] Review Interface / Design
@@ -90,9 +86,7 @@ Feedback from 8/7
       number.modulo(2) == 0
     end
     print(odd-numbers)
-[] Disable repl prompt when running
 [] Tab at beginning of line with text should jump to beginning of text
-[] Paren matching in editor. end matching... would be cool
 [] Exceptions that occur when computing the the values for comparison in check blocks
    - `is` could think stuff
 [] If error is already on the screen, don't scroll to it, when clicking on
@@ -109,7 +103,14 @@ Feedback from 8/7
 [] Confused about whether run did anything (for simple examples)
 [] phrasing of values not equal in "is" (maybe "expected...")
 [] should print nothing? *note*: we do if you call "print" - it is javascript that skips
-[] string missing lessequal, greaterequal
+
+[x] Disable repl prompt when running
+[x] Paren matching in editor. end matching... would be cool
+[x] string missing lessequal, greaterequal
+[x] Submit needs lots of confirmation
+[x] Reset needs confirmation (maybe put inside a menu)
+[x] Paren at the beginning of the document needs to be a PARENSPACE
+[x] tostring methods aren't preserved over method partial applications
 
 
 Morning
