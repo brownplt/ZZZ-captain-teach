@@ -15,6 +15,10 @@ function ct_error(/* varargs */) {
   }
 }
 
+function ct_confirm(message) {
+  return window.confirm(message);
+}
+
 var NO_INSTANCE_DATA = {no_instance_data: true};
 
 var rails_host = RAILS_HOST;
@@ -161,7 +165,7 @@ function codeExample(container, resources, args) {
   container.append(resetButton);
 
   resetButton.on("click", function () {
-    if (window.confirm("Are you sure you want to reset the editor?")) {
+    if (ct_confirm("Are you sure you want to reset the editor?")) {
       cm.setValue(code);
     }
   });
