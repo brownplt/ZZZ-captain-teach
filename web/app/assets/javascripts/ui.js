@@ -866,12 +866,10 @@ function makeHighlightingRunCode(codeRunner) {
             else {
               messageText = checkBlockResult.err;
             }
-            var loc = checkBlockResult.location;
+            var loc = checkBlockResult.err.trace[0];
             errorLink = makeScrollingLocationLink(uiOptions.cm, loc);
             container.append(drawErrorMessageWithLoc(messageText, errorLink));
-            container.css({
-              "background-color": "red"
-            });
+            container.addClass("check-block-failed");
           }
           checkBlockResult.results.forEach(function(individualResult) {
             if (individualResult.reason) {
