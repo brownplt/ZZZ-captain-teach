@@ -142,7 +142,7 @@ function makeRepl(container) {
                   prettyPrint,
                   write,
                   onError,
-                  {});
+                  _.merge(replOpts, {check: false}));
     },
     initial: "",
     cmOptions: {

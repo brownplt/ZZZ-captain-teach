@@ -25,8 +25,8 @@ function makeEditor(container, options) {
 
   var cmOptions = {
     extraKeys: {
-      "Shift-Enter": function(cm) { runFun(cm.getValue(), {check: true}); },
-      "Shift-Ctrl-Enter": function(cm) { runFun(cm.getValue(), {check: false}); },
+      "Shift-Enter": function(cm) { runFun(cm.getValue(), {check: true, "type-env": !options.simpleEditor }); },
+      "Shift-Ctrl-Enter": function(cm) { runFun(cm.getValue(), {check: false, "type-env": !options.simpleEditor}); },
       "Tab": "indentAuto"
     },
     indentUnit: 2,
