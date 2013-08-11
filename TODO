@@ -1,19 +1,19 @@
 Need To Do:
-[] Rewrite sorting.jrny to be an actual tutorial
-   - change green to pass in copy
-   - s/builtin/builtins/
-   - introduce data, before cases
-   - instructions for Shift-Enter too late - switch Enter and Shift-Enter?
-   - Object literals? Should come later, bring up data first
-   - minus on lists implied by instructions
-   - functional object update syntax is confusing (introduce later?)
-   - symmetric syntax of for is confusing for fold (why does accumulator have to be where it is?)
-   - data versus data type. consistent style / vocabulary.
-   - use identifiers that are NOT the fields in cases
-   - append as identifier
-   - append needs to be described - what should it do?
-   - interactions should come earlier
-   - if they are to use random for pivot, should introduce list.get
+[x] Rewrite sorting.jrny to be an actual tutorial
+   x change green to pass in copy
+   x s/builtin/builtins/
+   x introduce data, before cases
+   X instructions for Shift-Enter too late
+   x Object literals? Should come later, bring up data first (or SKIP)
+   x minus on lists implied by instructions
+   x functional object update syntax is confusing (introduce later?)
+   x symmetric syntax of for is confusing for fold (why does accumulator have to be where it is?)
+   x data versus data type. consistent style / vocabulary.
+   x use identifiers that are NOT the fields in cases
+   x append as identifier
+   x append needs to be described - what should it do?
+   x interactions should come earlier
+   x if they are to use random for pivot, should introduce list.get
 [] Review should have better feedback when you don't fill in values
 [] Background on code in reviews, highlight whole lines
 [] Error Messages
@@ -73,6 +73,7 @@ Want To Do:
 [] Printing vs evaling (ie, 2 == 3, run, should print false) the result of program
 
 Not Necessary:
+[] switch Enter and Shift-Enter?
 [] should print nothing? *note*: we do if you call "print" - it is javascript that skips
 [] Should we stub out functions so they pass type checking? / Should run only be shown for definition stages.
 [] Tab at beginning of line with text should jump to beginning of text
