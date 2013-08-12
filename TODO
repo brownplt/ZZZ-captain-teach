@@ -1,26 +1,10 @@
 Need To Do:
-[x] Rewrite sorting.jrny to be an actual tutorial
-   x change green to pass in copy
-   x s/builtin/builtins/
-   x introduce data, before cases
-   X instructions for Shift-Enter too late
-   x Object literals? Should come later, bring up data first (or SKIP)
-   x minus on lists implied by instructions
-   x functional object update syntax is confusing (introduce later?)
-   x symmetric syntax of for is confusing for fold (why does accumulator have to be where it is?)
-   x data versus data type. consistent style / vocabulary.
-   x use identifiers that are NOT the fields in cases
-   x append as identifier
-   x append needs to be described - what should it do?
-   x interactions should come earlier
-   x if they are to use random for pivot, should introduce list.get
 [] Review should have better feedback when you don't fill in values
 [] Background on code in reviews, highlight whole lines
 [] Error Messages
    - empty args for for loop is bizarre
    - Constructor form in messages
    - field not found
-   X unbound identifier is bad
    - different parse errors, and bad:
      (add1 5)
      add1(add1 7)
@@ -33,19 +17,12 @@ Need To Do:
 [] Well formedness
    - ERRORS DONT HAVE SRCLOCS when run with raco pyret.
    - multiple expressions on the same line (should at least be error on repl)
-   X check as identifier
-   X disallow `is` outside check
-   - unbound identifiers (env with builtins needed)
 [] UI jump when submitting work and starting reviews
 [] syntax for check-exn
 [] Refreshing when in reviews doesn't focus review tabs, and doesn't move
    editor to the right step
 [] Tokens that aren't lexed are invisible! (like ?)
 [] Clear for interactions
-[] Review Interface / Design
-   - Concrete rubric for reviews
-   - confidence for review?
-   - Concern: "same as the last guy" for comments. Maybe don't close tabs until all reviews done?
 [] Highlighting on errors should be removed
 [] <unprintable-expr> on pretty printer
 [] Highlight the part you are reviewing
@@ -98,48 +75,24 @@ All Feedback:
     end
     print(odd-numbers)
 
-[x] If error is already on the screen, don't scroll to it, when clicking on
-   location information
-[x] If all tests pass, show that. maybe highlight in editor, and just print
-   summary in interactions
-[x] check block order printing is reverse (within block it is correct)
-[x] Exceptions that occur when computing the the values for comparison in check blocks
-   - `is` could thunk stuff
-[x] Disable repl prompt when running
-[x] Paren matching in editor. end matching... would be cool
-[x] string missing lessequal, greaterequal
-[x] Submit needs lots of confirmation
-[x] Reset needs confirmation (maybe put inside a menu)
-[x] Paren at the beginning of the document needs to be a PARENSPACE
-[x] tostring methods aren't preserved over method partial applications
 
+[] Review Interface / Design
+   [x] Concrete rubric for reviews (data/tests/function different)
+     [] Get feedback from Kathi
+   [x] confidence for review?
+    - No
+   [x] Concern: "same as the last guy" for comments. Maybe don't close tabs until all reviews done?
+    - No worries, bad feedback will catch this
+   [] Feedback for reviews:
+     [] Helpfulness likert + optional comments
+     [] Report abuse button
+   [] Logging on reviews:
+     [] Count of times read
+   [] Place to see my reviews and feedback on them
+   [] Flow changes:
+     [] Variants done before checks in DD
+     [] Variants go unreviewed (review after example data)
 
-Morning
-[] Seeds for a single assignment
-[] Add one of us as a teacher and be on the course dashboard
-[] Order of reporting in check block output
-[] Teach about cases (or some way of destructing lists)
-[] Generate initial solutions for reviewing
-
-
-Simple assignment test for summer students@
-[x] Pick assignment
-  - Quicksort
-[] Error reporting
-  [x] Static errors
-  [] Runtime errors
-[x] Check-results reporting
-[x] Pretty printing
-[x] Review instructions / make them look nicer
-[x] Run button
-[x] Save button
-[x] Submit button in better location
-[x] Reviews button de-uglify
-[x] Tab closing for reviews (prioritize other reviews)
-[x] Figure out proper above / below for widgets. Instructions should
-    be above, but reviews should be below... An option
-[x] Be able to add users to a course
-[x] Have basic frontpage for users, showing them their assignments
 
 Deployment & Performance;
 [] More complete solution for signup/adding users
@@ -220,3 +173,64 @@ Refactoring
 [~] Design recipe step
 
 [x] Scrollability behavior of reviews pane
+[x] Rewrite sorting.jrny to be an actual tutorial
+   x change green to pass in copy
+   x s/builtin/builtins/
+   x introduce data, before cases
+   X instructions for Shift-Enter too late
+   x Object literals? Should come later, bring up data first (or SKIP)
+   x minus on lists implied by instructions
+   x functional object update syntax is confusing (introduce later?)
+   x symmetric syntax of for is confusing for fold (why does accumulator have to be where it is?)
+   x data versus data type. consistent style / vocabulary.
+   x use identifiers that are NOT the fields in cases
+   x append as identifier
+   x append needs to be described - what should it do?
+   x interactions should come earlier
+   x if they are to use random for pivot, should introduce list.get
+   X check as identifier
+   X disallow `is` outside check
+   X unbound identifiers (env with builtins needed)
+[x] If error is already on the screen, don't scroll to it, when clicking on
+   location information
+[x] If all tests pass, show that. maybe highlight in editor, and just print
+   summary in interactions
+[x] check block order printing is reverse (within block it is correct)
+[x] Exceptions that occur when computing the the values for comparison in check blocks
+   - `is` could thunk stuff
+[x] Disable repl prompt when running
+[x] Paren matching in editor. end matching... would be cool
+[x] string missing lessequal, greaterequal
+[x] Submit needs lots of confirmation
+[x] Reset needs confirmation (maybe put inside a menu)
+[x] Paren at the beginning of the document needs to be a PARENSPACE
+[x] tostring methods aren't preserved over method partial applications
+
+   X unbound identifier is bad
+Simple assignment test for summer students@
+[x] Pick assignment
+  - Quicksort
+[x] Error reporting
+  [x] Static errors
+  [x] Runtime errors
+    consolidated above
+[x] Check-results reporting
+[x] Pretty printing
+[x] Review instructions / make them look nicer
+[x] Run button
+[x] Save button
+[x] Submit button in better location
+[x] Reviews button de-uglify
+[x] Tab closing for reviews (prioritize other reviews)
+[x] Figure out proper above / below for widgets. Instructions should
+    be above, but reviews should be below... An option
+[x] Be able to add users to a course
+[x] Have basic frontpage for users, showing them their assignments
+
+Morning
+[x] Seeds for a single assignment
+[x] Add one of us as a teacher and be on the course dashboard
+[x] Order of reporting in check block output
+[x] Teach about cases (or some way of destructing lists)
+[x] Generate initial solutions for reviewing
+

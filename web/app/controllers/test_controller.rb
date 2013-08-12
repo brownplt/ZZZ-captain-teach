@@ -46,53 +46,47 @@ class TestController < ApplicationController
     if maybe_u_curr.nil? and maybe_u.nil? and maybe_u2.nil?
       u_curr = User.create!(:email => "test_reviewer#{user_index}")
       u = User.create!(:email => reviewee_email_a)
-      Blob.create!(
-          :ref => ref,
-          :user => u,
-          :data => JSON.dump({file: JSON.dump({
+      u.user_repo.create_file(ref, JSON.dump({
               status: { step: "check", reviewing: true },
               parts: {
                 check: "\nmy checks are unforgable",
                 foo: "\n"
               }
-            })})
-        )
+            }), "Init", DEFAULT_GIT_USER
+      )
       u2 = User.create!(:email => reviewee_email_b)
-      Blob.create!(
-          :ref => ref,
-          :user => u2,
-          :data => JSON.dump({file: JSON.dump({
+      u2.user_repo.create_file(ref, JSON.dump({
               status: { step: "check", reviewing: true },
               parts: {
                 check: "\nmy checks have already been forged",
                 foo: "\n"
               }
-            })})
-        )
-      data = [{ resource: Resource::mk_resource("b", "r", ref, {}, u.id),
+            }), "Init", DEFAULT_GIT_USER
+         )
+      data = [{ resource: Resource::mk_resource("p", "r", ref, {}, u.id),
                 save_review: Resource::mk_resource("inbox-for-write", "rw", part_ref,
                                                    { blob_user_id: u.id, key: u_curr.id },
                                                    u_curr.id)},
-              { resource: Resource::mk_resource("b", "r", ref, {}, u2.id),
+              { resource: Resource::mk_resource("p", "r", ref, {}, u2.id),
                 save_review: Resource::mk_resource("inbox-for-write", "rw", part_ref,
                                                    { blob_user_id: u2.id, key: u_curr.id },
                                                    u_curr.id)}]
       Blob.create!(:ref => review_ref, :user => u_curr, :data => JSON.dump(data))
 
-      Blob.create!(:ref => ref, :user => u_curr,
-                   :data => JSON.dump({file: JSON.dump({
+      u_curr.user_repo.create_file(ref, JSON.dump({
           status: { step: "check", reviewing: true },
           parts: {
             check: "\n1 is 4",
             foo: "\n"
           }
-        })}))
+        }), "Init", DEFAULT_GIT_USER
+      )
 
-      data2 = [{ resource: Resource::mk_resource("b", "r", ref, {}, u_curr.id),
+      data2 = [{ resource: Resource::mk_resource("p", "r", ref, {}, u_curr.id),
                 save_review: Resource::mk_resource("inbox-for-write", "rw", part_ref,
                                                    { blob_user_id: u_curr.id, key: u.id },
                                                    u.id)},
-              { resource: Resource::mk_resource("b", "r", ref, {}, u2.id),
+              { resource: Resource::mk_resource("p", "r", ref, {}, u2.id),
                 save_review: Resource::mk_resource("inbox-for-write", "rw", part_ref,
                                                    { blob_user_id: u2.id, key: u.id },
                                                    u.id)}]
@@ -105,8 +99,8 @@ class TestController < ApplicationController
     code_delimiters = [ {type: "code", value: "fun foo():"},
                         {type: "code", value: "\ncheck:"},
                         {type: "code", value: "\nend"} ]
-    parts = [ {type: "fun-checks", value: "check"},
-              {type: "body", value: "foo"} ]
+    parts = [ {type: "body", value: "foo"},
+              {type: "fun-checks", value: "check"} ]
     @data = JSON.dump({
       user_index: user_index,
       user1: {
@@ -116,8 +110,7 @@ class TestController < ApplicationController
               parts: parts
             },
           resources: {
-              blob: Resource::mk_resource("b", "rw", ref + "+drafts", {}, u_curr.id),
-              path: Resource::mk_resource("b", "rw", ref, {reviews: 2}, u_curr.id),
+              path: Resource::mk_resource("p", "rw", ref, {reviews: 2}, u_curr.id),
               steps: [{
                   name: "check",
                   type: "fun-checks",
@@ -138,8 +131,7 @@ class TestController < ApplicationController
               parts: parts
             },
           resources: {
-              blob: Resource::mk_resource("b", "rw", ref + "+drafts", {}, u.id),
-              path: Resource::mk_resource("b", "rw", ref, {reviews: 2}, u.id),
+              path: Resource::mk_resource("p", "rw", ref, {reviews: 2}, u.id),
               steps: [{
                   name: "check",
                   type: "fun-checks",

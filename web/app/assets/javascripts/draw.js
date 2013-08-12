@@ -193,12 +193,19 @@ function drawReviewContainer() {
 function drawReview(revData, type) {
   var prompts = reviewStatements[type];
   function getLikertLabel(value) {
-    return likertLabels[value + (likertLabels.length / 2)];
+    var index = Number(value) + (likertLabels.length / 2)
+    ct_log("likert: ", index, revData, value, likertLabels);
+    return likertLabels[index];
   }
   return $("<div>").addClass("reviewContents")
-    .append($("<p>").text(statements[0] + getLikertLabel(revData.review.design)))
+    .append($("<div>").text(prompts[0]).addClass("likertScoreLabel"))
+    .append($("<div>").text(getLikertLabel(revData.review.design))
+                      .addClass("likertScore"))
     .append($("<p>").text("Justification: " + revData.review.designComments))
-    .append($("<p>").text(statements[1] + getLikertLabel(revData.review.correctness)))
+    .append($("<hr>"))
+    .append($("<div>").text(prompts[1]).addClass("likertScoreLabel"))
+    .append($("<div>").text(getLikertLabel(revData.review.correctness))
+                      .addClass("likertScore"))
     .append($("<p>").text("Justification: " + revData.review.correctnessComments));
 }
 

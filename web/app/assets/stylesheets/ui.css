@@ -40,6 +40,14 @@
     margin: 5px auto;
 }
 
+.likertScore {
+  font-weight: bold;
+}
+
+.likertScoreLabel {
+  font-style: italic;
+}
+
 .likertButton {
     margin: 2px;
     display: inline-block;
