@@ -320,6 +320,17 @@ module Resource
       part_ref = AssignmentController.part_ref(ref, type)
 
       data = submissions_to_review.map do |sub|
+        payload = { feedback: Resource::mk_resource(
+              'inbox-for-write',
+              'rw',
+              AssignmentController.feedback_ref(part_ref),
+              {
+                blob_user_id: user.id,
+                key: sub.user_id,
+              },
+              sub.user_id
+            )
+          }
         sub.review_count = sub.review_count + 1
         sub.save!
         {
@@ -328,7 +339,11 @@ module Resource
             'inbox-for-write',
             'rw',
             part_ref,
-            { blob_user_id: sub.user_id, key: user.id },
+            {
+              blob_user_id: sub.user_id,
+              key: user.id,
+              payload: payload
+            },
             user.id
           )
         }

@@ -369,6 +369,10 @@ describe ResourceController do
 
   describe "Submitted" do
     def create_sub(id)
+      u = User.find_by(:id => id)
+      if u.nil?
+        User.create!(:id => id)
+      end
       Submitted.create!(
         :submission_type => "check",
         :activity_id => @activity_id,
@@ -405,10 +409,10 @@ describe ResourceController do
     it "should allow submission, and set up reviews" do
       part_ref = AssignmentController.part_ref(@activity_id, "check")
 
-      create_sub(52)
-      create_sub(88)
-      create_sub(34)
-      create_sub(22)
+      create_sub(102)
+      create_sub(89)
+      create_sub(35)
+      create_sub(23)
 
       b = Blob.create!(:user => @user, :ref => @activity_id, :data => "{}")
       resource_to_submit =
@@ -431,19 +435,35 @@ describe ResourceController do
       r2 = Resource::parse(data[1]["save_review"])
       r3 = Resource::parse(data[2]["save_review"])
 
+
+      def check_feedback(uid, feedback, part_ref)
+        type, perm, ref, args, user = Resource::parse(feedback)
+        type.should(eq('inbox-for-write'))
+        perm.should(eq('rw'))
+        ref.should(eq(AssignmentController.feedback_ref(part_ref)))
+        args["key"].should(eq(uid))
+        user.id.should(eq(uid))
+      end
       r1[0].should(eq("inbox-for-write"))
       r1[2].should(eq(part_ref))
-      r1[3]["blob_user_id"].should(eq(52))
+      r1[3]["blob_user_id"].should(eq(102))
+      check_feedback(102, r1[3]["payload"]["feedback"], part_ref)
       r1[4].should(eq(@user))
+
+      print "Done with user 1\n"
 
       r2[0].should(eq("inbox-for-write"))
       r2[2].should(eq(part_ref))
-      r2[3]["blob_user_id"].should(eq(88))
+      r2[3]["blob_user_id"].should(eq(89))
+      check_feedback(89, r2[3]["payload"]["feedback"], part_ref)
       r2[4].should(eq(@user))
+
+      print "Done with user 2\n"
 
       r3[0].should(eq("inbox-for-write"))
       r3[2].should(eq(part_ref))
-      r3[3]["blob_user_id"].should(eq(34))
+      r3[3]["blob_user_id"].should(eq(35))
+      check_feedback(35, r3[3]["payload"]["feedback"], part_ref)
       r3[4].should(eq(@user))
 
     end

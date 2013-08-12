@@ -26,6 +26,7 @@ RSpec.configure do |config|
   USER_GIT_REPO_PATH = "/tmp/ct-user-repos/"
  
   config.before(:all) {
+    FileUtils.rm_rf(USER_GIT_REPO_PATH)
     Dir.mkdir(USER_GIT_REPO_PATH)
   }
 

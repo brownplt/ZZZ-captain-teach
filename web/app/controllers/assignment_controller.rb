@@ -51,6 +51,9 @@ class AssignmentController < ApplicationController
   def self.reviews_ref(ref)
     "#{ref}-reviews"
   end
+  def self.feedback_ref(ref)
+    "#{ref}-feedback"
+  end
   
   def path_ref_to_path(path_ref)
     path_ref.create_temporary
