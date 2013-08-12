@@ -180,6 +180,12 @@ function codeAssignment(container, resources, args) {
     }
   });
 
+  var delimiterValues = codeDelimiters.map(function (codeDelimiter) {
+    return codeDelimiter.value;
+  }).filter(function (val) {
+    return typeof val === "string";
+  });
+
   var defaultParts = {};
   args.parts.forEach(function(n) {
     defaultParts[n.value] = "\n";
@@ -259,7 +265,7 @@ function codeAssignment(container, resources, args) {
                   attachWorkToReview: function(editorContainer, f, e) {
                     function wrapReviewContent(_content) {
                       var content = JSON.parse(_content.file);
-                      var editor = readOnlyEditorFromParts(editorContainer, content.parts);
+                      var editor = readOnlyEditorFromParts(editorContainer, delimiterValues, content.parts, sharedOptions);
                       var reviewsInline = $("<div>");
                       editor.addWidgetAt(step.name, reviewsInline[0]);
                       f(reviewsInline);
@@ -275,28 +281,6 @@ function codeAssignment(container, resources, args) {
       };
     }
 
-    function readOnlyEditorFromParts(container, parts) {
-      ct_log("Parts: ", parts);
-      var cm = makeEditor(
-        container,
-        {
-          initial: "",
-          run: makeHighlightingRunCode(RUN_CODE)
-        }
-      );
-      var thisEditorOptions = merge(sharedOptions, {
-        initial: parts
-      });
-      var delimiterValues = codeDelimiters.map(function (codeDelimiter) {
-        return codeDelimiter.value;
-      }).filter(function (val) {
-        return typeof val === "string";
-      });
-      var editor = createEditor(cm, delimiterValues, thisEditorOptions);
-      editor.disableAll();
-      return editor;
-    }
-
     var editorOptions = merge(sharedOptions, {
         initial: activityState.parts,
         drawPartGutter: function(stepName, insert) {
@@ -309,14 +293,48 @@ function codeAssignment(container, resources, args) {
                 var reviewsDiv = drawReviewsDiv(args.name, stepName);
                 reviews.forEach(function(r) {
                   lookupResource(r.resource, function(_data) {
-                    var reviewContainer = drawReviewContainer();
-                    reviewsDiv.append(reviewContainer);
                     var data = JSON.parse(_data.file);
-                    var editor = readOnlyEditorFromParts(reviewContainer, data.parts);
-                    editor.addWidgetAt(stepName, drawReview(r, step.type)[0]);
-                  });
+                    var editor = readOnlyEditorFromParts(
+                      reviewsDiv,
+                      delimiterValues,
+                      data.parts,
+                      sharedOptions);
+
+                    function handleFeedback(feedback) {
+                      showReview(editor, step, r, feedback,
+                                 function (f, succ, fail) {
+                                   saveResource(r.feedback,
+                                                f,
+                                                succ,
+                                                fail);
+                                 });
+                    }
+
+                    lookupResource(r.feedback, function(feedback) {
+                      handleFeedback(feedback);
+                    }, function () {
+                      handleFeedback(null);
+                    });
+                  }, function () {});
                 });
-                window.PANEL.addTab("Rev: " + args.name + ":" + stepName, reviewsDiv);
+                window.PANEL.addTab("Rev: " +
+                                    args.name +
+                                    ":" +
+                                    stepName, reviewsDiv);
+
+                var feedbackContainer = drawFeedbackContainer();
+                // lookupResource(step.read_feedback,
+                //                function(feedback) {
+                //   feedback.forEach(function(f) {
+
+                //   });
+                // });
+
+                // window.PANEL.addTab("Feedback: " +
+                //                     args.name +
+                //                     ":" +
+                //                     stepName, feedbackContainer);
+
                 return false;
               });
               insert(elt[0]);

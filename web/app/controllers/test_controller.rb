@@ -63,13 +63,28 @@ class TestController < ApplicationController
               }
             }), "Init", DEFAULT_GIT_USER
          )
+      def payload(from_user, for_user, part_ref)
+        { feedback: Resource::mk_resource(
+              'inbox-for-write',
+              'rw',
+              AssignmentController.feedback_ref(part_ref),
+              {
+                blob_user_id: for_user,
+                key: from_user,
+              },
+              from_user
+            )
+          }
+      end
       data = [{ resource: Resource::mk_resource("p", "r", ref, {}, u.id),
                 save_review: Resource::mk_resource("inbox-for-write", "rw", part_ref,
-                                                   { blob_user_id: u.id, key: u_curr.id },
+                                                   { blob_user_id: u.id, key: u_curr.id,
+                                                     payload: payload(u.id, u_curr.id, part_ref)},
                                                    u_curr.id)},
               { resource: Resource::mk_resource("p", "r", ref, {}, u2.id),
                 save_review: Resource::mk_resource("inbox-for-write", "rw", part_ref,
-                                                   { blob_user_id: u2.id, key: u_curr.id },
+                                                   { blob_user_id: u2.id, key: u_curr.id,
+                                                     payload: payload(u2.id, u_curr.id, part_ref)},
                                                    u_curr.id)}]
       Blob.create!(:ref => review_ref, :user => u_curr, :data => JSON.dump(data))
 
@@ -84,11 +99,13 @@ class TestController < ApplicationController
 
       data2 = [{ resource: Resource::mk_resource("p", "r", ref, {}, u_curr.id),
                 save_review: Resource::mk_resource("inbox-for-write", "rw", part_ref,
-                                                   { blob_user_id: u_curr.id, key: u.id },
+                                                   { blob_user_id: u_curr.id, key: u.id,
+                                                     payload: payload(u_curr.id, u.id, part_ref)},
                                                    u.id)},
               { resource: Resource::mk_resource("p", "r", ref, {}, u2.id),
                 save_review: Resource::mk_resource("inbox-for-write", "rw", part_ref,
-                                                   { blob_user_id: u2.id, key: u.id },
+                                                   { blob_user_id: u2.id, key: u.id,
+                                                     payload: payload(u2.id, u.id, part_ref)},
                                                    u.id)}]
       Blob.create!(:ref => review_ref, :user => u, :data => JSON.dump(data2))
 

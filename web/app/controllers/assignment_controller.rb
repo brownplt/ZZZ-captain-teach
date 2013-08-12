@@ -54,12 +54,12 @@ class AssignmentController < ApplicationController
   def self.feedback_ref(ref)
     "#{ref}-feedback"
   end
-  
+
   def path_ref_to_path(path_ref)
     path_ref.create_temporary
   end
 
-  
+
   def path_to_html(user, path)
     scribbled = Scribble::render(path)
     doc = Nokogiri::HTML(scribbled)
@@ -68,7 +68,7 @@ class AssignmentController < ApplicationController
       # NOTE(dbp): a scribble doc without a main div is bad.
       raise Scribble::ScribbleError, scribbled
     end
-    
+
     main.css("[data-ct-node='1']").each do |node|
       if node["data-resources"]
         resources = JSON.parse(node["data-resources"])
@@ -89,7 +89,7 @@ class AssignmentController < ApplicationController
               read_reviews: Resource::mk_resource(
                   "inbox-for-read",
                   "r",
-                  part_ref
+                  part_ref,
                   {},
                   user.id
                 ),
@@ -126,7 +126,7 @@ class AssignmentController < ApplicationController
       # NOTE(dbp): a scribble doc without a main div is bad.
       raise Scribble::ScribbleError, scribbled
     end
-    
+
     main.css("[data-ct-node='1']").each do |node|
       if node["data-resources"]
         resources = JSON.parse(node["data-resources"])
@@ -157,6 +157,5 @@ class AssignmentController < ApplicationController
     end
     main.to_html
   end
-  
-end
 
+end

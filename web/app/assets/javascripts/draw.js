@@ -190,13 +190,13 @@ function drawReviewContainer() {
   return $("<div>");
 }
 
+function getLikertLabel(value) {
+  var index = Number(value) + (likertLabels.length / 2)
+  return likertLabels[index];
+}
+
 function drawReview(revData, type) {
   var prompts = reviewStatements[type];
-  function getLikertLabel(value) {
-    var index = Number(value) + (likertLabels.length / 2)
-    ct_log("likert: ", index, revData, value, likertLabels);
-    return likertLabels[index];
-  }
   return $("<div>").addClass("reviewContents")
     .append($("<div>").text(prompts[0]).addClass("likertScoreLabel"))
     .append($("<div>").text(getLikertLabel(revData.review.design))
@@ -208,6 +208,38 @@ function drawReview(revData, type) {
                       .addClass("likertScore"))
     .append($("<p>").text("Justification: " + revData.review.correctnessComments));
 }
+
+var feedbackPrompt = "This review was helpful";
+
+function drawFeedbackContainer() {
+  return $("<div>");
+}
+
+function drawFeedback(submit) {
+  var container = $("<div>").addClass("feedback");
+  var likert = drawLikert(feedbackPrompt, "feedback")
+  var comment = $("<textarea>");
+  var submitButton = $("<button>").text("Send").on("click", function () {
+    submitButton.off("click");
+    submitButton.prop("disabled", true);
+    submit(getScore(likert), comment.val());
+  });
+  return container
+    .append(likert)
+    .append($("<span>").text("Optional comments:"))
+    .append(comment)
+    .append(submitButton);
+}
+
+function drawSubmittedFeedback(feedback) {
+  return $("<div>")
+    .addClass("feedbackGiven")
+    .append($("<div>").text(feedbackPrompt))
+    .append($("<div>").text(getLikertLabel(feedback.helpfullness)))
+    .append($("<div>").text("Optional comments"))
+    .append($("<div>").text(feedback.comments));
+}
+
 
 function drawSavedNotification(container) {
   var saved = $("<span>Saved</span>");

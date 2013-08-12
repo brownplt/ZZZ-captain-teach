@@ -1011,3 +1011,58 @@ function createTabPanel(container) {
     }
   };
 }
+
+function readOnlyEditorFromParts(container,
+                                 delimiterValues,
+                                 parts,
+                                 sharedOptions) {
+  var cm = makeEditor(
+    container,
+    {
+      initial: "",
+      run: makeHighlightingRunCode(RUN_CODE)
+    }
+  );
+  var thisEditorOptions = merge(sharedOptions, {
+    initial: parts
+  });
+
+  var editor = createEditor(cm, delimiterValues, thisEditorOptions);
+  editor.disableAll();
+  return editor;
+}
+
+
+function showReview(editor,
+                    step,
+                    review,
+                    feedback,
+                    saveFeedback) {
+
+  var container = drawReviewContainer();
+
+  var review = drawReview(review, step.type);
+
+  container.append(review);
+
+  if (feedback === null) {
+    var feedbackDiv = drawFeedback(function (score, comments) {
+      var feedback = {
+        helpfullness: score,
+        comments: comments
+      };
+      saveFeedback(feedback, function () {
+        feedbackDiv.remove();
+        container.append(drawSubmittedFeedback(feedback));
+      }, function () {
+        ct_error("Couldn't save feedback");
+      });
+    });
+
+    container.append(feedbackDiv);
+  } else {
+    container.append(drawSubmittedFeedback(feedback));
+  }
+
+  editor.addWidgetAt(step.name, container[0]);
+}
