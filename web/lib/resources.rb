@@ -240,6 +240,13 @@ module Resource
         end
         json_data = JSON.parse(b.data)
         json_data[args["key"].to_s] = JSON.parse(data)
+        this_dict = json_data[args["key"].to_s]
+        payload = args["payload"]
+        unless payload.nil?
+          payload.keys.each do |k|
+            this_dict[k] = payload[k]
+          end
+        end
         b.data = JSON.dump(json_data)
         b.save!
         return Success.new

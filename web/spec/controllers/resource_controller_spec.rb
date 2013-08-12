@@ -313,6 +313,58 @@ describe ResourceController do
       resp[1].should(eq(JSON.parse(data2)))
     end
 
+    it "should incorporate payload into written data" do
+      ref = "some-activity-for-payload/reviews"
+      resource = Resource::mk_resource(
+          "inbox-for-read",
+          "r",
+          ref,
+          {},
+          @user.id
+        )
+      feedback1 = "this will be a feedback link someday"
+      write_resource1 = Resource::mk_resource(
+          "inbox-for-write",
+          "rw",
+          ref,
+          { blob_user_id: @user.id,
+            key: "42",
+            payload: { feedback: feedback1 }
+          },
+          @user.id)
+      feedback2 = "this will be a feedback link NOW"
+      write_resource2 = Resource::mk_resource(
+          "inbox-for-write",
+          "rw",
+          ref,
+          { blob_user_id: @user.id,
+            key: "84",
+            payload: { feedback: feedback2}
+          },
+          @user.id)
+
+      data = JSON.dump({"review" => "First review"})
+      post :save, :resource => write_resource1, :data => data, :format => :json
+      response.response_code.should(eq(200), "First review write")
+
+      data2 = JSON.dump({"review" => "Second review"})
+      post :save, :resource => write_resource2, :data => data2, :format => :json
+      response.response_code.should(eq(200), "Second attempt")
+
+      get :lookup, :resource => resource
+
+      response.response_code.should(eq(200))
+
+      resp = JSON::parse(response.body)
+      after_data1 = JSON.parse(data)
+      after_data1["feedback"] = feedback1
+      after_data2 = JSON.parse(data2)
+      after_data2["feedback"] = feedback2
+      resp[0].should(eq(after_data1))
+      resp[1].should(eq(after_data2))
+
+    end
+
   end
 
   describe "Submitted" do
