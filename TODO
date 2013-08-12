@@ -1,3 +1,22 @@
+To Do Before Demo On 8/13:
+[] Error handling in repl (add error wrapper)
+[] Format / make pretty feedback recieved on reviews
+[] Rewrite tutorial to eliminate field names, introduce lists as data first and foremost
+[] Tokens that aren't lexed are invisible! (like ?)
+[] Clear for interactions
+[] UI jump when submitting work and starting reviews
+[] repl loses newlines in echo
+[] <unprintable-expr> on pretty printer
+[] See feedback on your reviews
+Candidates:
+[] Highlight the part you are reviewing
+[] Highlight the part you are editing
+[] Run button, title, and saving indicator should follow page down.
+[] phrasing of values not equal in "is" (maybe "expected...")
+[] Plumb name of editor for sending to server, so parse errors aren't in program "run".
+[] Refreshing when in reviews doesn't focus review tabs, and doesn't move
+   editor to the right step
+
 Need To Do:
 [] Review should have better feedback when you don't fill in values
 [] Background on code in reviews, highlight whole lines
@@ -17,22 +36,10 @@ Need To Do:
 [] Well formedness
    - ERRORS DONT HAVE SRCLOCS when run with raco pyret.
    - multiple expressions on the same line (should at least be error on repl)
-[] UI jump when submitting work and starting reviews
 [] syntax for check-exn
-[] Refreshing when in reviews doesn't focus review tabs, and doesn't move
-   editor to the right step
-[] Tokens that aren't lexed are invisible! (like ?)
-[] Clear for interactions
 [] Highlighting on errors should be removed
-[] <unprintable-expr> on pretty printer
-[] Highlight the part you are reviewing
-[] Highlight the part you are editing
-[] Run button, title, and saving indicator should follow page down.
-[] Plumb name of editor for sending to server, so parse errors aren't in program "run".
 [] Progress is wierd - shouldn't fill when you are on the last step. Maybe use orange/blue?
 [] Submit button got lost sometimes - highlight and delete?
-[] repl loses newlines in echo
-[] phrasing of values not equal in "is" (maybe "expected...")
 [] Handling of unexpected racket errors (like unbound identifiers?)
 [] Indentation bugs:
    - except(e):
@@ -84,7 +91,7 @@ All Feedback:
    [x] Concern: "same as the last guy" for comments. Maybe don't close tabs until all reviews done?
     - No worries, bad feedback will catch this
    [] Feedback for reviews:
-     [] Helpfulness likert + optional comments
+     [x] Helpfulness likert + optional comments
      [] Report abuse button
    [] Logging on reviews:
      [] Count of times read
@@ -233,4 +240,3 @@ Morning
 [x] Order of reporting in check block output
 [x] Teach about cases (or some way of destructing lists)
 [x] Generate initial solutions for reviewing
-
