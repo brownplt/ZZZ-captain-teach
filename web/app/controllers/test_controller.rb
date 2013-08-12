@@ -53,7 +53,6 @@ class TestController < ApplicationController
               status: { step: "check", reviewing: true },
               parts: {
                 check: "\nmy checks are unforgable",
-                scratch: "\n# Foo was hard",
                 foo: "\n"
               }
             })})
@@ -66,7 +65,6 @@ class TestController < ApplicationController
               status: { step: "check", reviewing: true },
               parts: {
                 check: "\nmy checks have already been forged",
-                scratch: "\n# Foo was so easy, man",
                 foo: "\n"
               }
             })})
@@ -86,7 +84,6 @@ class TestController < ApplicationController
           status: { step: "check", reviewing: true },
           parts: {
             check: "\n1 is 4",
-            scratch: "\n# I think foo is gonna be hard",
             foo: "\n"
           }
         })}))
@@ -105,26 +102,30 @@ class TestController < ApplicationController
       u_curr = maybe_u_curr
       u = maybe_u
     end
+    code_delimiters = [ {type: "code", value: "fun foo():"},
+                        {type: "code", value: "\ncheck:"},
+                        {type: "code", value: "\nend"} ]
+    parts = [ {type: "fun-checks", value: "check"},
+              {type: "body", value: "foo"} ]
     @data = JSON.dump({
       user_index: user_index,
       user1: {
           args: {
               name: "FooThing",
-              codeDelimiters: [ {type: "code", value: "check:"},
-                                {type: "code", value: "\nend"},
-                                {type: "code", value: "\nFoo Stage"},
-                                {type: "code", value: "\nend"} ],
-              parts: ["check", "scratch", "foo"]
+              codeDelimiters: code_delimiters,
+              parts: parts
             },
           resources: {
               blob: Resource::mk_resource("b", "rw", ref + "+drafts", {}, u_curr.id),
               path: Resource::mk_resource("b", "rw", ref, {reviews: 2}, u_curr.id),
               steps: [{
                   name: "check",
+                  type: "fun-checks",
                   read_reviews: Resource::mk_resource("inbox-for-read", "r", part_ref, {}, u_curr.id),
                   do_reviews: Resource::mk_resource("b", "r", review_ref, {}, u_curr.id)
                 }, {
                   name: "foo",
+                  type: "body",
                   read_reviews: Resource::mk_resource("inbox-for-read", "r", part_ref_foo, {}, u_curr.id),
                   do_reviews: Resource::mk_resource("b", "r", review_ref_foo, {}, u_curr.id)
                 }]
@@ -133,21 +134,20 @@ class TestController < ApplicationController
       user2: {
           args: {
               name: "FooThing",
-              codeDelimiters: [ {type: "code", value: "check:"},
-                                {type: "code", value: "\nend"},
-                                {type: "code", value: "\nFoo Stage"},
-                                {type: "code", value: "\nend"} ],
-              parts: ["check", "scratch", "foo"]
+              codeDelimiters: code_delimiters,
+              parts: parts
             },
           resources: {
               blob: Resource::mk_resource("b", "rw", ref + "+drafts", {}, u.id),
               path: Resource::mk_resource("b", "rw", ref, {reviews: 2}, u.id),
               steps: [{
                   name: "check",
+                  type: "fun-checks",
                   read_reviews: Resource::mk_resource("inbox-for-read", "r", part_ref, {}, u.id),
                   do_reviews: Resource::mk_resource("b", "r", review_ref, {}, u.id)
                 }, {
                   name: "foo",
+                  type: "body",
                   read_reviews: Resource::mk_resource("inbox-for-read", "r", part_ref_foo, {}, u.id),
                   do_reviews: Resource::mk_resource("b", "r", review_ref_foo, {}, u.id)
                 }]

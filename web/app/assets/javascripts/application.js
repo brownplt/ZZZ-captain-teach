@@ -18,6 +18,7 @@
 //= require codemirror
 //= require runmode
 //= require matchbrackets
+//= require ct_lib
 //= require draw
 //= require ui
 //= require ct

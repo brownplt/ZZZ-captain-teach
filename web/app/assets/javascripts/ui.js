@@ -142,40 +142,41 @@ function writeReviews(container, options) {
   var showReview = drawShowWriteReview();
   var reviewContainer = drawWriteReviewContainer();
 
-  var designScores = drawReviewScore(
-      "Design",
-      "design",
-      [1, 2, 3, 4, 5, 6, 7, 8, 9, "10 (best)"],
-      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-  var correctScores = drawReviewScore(
-      "Correctness",
-      "correct",
-      [1, 2, 3, 4, 5, 6, 7, 8, 9, "10 (best)"],
-      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  var statements = reviewStatements[options.type];
+  var correctnessScale = drawLikert(
+      statements[0],
+      options.type + "-correct"
+    );
+  var designScale = drawLikert(
+      statements[1],
+      options.type + "-design"
+    );
+  var correctnessComments = drawLikertJustification();
+  var designComments = drawLikertJustification();
 
   var submitReviewButton = drawSubmitReviewButton()
     .on("click", function(e) {
-      var currentDesignScore = getScore(designScores);
-      var currentCorrectScore = getScore(correctScores);
+      var currentDesignScore = getScore(designScale);
+      var currentCorrectnessScore = getScore(correctnessScale);
       if (currentDesignScore === undefined) {
-        markInvalidReviewScore(designScores);
+        markInvalidReviewScore(designScale);
       }
-      if (currentCorrectScore === undefined) {
-        markInvalidReviewScore(correctScores);
+      if (currentCorrectnessScore === undefined) {
+        markInvalidReviewScore(correctnessScale);
       }
-      if (currentDesignScore && currentCorrectScore) {
-        markOkReviewScore(designScores);
-        markOkReviewScore(correctScores);
+      if (currentDesignScore && currentCorrectnessScore) {
+        markOkReviewScore(designScale);
+        markOkReviewScore(correctnessScale);
         options.reviews.save({
             review: {
               done: true, // NOTE(joe, 25 Jul 2013): This is a client UI hint, not binding
-              comments: getReviewText(reviewText),
+              correctnessComments: getReviewText(correctnessComments),
+              designComments: getReviewText(designComments),
               design: currentDesignScore,
-              correct: currentCorrectScore
+              correctness: currentCorrectnessScore
             }
           },
           function() {
-            if(options.noResubmit) { disableSubmissionUI(); }
             drawSavedNotification(container);
           });
       } else {
@@ -185,39 +186,15 @@ function writeReviews(container, options) {
 
   var reviewText = drawReviewText(false);
 
-  function disableSubmissionUI() {
-    submitReviewButton.hide();
-    disableReviewText(reviewText);
-    disableReviewScore(designScores);
-    disableReviewScore(correctScores);
-  }
-
-  if (!options.hasReviews) {
-    designScores.hide();
-    correctScores.hide();
-    setReviewText(reviewText, "No versions to review");
-  } else {
-    options.reviews.lookup(function(rev) {
-        enableReviewText(reviewText);
-        if (rev !== null) {
-          setReviewText(reviewText, rev.review.comments);
-          selectReviewScore(designScores, rev.review.design);
-          selectReviewScore(correctScores, rev.review.correct);
-          if (options.noResubmit && rev.review.done) { disableSubmissionUI(); }
-        }
-      },
-      function(e) {
-        console.error(e);
-      });
-  }
-
   var textSubmitContainer = drawReviewTextSubmitContainer();
-  textSubmitContainer.append(reviewText).append(submitReviewButton);
+  textSubmitContainer
+    .append(correctnessScale)
+    .append(correctnessComments)
+    .append(designScale)
+    .append(designComments)
+    .append(submitReviewButton);
 
-  reviewContainer.append(designScores)
-    .append(correctScores)
-    .append(textSubmitContainer);
-
+  reviewContainer.append(textSubmitContainer);
   container.append(reviewContainer);
 }
 
@@ -230,6 +207,7 @@ function repeat(n, s) {
 }
 
 function createEditor(cm, uneditables, options) {
+  ct_log("Creating: ", cm, uneditables, options);
   var doc = cm.getDoc();
   var end = doc.setBookmark({line: 0, ch: 0}, {insertLeft: true});
   var i = 0;
@@ -651,56 +629,56 @@ function progressBar(container, numberSteps) {
   };
 }
 
-function reviewTabs(tabPanel, step, resume) {
-  function setupReviews(reviewData) {
-    var doneCount = 0;
-    function incrementDone() {
-      doneCount += 1;
-      tryFinishReview();
-    }
-    function tryFinishReview() {
-      if(doneCount === reviewData.length) {
-        resume();
+var reviewTabs = ctC("reviewTabs", [TObject, {hasField: "type"}, TFunction],
+  function (tabPanel, step, resume) {
+    function setupReviews(reviewData) {
+      var doneCount = 0;
+      function incrementDone() {
+        doneCount += 1;
+        tryFinishReview();
       }
-    }
-    tryFinishReview(); // If reviewData is empty, just be done
+      function tryFinishReview() {
+        if(doneCount === reviewData.length) {
+          resume();
+        }
+      }
+      tryFinishReview(); // If reviewData is empty, just be done
 
-    reviewData.forEach(function(reviewDatum) {
-      reviewDatum.getReview(incrementDone, function(/* notFound */) {
-          var reviewsTab = drawReviewsTab();
-          var reviewTabHandle =
-            tabPanel.addTab("Reviews", reviewsTab, { cannotClose: true,
-                                                     prioritize: true });
+      reviewData.forEach(function(reviewDatum) {
+        reviewDatum.getReview(incrementDone, function(/* notFound */) {
+            var reviewsTab = drawReviewsTab();
+            var reviewTabHandle =
+              tabPanel.addTab("Reviews", reviewsTab, { cannotClose: true,
+                                                       prioritize: true });
 
-          var editorContainer = drawReviewEditorContainer();
-          reviewsTab.append(editorContainer);
-          reviewDatum.attachWorkToReview(editorContainer, function(reviewsInline) {
-            writeReviews(reviewsInline, {
-                hasReviews: true,
-                noResubmit: true,
-                reviews: {
-                    save: function(val, f) {
-                      reviewDatum.saveReview(val, function() {
-                          reviewTabHandle.close();
-                          incrementDone();
-                        },
-                        function(e) {
-                          // TODO(joe 31 July 2013): Just let them move on if
-                          // this fails?
-                          ct_error("Saving review failed:", e);
-                        });
-                    },
-                    lookup: function(f) { f(null); }
-                  }
-              });
+            var editorContainer = drawReviewEditorContainer();
+            reviewsTab.append(editorContainer);
+            reviewDatum.attachWorkToReview(editorContainer, function(reviewsInline) {
+              writeReviews(reviewsInline, {
+                  type: step.type,
+                  reviews: {
+                      save: function(val, f) {
+                        reviewDatum.saveReview(val, function() {
+                            reviewTabHandle.close();
+                            incrementDone();
+                          },
+                          function(e) {
+                            // TODO(joe 31 July 2013): Just let them move on if
+                            // this fails?
+                            ct_error("Saving review failed:", e);
+                          });
+                      },
+                      lookup: function(f) { f(null); }
+                    }
+                });
+            });
           });
-        });
-    });
-  }
-  // TODO(joe Aug 1 2013): To consider: is empty reviews the right "not found" behavior?
-  step.getReviewData(setupReviews, function() { setupReviews([]); });
+      });
+    }
+    // TODO(joe Aug 1 2013): To consider: is empty reviews the right "not found" behavior?
+    step.getReviewData(setupReviews, function() { setupReviews([]); });
 
-}
+  });
 
 function makeHighlightingRunCode(codeRunner) {
   var markedLines = [];

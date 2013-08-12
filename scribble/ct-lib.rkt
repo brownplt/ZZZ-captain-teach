@@ -232,10 +232,10 @@
     (define name (_name-name (findf _name? elts)))
     (define assignment-parts (filter _part? elts))
     (struct parts (code-delimiters part-names steps))
-    (define (code-delimiters-transform cds)
+    (define (pairs->json cds)
       (map (λ (cons-pair)
-              (make-hash (list (cons 'type (symbol->string (car cons-pair)))
-                               (cons 'value (cdr cons-pair)))))
+              (hash 'type (symbol->string (car cons-pair))
+                    'value (cdr cons-pair)))
            cds))
     (define (add-part a-part a-parts)
       (define maybe-line (if (empty? (parts-code-delimiters a-parts)) "" "\n"))
@@ -247,8 +247,8 @@
             (append (list (genstr)) (parts-part-names a-parts))
             (parts-steps a-parts))]
         [(_data-part part-name data-name)
-         (define v-step (format "~a-variants" part-name))
-         (define c-step (format "~a-checks" part-name))
+         (define v-step (cons 'variants (format "~a-variants" part-name)))
+         (define c-step (cons 'data-checks (format "~a-checks" part-name)))
          (parts
             (append (list
                       (cons 'code (format "~adata ~a:" maybe-line data-name))
@@ -256,10 +256,10 @@
                       (cons 'code "\nend"))
                     (parts-code-delimiters a-parts))
             (append (list v-step c-step (genstr)) (parts-part-names a-parts))
-            (append (list c-step v-step) (parts-steps a-parts)))]
+            (append (list v-step c-step) (parts-steps a-parts)))]
         [(_fun-part part-name fun-header)
-         (define b-step (format "~a-body" part-name))
-         (define c-step (format "~a-checks" part-name))
+         (define b-step (cons 'body (format "~a-body" part-name)))
+         (define c-step (cons 'fun-checks (format "~a-checks" part-name)))
          (parts
             (append (list
                       (cons 'code (format "~afun ~a:" maybe-line fun-header))
@@ -289,15 +289,15 @@
                                        (mk-resource "p" "rw" unique-id
                                                     (make-hash (list (cons 'reviews review-count)))))
                                  (cons 'blob (mk-resource "b" "rw" unique-id (make-hash)))))))
-                   (cons 'data-parts (jsexpr->string (parts-steps data)))
+                   (cons 'data-parts (jsexpr->string (pairs->json (parts-steps data))))
                    (cons 'data-type "code-assignment")
                    (cons 'data-args (jsexpr->string
                       (make-hash
                         (list
                           (cons 'name name)
-                          (cons 'codeDelimiters (code-delimiters-transform
+                          (cons 'codeDelimiters (pairs->json
                                                  (append (parts-code-delimiters data) (list (cons 'code "\n")))))
-                          (cons 'parts (parts-part-names data))))))))))
+                          (cons 'parts (pairs->json (parts-part-names data)))))))))))
        "")))
 
 

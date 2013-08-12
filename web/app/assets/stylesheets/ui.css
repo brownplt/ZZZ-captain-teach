@@ -40,6 +40,36 @@
     margin: 5px auto;
 }
 
+.likertButton {
+    margin: 2px;
+    display: inline-block;
+}
+
+.likertButton input {
+    display: none;
+}
+
+.likertButton label {
+    border: 1px solid #06f;
+    border-radius: 3px;
+    color: #06f;
+    background-color: #eee;
+    text-align: center;
+    padding: 5px;
+    cursor: pointer;
+    font-size: 9pt;
+}
+
+.likertButton label:hover {
+    background-color: #cff;
+    color: #06f;
+}
+
+.likertButton input:checked + label {
+    background-color: #06f;
+    color: #eee;
+}
+
 .reviewScoreTitle {
     font-weight: bold;
     display: inline-block;

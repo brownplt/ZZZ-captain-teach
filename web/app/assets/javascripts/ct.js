@@ -1,24 +1,4 @@
 "use strict";
-var LOG = true;
-function merge(obj, extension) {
-  return _.merge(_.clone(obj), extension);
-}
-
-function ct_log(/* varargs */) {
-  if (window.console && LOG) {
-    console.log.apply(console, arguments);
-  }
-}
-function ct_error(/* varargs */) {
-  if (window.console && LOG) {
-    console.error.apply(console, arguments);
-  }
-}
-
-function ct_confirm(message) {
-  return window.confirm(message);
-}
-
 var NO_INSTANCE_DATA = {no_instance_data: true};
 
 var rails_host = RAILS_HOST;
@@ -202,7 +182,7 @@ function codeAssignment(container, resources, args) {
 
   var defaultParts = {};
   args.parts.forEach(function(n) {
-    defaultParts[n] = "\n";
+    defaultParts[n.value] = "\n";
   });
 
   var defaultActivityState = {
@@ -216,7 +196,7 @@ function codeAssignment(container, resources, args) {
   function setupAssignment(activityState) {
     ct_log("as: ", activityState);
     var currentState = activityState.status;
-    var names = args.parts;
+    var names = _.pluck(args.parts, "value");
     var steps = [];
     resources.steps.forEach(function(elt) {
       steps.push(elt.name);
@@ -231,33 +211,36 @@ function codeAssignment(container, resources, args) {
     function getContents() {
       var parts = {};
       args.parts.forEach(function(p) {
-        parts[p] = editor.getAt(p);
+        parts[p.value] = editor.getAt(p.value);
       });
       return parts;
     }
 
-    function afterReview(step, resumeCoding) {
-      var toSaveAfterReview = {};
-      toSaveAfterReview.parts = getContents();
-      var indexOfStep = _.indexOf(steps, step);
-      var status;
-      editor.enableAll();
-      if (indexOfStep === (resources.steps.length - 1)) {
-        status = { done: true, step: step.name };
-      }
-      else {
-        status = {
-          reviewing: false,
-          step: resources.steps[indexOfStep + 1].name
-        };
-      }
-      toSaveAfterReview.status = status;
-      currentState = status;
-      saveResource(resources.path, toSaveAfterReview, resumeCoding);
-    }
+
+    var afterReview = ctC("afterReview", [TString, TFunction],
+      function(step, resumeCoding) {
+        var toSaveAfterReview = {};
+        toSaveAfterReview.parts = getContents();
+        var indexOfStep = _.indexOf(steps, step);
+        var status;
+        editor.enableAll();
+        if (indexOfStep === (resources.steps.length - 1)) {
+          status = { done: true, step: step };
+        }
+        else {
+          status = {
+            reviewing: false,
+            step: resources.steps[indexOfStep + 1].name
+          };
+        }
+        toSaveAfterReview.status = status;
+        currentState = status;
+        saveResource(resources.path, toSaveAfterReview, resumeCoding);
+      });
 
     function wrapStepForReview(step) {
       return {
+        type: step.type,
         getReviewData: function(f, e) {
           function wrapResult(reviewData) {
             f(reviewData.map(function(rd) {
@@ -298,7 +281,7 @@ function codeAssignment(container, resources, args) {
         container,
         {
           initial: "",
-	      run: makeHighlightingRunCode(RUN_CODE)
+          run: makeHighlightingRunCode(RUN_CODE)
         }
       );
       var thisEditorOptions = merge(sharedOptions, {
@@ -317,7 +300,8 @@ function codeAssignment(container, resources, args) {
     var editorOptions = merge(sharedOptions, {
         initial: activityState.parts,
         drawPartGutter: function(stepName, insert) {
-          var toRead = _.findWhere(resources.steps, { name: stepName }).read_reviews;
+          var step = _.findWhere(resources.steps, { name: stepName });
+          var toRead = step.read_reviews;
           lookupResource(toRead, function(reviews) {
             if (reviews.length !== 0) {
               var elt = drawReviewsButton(reviews.length);
@@ -329,7 +313,7 @@ function codeAssignment(container, resources, args) {
                     reviewsDiv.append(reviewContainer);
                     var data = JSON.parse(_data.file);
                     var editor = readOnlyEditorFromParts(reviewContainer, data.parts);
-                    editor.addWidgetAt(stepName, drawReview(r)[0]);
+                    editor.addWidgetAt(stepName, drawReview(r, step.type)[0]);
                   });
                 });
                 window.PANEL.addTab("Rev: " + args.name + ":" + stepName, reviewsDiv);

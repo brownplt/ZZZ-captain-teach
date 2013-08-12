@@ -39,6 +39,36 @@ function drawVersionsList(visible, initialButtons) {
   return versions;
 }
 
+function drawLikertJustification() {
+  return $("<div>")
+    .append($("<h4>").text("Please briefly justify your score:"))
+    .append($("<textarea>").addClass("likertText"));
+}
+
+var likertLabels = [
+    "Strongly Disagree",
+    "Disagree",
+    "Slightly Disagree",
+    "Slightly Agree",
+    "Agree",
+    "Strongly Agree"
+  ];
+function drawLikert(message, name) {
+  var radioContainer = $("<div>");
+  radioContainer.append($("<div>").text(message).addClass("reviewScoreMessage"));
+  var rand = String(Math.random());
+  likertLabels.forEach(function(l, ix) {
+    var value = ix - (likertLabels.length / 2);
+    var id = name + ix + rand;
+    radioContainer.append(
+      $("<span>")
+        .addClass("likertButton")
+        .append($("<input type='radio' id='" + id + "' name='" + name + "'>")
+                .attr("value", value))
+        .append($("<label for='" + id + "'>").text(l)));
+  });
+  return radioContainer;
+}
 
 function drawReviewScore(title, name, labels, values) {
   var radioContainer = $("<div>");
@@ -160,11 +190,16 @@ function drawReviewContainer() {
   return $("<div>");
 }
 
-function drawReview(revData) {
+function drawReview(revData, type) {
+  var prompts = reviewStatements[type];
+  function getLikertLabel(value) {
+    return likertLabels[value + (likertLabels.length / 2)];
+  }
   return $("<div>").addClass("reviewContents")
-    .append($("<p>").text("Design score: " + revData.review.design))
-    .append($("<p>").text("Correctness score: " + revData.review.correct))
-    .append($("<p>").text("Comments: " + revData.review.comments));
+    .append($("<p>").text(statements[0] + getLikertLabel(revData.review.design)))
+    .append($("<p>").text("Justification: " + revData.review.designComments))
+    .append($("<p>").text(statements[1] + getLikertLabel(revData.review.correctness)))
+    .append($("<p>").text("Justification: " + revData.review.correctnessComments));
 }
 
 function drawSavedNotification(container) {
@@ -312,3 +347,19 @@ function drawErrorLocations(links) {
   })
   return container;
 }
+
+
+var dataCorrectStatement = "This data definition covers all the cases of data that it needs to represent.";
+var dataDesignStatement = "This data definition is structured well and all the names are appropriate.";
+
+var testsCorrectStatement = "These tests correctly reflect the desired behavior.";
+var testsDesignStatement = "These tests are representative of the possible inputs.";
+
+var funCorrectStatement = "This code correctly implements the desired behavior.";
+var funDesignStatement = "This code is structured well."
+
+var reviewStatements = {
+  "fun-checks": [testsCorrectStatement, testsDesignStatement],
+  "body": [funCorrectStatement, funDesignStatement],
+  "data-checks": [dataCorrectStatement, dataDesignStatement]
+};
