@@ -54,32 +54,6 @@
                 (list
                   (cons 'id id)))))
        contents)))
-       #|
-    (element
-      (style #f
-             (list
-               (alt-tag "input")
-               (attributes
-                (list
-                  (cons 'type "radio")
-                  (cons 'id id)
-                  (cons 'name (current-choice-id))))))
-      (list
-        (element
-          (style #f
-                 (list
-                  (alt-tag "label")
-                  (attributes
-                    (list
-                      (cons 'for id)))))
-          contents)
-        (element
-          (style #f
-                 (list
-                  (alt-tag "br")
-                  (attributes empty)))
-           "")))))
-           |#
 
 ;; TODO(joe): this is an obfuscation point
 (define-syntax-rule (choice-incorrect id content ...)
