@@ -81,6 +81,7 @@ class AssignmentController < ApplicationController
           parts = JSON.parse(node["data-parts"])
           activity_id = node["data-activity-id"]
           parts = parts.map do |k|
+            part_ref = AssignmentController.part_ref(activity_id, key)
             key = k.value
             {
               name: key,
@@ -88,7 +89,14 @@ class AssignmentController < ApplicationController
               read_reviews: Resource::mk_resource(
                   "inbox-for-read",
                   "r",
-                  AssignmentController.part_ref(activity_id, key),
+                  part_ref
+                  {},
+                  user.id
+                ),
+              read_feedback: Resource::mk_resource(
+                  "inbox-for-read",
+                  "r",
+                  AssignmentController.feedback_ref(part_ref),
                   {},
                   user.id
                 ),
