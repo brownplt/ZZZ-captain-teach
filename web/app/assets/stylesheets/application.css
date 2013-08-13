@@ -17,6 +17,16 @@
  *= require print
  */
 
+.welcome {
+    height: 30px;
+    padding-top: 170px;
+    background-image: url("pyret.png");
+    background-repeat: no-repeat;
+    background-position: left;
+    margin: 0 auto;
+    width: 200px;
+    text-align: center;
+}
 
 .clearfix {
     clear: both;

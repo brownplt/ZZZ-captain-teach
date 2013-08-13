@@ -5,7 +5,7 @@ App::Application.routes.draw do
   # You can have the root of your site routed with "root"
   # root 'welcome#index'
   # for now, editors is the most useful thing we have
-  root 'editors#index'
+  root 'static#index'
 
   post 'login' => 'sessions#create'
   post 'logout' => 'sessions#destroy'
@@ -18,7 +18,7 @@ App::Application.routes.draw do
   post 'resource/save'          => 'resource#save'
   get  'resource/versions'      => 'resource#versions'
   post 'resource/submit'        => 'resource#submit'
-  
+
   #get 'do_assignment/:uid' => 'assignment#do_assignment'
   get 'assignment/:uid' => 'assignment#get_assignment', as: :assignment
   get 'grade/:uid/:user_id' => 'assignment#grade_assignment', as: :grade_assignment
@@ -34,14 +34,14 @@ App::Application.routes.draw do
 
   post 'course/:id/add_teacher' => 'course#add_teacher', as: :add_teacher
   post 'course/:id/add_student' => 'course#add_student', as: :add_student
-  
-  
+
+
   # TESTING
-  mount JasmineRails::Engine => "/specs" if defined?(JasmineRails) 
-  
+  mount JasmineRails::Engine => "/specs" if defined?(JasmineRails)
+
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
-  
+
   # Example of named route that can be invoked with purchase_url(id: product.id)
   #   get 'products/:id/purchase' => 'catalog#purchase', as: :purchase
 
