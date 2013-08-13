@@ -63,6 +63,7 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 }
 
 .gutterButton {
+    color: #eee;
     width: 25px;
     border-radius: 5px 0 0 5px;
     height: 1.5em;

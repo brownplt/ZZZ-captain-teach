@@ -259,6 +259,7 @@
 .submitStep {
   height: 2em;
   margin: 7px 0 0 0;
+  color: #eee;
 }
 
 .submitStep span {
