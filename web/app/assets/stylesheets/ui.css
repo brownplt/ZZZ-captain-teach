@@ -214,6 +214,10 @@
 }
 
 .lineError.cptteach-fixed {
+  background-color: #cfc;
+}
+
+.lineError.cptteach-fixed {
   background-color: #f66;
 }
 
