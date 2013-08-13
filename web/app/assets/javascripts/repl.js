@@ -84,12 +84,8 @@ function makeRepl(container) {
 
 
   var promptContainer = jQuery("<div id='prompt-container'>");
-  var prompt = jQuery("<div>").css({
-    "width": "90%",
-    "display": "inline-block"
-  });
-  promptContainer.append($("<span>&gt;&nbsp;</span>"))
-    .append(prompt);
+  var prompt = jQuery("<div>").addClass("repl-prompt");
+  promptContainer.append($("<span>&gt;&nbsp;</span>")).append(prompt);
 
 
 
@@ -100,6 +96,10 @@ function makeRepl(container) {
 
   container.append(output).append(promptContainer).
     append(breakButton).append(clearDiv);
+
+
+  var lastNameRun = '';
+  var lastEditorRun = null;
 
   var runCode = function (src, uiOptions, options) {
     breakButton.show();
@@ -117,13 +117,6 @@ function makeRepl(container) {
     } else {
       thisReturnHandler = uiOptions.handleReturn || defaultReturnHandler;
     }
-    var enablePrompt = function (result) {
-      CM.setOption("readOnly", false);
-      CM.getDoc().eachLine(function (line) {
-        CM.removeLineClass(line, 'background', 'cptteach-fixed');
-      });
-      return thisReturnHandler(result);
-    }
     var thisError;
     if (uiOptions.wrappingOnError) {
       thisError = uiOptions.wrappingOnError(output);
@@ -131,9 +124,21 @@ function makeRepl(container) {
       thisError = uiOptions.error || onError;
     }
     var thisWrite = uiOptions.write || write;
-    evaluator.run("run", src, clear, enablePrompt, thisWrite, thisError, options);
+    lastNameRun = uiOptions.name || "";
+    lastEditorRun = uiOptions.cm || null;
+    evaluator.run(uiOptions.name || "run", src, clear, enablePrompt(thisReturnHandler), thisWrite, thisError, options);
   };
 
+  var enablePrompt = function (handler) { return function (result) {
+      breakButton.hide();
+      CM.setValue("");
+      CM.setOption("readOnly", false);
+      CM.getDoc().eachLine(function (line) {
+        CM.removeLineClass(line, 'background', 'cptteach-fixed');
+      });
+      return handler(result);
+    };
+  }
 
   var CM = makeEditor(prompt, {
     simpleEditor: true,
@@ -141,22 +146,27 @@ function makeRepl(container) {
       items.unshift(code);
       pointer = -1;
       write(jQuery('<span>&gt;&nbsp;</span>'));
-      var echo = $("<span class='repl-echo CodeMirror'>");
-      write(echo);
-      formatCode(echo[0], code);
+      var echoContainer = $("<div>");
+      var echo = $("<textarea class='repl-echo CodeMirror'>");
+      echoContainer.append(echo);
+      write(echoContainer);
+      var echoCM = CodeMirror.fromTextArea(echo[0], { readOnly: 'nocursor' });
+      echoCM.setValue(code);
       write(jQuery('<br/>'));
       breakButton.show();
       CM.setOption("readOnly", "nocursor");
       CM.getDoc().eachLine(function (line) {
         CM.addLineClass(line, 'background', 'cptteach-fixed');
       });
-      evaluator.run('interactions',
-                  code,
-                  clear,
-                  prettyPrint,
-                  write,
-                  onError,
-                  _.merge(replOpts, {check: false}));
+      makeHighlightingRunCode(function(src, uiOptions, options) {
+        evaluator.run('interactions',
+                    src,
+                    clear,
+                    prettyPrint,
+                    write,
+                    enablePrompt(uiOptions.wrappingOnError(output)),
+                    merge(options, _.merge(replOpts, {check: false})));
+      })(code, merge(opts, {name: lastNameRun, cm: lastEditorRun}), replOpts);
     },
     initial: "",
     cmOptions: {
@@ -370,4 +380,10 @@ function makeEvaluator(container, handleReturnValue, onReady) {
   };
 
   return {run: runCode, requestBreak: breakFun, requestReset: resetFun};
+}
+
+function namedRunner(runFun, name) {
+  return function(src, uiOptions, langOptions) {
+    runFun(src, merge(uiOptions, { name: name }), langOptions);
+  };
 }

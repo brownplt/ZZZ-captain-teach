@@ -144,3 +144,13 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     font-size: 0.8em;
     padding: 3px;
 }
+
+.repl-prompt {
+  width: 90%;
+  display: inline-block;
+}
+
+.repl-echo {
+  width: 90%;
+  display: inline-block;
+}

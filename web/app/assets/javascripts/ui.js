@@ -133,7 +133,7 @@ function studentCodeReview(container, options) {
   );
   writeReviews(
     crContainer,
-    _.merge(options.reviewOptions, { noResubmit: true })
+    merge(options.reviewOptions, { noResubmit: true })
   );
 }
 
@@ -585,7 +585,7 @@ function steppedEditor(container, uneditables, options) {
     }
   }
 
-  return _.merge(editor, {
+  return merge(editor, {
     resumeAt: function(step) {
       switchTo(_.indexOf(steps, step));
     },
@@ -681,29 +681,31 @@ var reviewTabs = ctC("reviewTabs", [TObject, {hasField: "type"}, TFunction],
   });
 
 function makeHighlightingRunCode(codeRunner) {
-  var markedLines = [];
 
   return function(src, uiOptions, options) {
     function highlightLineAt(cm, loc, className) {
-      markedLines.push([loc.line - 1, className]);
       cm.addLineClass(
           loc.line - 1,
           'background',
           className
       );
     }
+    function normalizeLoc(loc) {
+      if(loc.path) { return { file: loc.path, line: loc.line, column: loc.column }; }
+      else if(!loc.file) {
+        ct_exn("normalizeLoc: Doesn't look like a valid location", loc);
+      }
+      else { return loc; }
+    }
+    function showLink(loc) {
+      return loc && loc.line > 0 && loc.file && loc.file === uiOptions.name;
+    }
     function makeScrollingLocationLink(cm, loc) {
       function locToStr(loc) {
-        if (loc.line > 0) {
-          return "Line " + loc.line + ", Column " + loc.column;
-        }
-        else {
-          return "Unknown location";
-        }
+        return "In " + loc.file + ": Line " + loc.line + ", Column " + loc.column;
       }
-      if(!loc) {
-        loc = { line: -1, column: -1 };
-      }
+      loc = normalizeLoc(loc);
+      if(!showLink(loc)) { return $("<span>"); }
       var errorLink = $("<a>");
       errorLink.text(locToStr(loc));
       errorLink.attr("href", "#");
@@ -724,10 +726,10 @@ function makeHighlightingRunCode(codeRunner) {
     }
 
     function clear() {
-      markedLines.forEach(function(l) {
-        uiOptions.cm.removeLineClass(l[0], 'background', l[1])
+      uiOptions.cm.eachLine(function(l) {
+        uiOptions.cm.removeLineClass(l, 'background', 'lineError');
+        uiOptions.cm.removeLineClass(l, 'background', 'lineSuccess');
       });
-      markedLines = [];
     };
 
     uiOptions.cm.on("change", clear);
@@ -760,7 +762,7 @@ function makeHighlightingRunCode(codeRunner) {
               else {
                 messageText = "Runtime error";
               }
-              var loc = { line: err.line, column: err.column };
+              var loc = { file: err.path, line: err.line, column: err.column };
               var errorLink = makeScrollingLocationLink(uiOptions.cm, loc);
               var errDom = drawErrorMessageWithLoc(messageText, errorLink);
               output.append(errDom);

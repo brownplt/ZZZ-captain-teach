@@ -35,7 +35,7 @@ function makeEditor(container, options) {
     matchBrackets: true
   };
 
-  cmOptions = _.merge(cmOptions, options.cmOptions);
+  cmOptions = merge(cmOptions, options.cmOptions);
 
   var CM = CodeMirror.fromTextArea(textarea[0], cmOptions);
 

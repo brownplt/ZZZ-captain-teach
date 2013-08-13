@@ -153,7 +153,7 @@ function codeExample(container, resources, args) {
   container.append(codeContainer);
   var cm = makeEditor(codeContainer, {
       initial: code,
-      run: makeHighlightingRunCode(RUN_CODE)
+      run: namedRunner(makeHighlightingRunCode(RUN_CODE), "example")
    });
 
   ASSIGNMENT_PIECES.push({id: resources, editor: cm, mode: args.mode});
@@ -208,7 +208,7 @@ function codeAssignment(container, resources, args) {
       steps.push(elt.name);
     });
     var sharedOptions = {
-      run: makeHighlightingRunCode(RUN_CODE),
+      run: namedRunner(makeHighlightingRunCode(RUN_CODE), args.name),
       names: names,
       steps: steps,
       afterHandlers: {}
