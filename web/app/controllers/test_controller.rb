@@ -165,6 +165,107 @@ class TestController < ApplicationController
     })
   end
 
+  require 'nokogiri'
+  def submit_tests
+    o = Object.new
+    def o.path
+      File.expand_path("sample-assignment.jrny", ASSIGNMENTS_PATH)
+    end
+
+    def lookup(resource)
+      type, perm, ref, args, user = Resource::parse(resource)
+      Resource::lookup(type, perm, ref, args, user).data
+    end
+
+    def save(resource, data)
+      type, perm, ref, args, user = Resource::parse(resource)
+      Resource::save(type, perm, ref, args, user, JSON.dump(data))
+    end
+
+    def submit(resource, data)
+      type, perm, ref, args, user = Resource::parse(resource)
+      Resource::submit(type, perm, ref, args, user, JSON.dump(data), resource)
+    end
+
+    def versions(resource)
+      type, perm, ref, args, user = Resource::parse(resource)
+      Resource::versions(type, perm, ref, args, user, resource).data
+    end
+
+    user1 = User.find_by(:email => "henry@cs.brown.edu")
+    user2 = User.find_by(:email => "cedric@cs.brown.edu")
+
+    henryData = AssignmentController.path_to_json(user1, o)
+    cedricData = AssignmentController.path_to_json(user2, o)
+
+    henryPath = henryData[1][:resources]["path"]
+    save(henryPath, {
+      status: { step: "append-checks", reviewing: true },
+      parts: {
+        "append-checks" => "\nappend([1], [2]) is [1,2]\n",
+        "append-body" => "\n",
+        "Quicksort2" => "\n",
+        "quick-sort-checks" => "\n",
+        "quick-sort-body" => "\n",
+        "Quicksort1" => "\n"
+      }
+    })
+    submit(henryPath, {step_type: "append-checks"})
+
+    cedricPath = cedricData[1][:resources]["path"]
+    save(cedricPath, {
+      status: { step: "append-checks", reviewing: true },
+      parts: {
+        "append-checks" => "\nappend([1], [1, 3]) is [1,3]",
+        "append-body" => "\n",
+        "Quicksort2" => "\n",
+        "quick-sort-checks" => "\n",
+        "quick-sort-body" => "\n",
+        "Quicksort1" => "\n"
+      }
+    })
+    submit(cedricPath, {step_type: "append-checks"})
+
+    cedricDoReviews = cedricData[1][:parts][0]["do_reviews"]
+    result = JSON.parse(lookup(cedricDoReviews))
+    save(result[0]["save_review"], {
+      resource: versions(cedricPath)[0][:resource],
+      review: {
+        done: true,
+        correctnessComments: "Nice work",
+        correctness: 1,
+        designComments: "Bad design",
+        design: -1
+      }
+    })
+
+    henryReadReviews = henryData[1][:parts][0]["read_reviews"]
+    result = lookup(henryReadReviews)
+    save(result[0]["feedback"], {
+      helpfullness: 2,
+      comments: "This fixed my problem, thanks!"
+    })
+
+    henryResources = henryData[1][:resources]
+    henryResources["steps"] = henryData[1][:parts]
+
+    cedricResources = cedricData[1][:resources]
+    cedricResources["steps"] = cedricData[1][:parts]
+
+    @data = JSON.dump({
+      user_index: "N/A",
+      user1: {
+        resources: henryResources,
+        args: henryData[1][:args]
+      },
+      user2: {
+        resources: cedricResources,
+        args: cedricData[1][:args]
+      }
+    })
+
+  end
+
   private
 
   def run_scribble(name)

@@ -541,7 +541,6 @@ function steppedEditor(container, uneditables, options) {
               }
             }
           });
-          ct_log(editor.lineOf(e));
           var submitW = editor.addWidgetAt(e, submitButton[0], {atTop: false});
           ephemeralWidgets.push([e, submitW]);
         }

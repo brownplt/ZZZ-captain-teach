@@ -284,14 +284,21 @@ function codeAssignment(container, resources, args) {
     var editorOptions = merge(sharedOptions, {
         initial: activityState.parts,
         drawPartGutter: function(stepName, insert) {
+          function insertOnce(elt) {
+            insert(elt[0]);
+            insertOnce = function() {}
+          }
           var step = _.findWhere(resources.steps, { name: stepName });
           var toRead = step.read_reviews;
+          var elt = drawReviewsButton();
           lookupResource(toRead, function(reviews) {
             if (reviews.length !== 0) {
-              var elt = drawReviewsButton(reviews.length);
+              setReviewNumber(elt, reviews.length);
+              insertOnce(elt);
               elt.on("click", function() {
                 var reviewsDiv = drawReviewsDiv(args.name, stepName);
                 reviews.forEach(function(r) {
+                  ct_log("Review is: ", r);
                   lookupResource(r.resource, function(_data) {
                     var data = JSON.parse(_data.file);
                     var editor = readOnlyEditorFromParts(
@@ -309,7 +316,6 @@ function codeAssignment(container, resources, args) {
                                                 fail);
                                  });
                     }
-
                     lookupResource(r.feedback, function(feedback) {
                       handleFeedback(feedback);
                     }, function () {
@@ -321,27 +327,41 @@ function codeAssignment(container, resources, args) {
                                     args.name +
                                     ":" +
                                     stepName, reviewsDiv);
+                return false;
+             });
+            }
+          }, function() { /* intentional no-op */ });
 
-                var feedbackContainer = drawFeedbackContainer();
-                // lookupResource(step.read_feedback,
-                //                function(feedback) {
-                //   feedback.forEach(function(f) {
-
-                //   });
-                // });
-
-                // window.PANEL.addTab("Feedback: " +
-                //                     args.name +
-                //                     ":" +
-                //                     stepName, feedbackContainer);
-
+          ct_log("step is: ", step);
+          lookupResource(step.read_feedback, function(feedback) {
+            if(feedback.length > 0) {
+              var feedbackContainer = drawFeedbackContainer();
+              setHasFeedback(elt);
+              insertOnce(elt);
+              elt.on("click", function() {
+                feedback.forEach(function(f) {
+                  var reviewsDiv = drawReviewsDiv(args.name, stepName);
+                  feedbackContainer.append(reviewsDiv);
+                  lookupResource(f.content, function(_code) {
+                       lookupResource(f.review, function(r) {
+                         var code = JSON.parse(_code.file);
+                         var editor = readOnlyEditorFromParts(
+                           reviewsDiv,
+                           delimiterValues,
+                           code.parts,
+                           sharedOptions);
+                         showReview(editor, step, r, f, function() { /* intentional no-op */ });
+                      });
+                   }, function() { ct_log("Review target content failed"); });
+                });
+                window.PANEL.addTab("Feedback: " +
+                                args.name +
+                                ":" +
+                                stepName, feedbackContainer);
                 return false;
               });
-              insert(elt[0]);
             }
-          }, function(/* not found */) {
-
-          });
+          }, function() { ct_log("read_feedback failed"); });
         }
       });
 

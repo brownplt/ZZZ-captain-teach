@@ -163,15 +163,16 @@ function getReviewText(rt) {
 }
 
 
-function drawReviewsButton(count) {
-  if (count === 0) {
-    return $("<div></div>");
-  }
-  else {
-    return $("<div>" + count + "*</div>")
-      .attr("title", count + " reviews")
-      .addClass("reviewLink");
-  }
+function drawReviewsButton() {
+  return $("<div>").addClass("reviewLink");
+}
+
+function setReviewNumber(elt, c) {
+  elt.text(c + elt.text()).attr("title", c + " reviews");
+}
+
+function setHasFeedback(elt) {
+  elt.text(elt.text() + "*");
 }
 
 function drawReviewsDiv(name, time) {

@@ -47,6 +47,7 @@ Need To Do:
    - fun f():
      o.{o:x} # not indented
      end
+[] Filter payloads on inbox-for-write or partition data
 
 Want To Do:
 [] Doc string on builtins

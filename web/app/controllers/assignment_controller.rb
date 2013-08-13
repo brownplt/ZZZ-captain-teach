@@ -11,7 +11,7 @@ class AssignmentController < ApplicationController
         @html = "Not logged in"
       else
         path = path_ref_to_path(assignment.path_ref)
-        @html = path_to_html(ct_current_user, path)
+        @html = AssignmentController::path_to_html(ct_current_user, path)
       end
     end
   end
@@ -35,7 +35,7 @@ class AssignmentController < ApplicationController
     end
   end
 
-  def resource_from_dict(d, uid)
+  def self.resource_from_dict(d, uid)
     Resource::mk_resource(
         d["type"],
         d["perms"],
@@ -55,12 +55,12 @@ class AssignmentController < ApplicationController
     "#{ref}-feedback"
   end
 
-  def path_ref_to_path(path_ref)
+  def self.path_ref_to_path(path_ref)
     path_ref.create_temporary
   end
 
 
-  def path_to_html(user, path)
+  def self.path_to_html(user, path)
     scribbled = Scribble::render(path)
     doc = Nokogiri::HTML(scribbled)
     main = doc.css('div.main').first
@@ -73,7 +73,7 @@ class AssignmentController < ApplicationController
       if node["data-resources"]
         resources = JSON.parse(node["data-resources"])
         resources.keys.each do |k|
-          resources[k] = resource_from_dict(resources[k], user.id)
+          resources[k] = AssignmentController.resource_from_dict(resources[k], user.id)
         end
         node["data-resources"] = resources.to_json
 
@@ -116,6 +116,21 @@ class AssignmentController < ApplicationController
       end
     end
     main.to_html
+  end
+
+  def self.path_to_json(user, path)
+    html = Nokogiri::HTML(AssignmentController.path_to_html(user, path))
+    html.css("[data-ct-node='1']").map do |node|
+      if not node["data-parts"].nil?
+        {
+          resources: JSON.parse(node["data-resources"]),
+          id: node["data-activity-id"],
+          parts: JSON.parse(node["data-parts"]),
+          args: JSON.parse(node["data-args"])
+        }
+      else {}
+      end
+    end
   end
 
   def path_to_grade_html(user, path)

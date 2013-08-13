@@ -90,6 +90,7 @@ App::Application.routes.draw do
     get 'fetch_assignments' => "test#fetch_assignments"
     get 'test_assignment' => "test#test_assignment"
     get 'server_tests' => "test#server_tests"
+    get 'submit_tests' => "test#submit_tests"
     get ':action' => 'static#:action'
   end
 end

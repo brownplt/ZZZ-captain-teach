@@ -98,10 +98,15 @@ if Rails.env.development?
     :course => course
   })
 
-
   path7 = PathRef.create!(:user_repo => captains_log, :path => "sorting.jrny")
   example_assignment7 = Assignment.create!({
     :path_ref => path7,
+    :course => course
+  })
+
+  path8 = PathRef.create!(:user_repo => captains_log, :path => "sample-assignment.jrny")
+  example_assignment8 = Assignment.create!({
+    :path_ref => path8,
     :course => course
   })
 
@@ -111,6 +116,10 @@ if Rails.env.development?
   user2 = User.create!(:email => "cedric@cs.brown.edu")
   course.students << user2
 
+  user3 = User.create!(:email => "benedict@perdue.edu")
+  course.students << user3
+
+  
   APP_URL = "http://localhost:3000"
   print("Visit the demo course at: #{APP_URL}/course/#{course.id}\n")
 
