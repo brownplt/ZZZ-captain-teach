@@ -244,10 +244,6 @@
     cursor: pointer;
 }
 
-.clearButton {
-  float: right;
-}
-
 .runButton {
     width: 50px;
 }
