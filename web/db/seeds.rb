@@ -18,9 +18,15 @@ if Rails.env.production?
   course.teachers << joe
   course.teachers << dbp
 
-  sorting = PathRef.create!(:user_repo => captains_log, :path => "sorting.jrny")
+  sorting = PathRef.create!(:user_repo => captains_log, :path => "tutorial.jrny")
   sorting_assignment = Assignment.create!({
     :path_ref => sorting,
+    :course => course
+  })
+
+  sorting1 = PathRef.create!(:user_repo => captains_log, :path => "tutorial-test-dont-click-here.jrny")
+  sorting1_assignment = Assignment.create!({
+    :path_ref => sorting1,
     :course => course
   })
 end
