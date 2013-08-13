@@ -94,12 +94,18 @@ function makeRepl(container) {
 
   var clearDiv = jQuery("<div class='clear'>");
 
-  container.append(output).append(promptContainer).
+  var clearRepl = function() {
+    output.empty();
+    promptContainer.hide();
+    promptContainer.fadeIn(100);
+  };
+
+  var clearButton = $("<button>").addClass("blueButton").text("Clear")
+    .click(clearRepl);
+
+  container.append(clearButton).append(output).append(promptContainer).
     append(breakButton).append(clearDiv);
 
-
-  var lastNameRun = '';
-  var lastEditorRun = null;
 
   var runCode = function (src, uiOptions, options) {
     breakButton.show();
@@ -124,7 +130,7 @@ function makeRepl(container) {
       thisError = uiOptions.error || onError;
     }
     var thisWrite = uiOptions.write || write;
-    lastNameRun = uiOptions.name || "";
+    lastNameRun = uiOptions.name || "interactions";
     lastEditorRun = uiOptions.cm || null;
     evaluator.run(uiOptions.name || "run", src, clear, enablePrompt(thisReturnHandler), thisWrite, thisError, options);
   };
@@ -166,7 +172,7 @@ function makeRepl(container) {
                     write,
                     enablePrompt(uiOptions.wrappingOnError(output)),
                     merge(options, _.merge(replOpts, {check: false})));
-      })(code, merge(opts, {name: lastNameRun, cm: lastEditorRun}), replOpts);
+      })(code, merge(opts, {name: lastNameRun, cm: lastEditorRun || echoCM}), replOpts);
     },
     initial: "",
     cmOptions: {
@@ -180,6 +186,9 @@ function makeRepl(container) {
       }
     }
   });
+
+  var lastNameRun = 'interactions';
+  var lastEditorRun = null;
 
   var write = function(dom) {
     output.append(dom);

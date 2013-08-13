@@ -1,11 +1,11 @@
 To Do Before Demo On 8/13:
-[] Error handling in repl (add error wrapper)
+[x] Error handling in repl (add error wrapper)
 [] Format / make pretty feedback recieved on reviews
 [] Rewrite tutorial to eliminate field names, introduce lists as data first and foremost
 [] Tokens that aren't lexed are invisible! (like ?)
-[] Clear for interactions
+[x] Clear for interactions
 [] UI jump when submitting work and starting reviews
-[] repl loses newlines in echo
+[x] repl loses newlines in echo
 [] <unprintable-expr> on pretty printer
 [] See feedback on your reviews
 Candidates:
