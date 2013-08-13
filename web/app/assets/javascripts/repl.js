@@ -98,6 +98,8 @@ function makeRepl(container) {
     output.empty();
     promptContainer.hide();
     promptContainer.fadeIn(100);
+    lastNameRun = 'interactions';
+    lastEditorRun = null;
   };
 
   var clearButton = $("<button>").addClass("blueButton").text("Clear")
@@ -132,7 +134,7 @@ function makeRepl(container) {
     var thisWrite = uiOptions.write || write;
     lastNameRun = uiOptions.name || "interactions";
     lastEditorRun = uiOptions.cm || null;
-    evaluator.run(uiOptions.name || "run", src, clear, enablePrompt(thisReturnHandler), thisWrite, thisError, options);
+    evaluator.run(uiOptions.name || "run", src, clear, enablePrompt(thisReturnHandler), thisWrite, enablePrompt(thisError), options);
   };
 
   var enablePrompt = function (handler) { return function (result) {

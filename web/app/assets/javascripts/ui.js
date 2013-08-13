@@ -692,6 +692,7 @@ function makeHighlightingRunCode(codeRunner) {
     }
     function normalizeLoc(loc) {
       if(loc.path) { return { file: loc.path, line: loc.line, column: loc.column }; }
+      if(loc.source) { return { file: loc.source, line: loc.line, column: loc.column }; }
       else if(!loc.file) {
         ct_exn("normalizeLoc: Doesn't look like a valid location", loc);
       }
