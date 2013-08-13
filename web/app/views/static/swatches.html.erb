@@ -328,3 +328,34 @@ $(function() {
     });
 });
 </script>
+
+<div id="feedbackContainer">
+</div>
+<script>
+$(function() {
+  $("#feedbackContainer").append(drawFeedback(function() { console.log("Submitted: ", arguments); }));
+});
+</script>
+
+<div id="submittedFeedbackContainer">
+</div>
+<script>
+$(function() {
+  $("#submittedFeedbackContainer").append(drawSubmittedFeedback({
+    helpfullness: 2,
+    comments: "Nice job"
+  }));
+});
+</script>
+
+<div id="submittedFeedbackContainer2">
+</div>
+<script>
+$(function() {
+  $("#submittedFeedbackContainer2").append(drawSubmittedFeedback({
+    helpfullness: 2,
+    comments: ""
+  }));
+});
+</script>
+

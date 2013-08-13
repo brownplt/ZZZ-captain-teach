@@ -54,7 +54,7 @@ var likertLabels = [
     "Strongly Agree"
   ];
 function drawLikert(message, name) {
-  var radioContainer = $("<div>");
+  var radioContainer = $("<div>").addClass("likert");
   radioContainer.append($("<div>").text(message).addClass("reviewScoreMessage"));
   var rand = String(Math.random());
   likertLabels.forEach(function(l, ix) {
@@ -220,14 +220,22 @@ function drawFeedback(submit) {
   var container = $("<div>").addClass("feedback");
   var likert = drawLikert(feedbackPrompt, "feedback")
   var comment = $("<textarea>");
-  var submitButton = $("<button>").text("Send").on("click", function () {
-    submitButton.off("click");
-    submitButton.prop("disabled", true);
-    submit(getScore(likert), comment.val());
+  var submitButton = $("<button>").addClass("blueButton").text("Submit").on("click", function () {
+    var score = getScore(likert);
+    if(score !== undefined) {
+      likert.removeClass("invalidScore");
+      if(ct_confirm("Are you sure you want to submit this feedback?")) {
+        submitButton.off("click");
+        submitButton.prop("disabled", true);
+        submit(getScore(likert), comment.val());
+      }
+    } else {
+      likert.addClass("invalidScore");
+    }
   });
   return container
     .append(likert)
-    .append($("<span>").text("Optional comments:"))
+    .append($("<div>").text("Optional comments:"))
     .append(comment)
     .append(submitButton);
 }
@@ -236,9 +244,9 @@ function drawSubmittedFeedback(feedback) {
   return $("<div>")
     .addClass("feedbackGiven")
     .append($("<div>").text(feedbackPrompt))
-    .append($("<div>").text(getLikertLabel(feedback.helpfullness)))
+    .append($("<div>").addClass("likertFeedbackScore").append($("<span>").text(getLikertLabel(feedback.helpfullness))))
     .append($("<div>").text("Optional comments"))
-    .append($("<div>").text(feedback.comments));
+    .append($("<div>").text(feedback.comments).addClass("feedbackComments"));
 }
 
 

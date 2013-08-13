@@ -40,6 +40,10 @@
     margin: 5px auto;
 }
 
+.likert {
+  padding-bottom: 5px;
+}
+
 .likertScore {
   font-weight: bold;
 }
@@ -49,6 +53,7 @@
 }
 
 .likertButton {
+    padding: 6px;
     margin: 2px;
     display: inline-block;
 }
@@ -278,4 +283,42 @@
 
 .repl-echo {
     padding: 0 2px;
+}
+
+.feedback {
+  color: black;
+  border: 1px dotted #222;
+  background-color: #ffc;
+  margin: 5px;
+  padding: 5px;
+}
+
+.reviewScoreMessage {
+  padding: 5px;  
+}
+
+.feedbackGiven {
+  color: black;
+  border: 1px dotted #222;  
+  background-color: #ffc;
+  margin: 5px;
+  padding: 5px;
+}
+
+.likertFeedbackScore {
+  padding: 8px;
+}
+
+.likertFeedbackScore span {
+  background-color: #06f;
+  border: 1px solid #06f;
+  border-radius: 3px;
+  color: #eee;
+  text-align: center;
+  padding: 5px;
+}
+
+.feedbackComments {
+  font-style: italic;
+  padding-top: 5px;
 }
