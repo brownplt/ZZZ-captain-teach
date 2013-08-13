@@ -227,7 +227,7 @@
     (define i 0)
     (define (genstr)
       (set! i (add1 i))
-      (format "~a~a" name i))
+      (cons 'scratch (format "~a~a" name i)))
     (define elts (list elt ...))
     (define name (_name-name (findf _name? elts)))
     (define assignment-parts (filter _part? elts))
