@@ -1,14 +1,14 @@
 To Do Before Demo On 8/13:
-[x] Error handling in repl (add error wrapper)
 [] Format / make pretty feedback recieved on reviews
+[] UI jump when submitting work and starting reviews
+[] <unprintable-expr> on pretty printer
+[] See feedback on your reviews
+[x] repl loses newlines in echo
 [x] Rewrite tutorial to eliminate field names, introduce lists as data first
    and foremost
 [x] Tokens that aren't lexed are invisible! (like ?)
 [x] Clear for interactions
-[] UI jump when submitting work and starting reviews
-[x] repl loses newlines in echo
-[] <unprintable-expr> on pretty printer
-[] See feedback on your reviews
+[x] Error handling in repl (add error wrapper)
 Candidates:
 [] Highlight the part you are reviewing
 [] Highlight the part you are editing
