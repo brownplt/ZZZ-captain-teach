@@ -312,8 +312,8 @@ module Resource
         :activity_id => ref,
         :submission_type => type,
       )
-      .order("review_count ASC")
       .order("submission_time ASC")
+      .order("review_count ASC")
       .where("user_id != ?", user.id)
       .take(reviews)
 
