@@ -114,7 +114,7 @@ class TestController < ApplicationController
       u = maybe_u
     end
     code_delimiters = [ {type: "code", value: "fun foo():"},
-                        {type: "code", value: "\ncheck:"},
+                        {type: "code", value: "\nwhere:"},
                         {type: "code", value: "\nend"} ]
     parts = [ {type: "body", value: "foo"},
               {type: "fun-checks", value: "check"} ]

@@ -252,7 +252,7 @@
          (parts
             (append (list
                       (cons 'code (format "~adata ~a:" maybe-line data-name))
-                      (cons 'code "\ncheck:")
+                      (cons 'code "\nwhere:")
                       (cons 'code "\nend"))
                     (parts-code-delimiters a-parts))
             (append (list v-step c-step (genstr)) (parts-part-names a-parts))
@@ -263,7 +263,7 @@
          (parts
             (append (list
                       (cons 'code (format "~afun ~a:" maybe-line fun-header))
-                      (cons 'code "\ncheck:")
+                      (cons 'code "\nwhere:")
                       (cons 'code "\nend"))
                     (parts-code-delimiters a-parts))
             (append (list b-step c-step (genstr)) (parts-part-names a-parts))
