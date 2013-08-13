@@ -1,8 +1,9 @@
 To Do Before Demo On 8/13:
 [x] Error handling in repl (add error wrapper)
 [] Format / make pretty feedback recieved on reviews
-[] Rewrite tutorial to eliminate field names, introduce lists as data first and foremost
-[] Tokens that aren't lexed are invisible! (like ?)
+[x] Rewrite tutorial to eliminate field names, introduce lists as data first
+   and foremost
+[x] Tokens that aren't lexed are invisible! (like ?)
 [x] Clear for interactions
 [] UI jump when submitting work and starting reviews
 [x] repl loses newlines in echo
