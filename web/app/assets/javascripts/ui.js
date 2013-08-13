@@ -167,7 +167,8 @@ function writeReviews(container, options) {
       if (currentDesignScore && currentCorrectnessScore) {
         markOkReviewScore(designScale);
         markOkReviewScore(correctnessScale);
-        options.reviews.save({
+        if (ct_confirm("Are you sure you want to submit this review?")) {
+          options.reviews.save({
             review: {
               done: true, // NOTE(joe, 25 Jul 2013): This is a client UI hint, not binding
               correctnessComments: getReviewText(correctnessComments),
@@ -179,6 +180,7 @@ function writeReviews(container, options) {
           function() {
             drawSavedNotification(container);
           });
+        }
       } else {
         ct_log("Invalid review");
       }

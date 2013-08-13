@@ -217,10 +217,6 @@
   background-color: #f66;
 }
 
-.lineSuccess.cptteach-fixed {
-  background-color: #fcc;
-}
-
 .saveIndicator {
   float: right;
 }
@@ -294,12 +290,12 @@
 }
 
 .reviewScoreMessage {
-  padding: 5px;  
+  padding: 5px;
 }
 
 .feedbackGiven {
   color: black;
-  border: 1px dotted #222;  
+  border: 1px dotted #222;
   background-color: #ffc;
   margin: 5px;
   padding: 5px;
