@@ -10,6 +10,12 @@ dep:
 pyret-editor-service:
 	cd pyret-editor-backend; make pyret
 
+rails:
+	cd web; \
+  rake db:setup \
+  guard
+
+
 test:
 	cd tests; \
 	racket setup.rkt --whalesong-url http://localhost:8080; \
