@@ -2,6 +2,7 @@ all: setup dep pyret-editor-service
 
 setup:
 	raco link -n ct-scribble scribble
+	user-repos
 
 dep:
 	git submodule init CodeMirror pyret-editor-backend ct-assignments
