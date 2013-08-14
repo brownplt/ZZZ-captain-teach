@@ -18,6 +18,37 @@ Candidates:
 [] Refreshing when in reviews doesn't focus review tabs, and doesn't move
    editor to the right step
 
+Feedback:
+[] Unbound ID and type errors (and others?) being swallowed
+[] Highlight column/span information?
+[] Repl scrolling is awful
+[] More information in stop sign for breaking
+[] Instructions should tell you which run button to click early on
+[] Buttons for reviews/feedback should have a gradient or other indicator of
+   good/bad
+[] Spaces around operators
+[] "but not" -> "that are not"
+[] Return type annotation not introduced in tutorial
+[] Editor scrolljump on various UI actions
+[] Better error message when extra ends are added
+[] Clicking a review link should focus that review tab, not open a new one
+[] Horizontal scrolling in editors is bad (hides e.g. Strongly Agree)
+[] Tim saw multiple copies of the same review/feedback in the same review panel
+[] Review needs to show more context about which thing you're reviewing
+[] Summary on hidden instructions (next to "click to show")
+[] Workflow hard to follow, needs more inline instructions (Eisenstat)
+[] Block import statements (security)
+[] Catch "print arg" because Python/Ruby users might try that
+
+Justin:
+[] Make buttons look more like buttons
+[] More instructions about which part of the editor is edit-able
+[] Figure out this comment: 'Connor asked "should we see a 1 on the side?"
+   after seeing only an arrow in the editor.'
+[] = vs. is accident in test cases; do a parse-test before submission?
+[] Code highlighting in immutable areas broken
+[] Can someone get the same code to review twice?
+
 Need To Do:
 [] Review should have better feedback when you don't fill in values
 [] Background on code in reviews, highlight whole lines
