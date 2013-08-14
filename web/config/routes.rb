@@ -27,6 +27,8 @@ App::Application.routes.draw do
   post 'editor/:uid/switch' => 'editors#switch_version', as: :editor_switch
   resource :editor
 
+  get 'assignments' => 'test#all_assignments'
+
   get 'begin_masquerade' => 'test#masquerade'
   get 'end_masquerade' => 'test#end_masquerade'
 
