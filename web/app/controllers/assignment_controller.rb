@@ -10,7 +10,7 @@ class AssignmentController < ApplicationController
       if !authenticated?
         @html = "Not logged in"
       else
-        path = path_ref_to_path(assignment.path_ref)
+        path = AssignmentController::path_ref_to_path(assignment.path_ref)
         @html = AssignmentController::path_to_html(ct_current_user, path)
       end
     end
@@ -26,7 +26,7 @@ class AssignmentController < ApplicationController
       else
         if(assignment.course.teachers.exists?(current_user.id))
           user = User.find(params[:user_id])
-          path = path_ref_to_path(assignment.path_ref)
+          path = AssignmentController::path_ref_to_path(assignment.path_ref)
           @html = path_to_grade_html(user, path)
         else
           application_not_found("No access to assignment")

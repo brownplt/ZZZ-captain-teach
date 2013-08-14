@@ -7,7 +7,6 @@
   <script>var WHALESONG_URL = "<%= "#{WHALESONG_URL}" %>";</script>
   <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
   <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
-  <%= csrf_meta_tags %>
   <% if Rails.env.development? or Rails.env.test? %>
     <%= javascript_include_tag "awesome" %>
     <%= stylesheet_link_tag "awesome" %>
@@ -15,13 +14,7 @@
   <% if not (Rails.env.development? or Rails.env.test?) %>
     <%= setup_browserid() %>
   <% end %>
-
-  <!-- whalesong includes -->
-  <script src="<%= "#{WHALESONG_URL}/collects/runtime.js" %>"></script>
-  <script src="<%= "#{WHALESONG_URL}/collects/library.js" %>"></script>
-  <script src="<%= "#{WHALESONG_URL}/easyXDM-min.js" %>"></script>
-  <script src="<%= "#{WHALESONG_URL}/repl.js" %>"></script>
-  <script src="<%= "#{WHALESONG_URL}/whalesong-ffi.js" %>"></script>
+  <%= csrf_meta_tags %>
 
 </head>
 <body data-no-turbolink>
@@ -50,4 +43,12 @@
 <%= yield %>
 
 </body>
+
+  <!-- whalesong includes -->
+  <script src="<%= "#{WHALESONG_URL}/easyXDM-min.js" %>"></script>
+  <script src="<%= "#{WHALESONG_URL}/whalesong-ffi.js" %>"></script>
+  <script src="<%= "#{WHALESONG_URL}/collects/runtime.js" %>"></script>
+  <script src="<%= "#{WHALESONG_URL}/collects/library.js" %>"></script>
+  <script src="<%= "#{WHALESONG_URL}/repl.js" %>"></script>
+
 </html>
