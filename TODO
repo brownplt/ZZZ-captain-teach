@@ -1,3 +1,21 @@
+Feedback from 8/13:
+[] Break button when you "run" doesn't actually break - just re-enables prompt
+[] Tutorial
+  - better description of what you should do for append
+  - make it clear that before running definitions, they aren't defined
+  - explain
+  - fold example gives away what it is doing
+  - more cases examples - explain what List means, etc
+[] Break button graphic needs work - maybe have it have text
+[] infinite loops with recursion... erp.
+[] check-block-N identifiers are whack.
+[] color for tests in fixed region is still broken
+[] submit button is still present in last section
+[] notify when reviews show up
+[] clicking on past repl entries copies into prompt
+[] grammar reference! maybe tooltip on keywords?
+[] an option to give up on examples that ask you to fix things
+
 To Do Before Demo On 8/13:
 [] Format / make pretty feedback recieved on reviews
 [] UI jump when submitting work and starting reviews
