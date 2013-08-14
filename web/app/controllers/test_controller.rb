@@ -4,6 +4,24 @@ require 'json'
 class TestController < ApplicationController
 
   def all_assignments
+    captains_log = UserRepo.find_by(:path => ASSIGNMENTS_PATH)
+    if captains_log.nil?
+      captains_log = UserRepo.create!(:path => ASSIGNMENTS_PATH)
+    end
+    @assignments = []
+    Dir.foreach(ASSIGNMENTS_PATH) do |filename|
+      if filename.ends_with? ".jrny"
+        existing = Assignment.includes(:path_ref).where("path_refs.path" => filename)
+        if existing.length > 0
+          @assignments << existing[0]
+        else
+          path = PathRef.create!(:user_repo => captains_log,
+                                 :path => filename)
+          assignment = Assignment.create!(:path_ref => path)
+          @assignments << assignment
+        end
+      end
+    end
   end
 
   def fetch_assignments
@@ -275,5 +293,6 @@ class TestController < ApplicationController
     stdin, stdout, stderr = Open3.popen3('racket', ct_lang, file)
     stdout.gets()
   end
+
 
 end

@@ -1,17 +1,9 @@
-<script type="text/javascript">
-  $.ajax("/fetch_assignments", {success: function(response, xhr) {
-  response.forEach(function (assignment) {
-    console.log(assignment);
-    console.log(assignment["description"]);
-    var li = $("<li>");
-    li.text(assignment.description);
-    $("#assignments").append(li);
-  });
-  }});
-
-  
-</script>
+<h3>All .jrny files in ct-assignments</h3>
 
 <ul id="assignments">
-  
+
+  <% @assignments.each do |a| %>
+  <li><%= link_to a.path_ref.path, assignment_path(a.uid) %></li>
+  <% end %>
+
 </ul>
