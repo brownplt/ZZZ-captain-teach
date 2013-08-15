@@ -220,7 +220,7 @@ function makeRepl(container) {
       case 'p-fun':
       case 'p-method':
         whalesongFFI.callPyretFun(
-            whalesongFFI.getPyretLib("tostring"),
+            whalesongFFI.getPyretLib("torepr"),
             [result],
             function(s) {
               var str = pyretMaps.getPrim(s);

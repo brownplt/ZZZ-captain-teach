@@ -141,17 +141,21 @@ function inlineExample(container, resources, args){
 function codeExample(container, resources, args) {
   var code = args.code;
   var codeContainer = jQuery("<div>");
-  var resetButton = drawResetButton();
-  container.append(resetButton);
+  var simple = args.mode === "no-run";
+  if (!simple) {
+    var resetButton = drawResetButton();
+    container.append(resetButton);
+    resetButton.on("click", function () {
+      if (ct_confirm("Are you sure you want to reset the editor?")) {
+        cm.setValue(code);
+      }
+    });
+  }
 
-  resetButton.on("click", function () {
-    if (ct_confirm("Are you sure you want to reset the editor?")) {
-      cm.setValue(code);
-    }
-  });
 
   container.append(codeContainer);
   var cm = makeEditor(codeContainer, {
+      simpleEditor: simple, 
       initial: code,
       run: namedRunner(makeHighlightingRunCode(RUN_CODE), "example")
    });

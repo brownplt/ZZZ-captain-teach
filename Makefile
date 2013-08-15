@@ -2,7 +2,7 @@ all: setup dep pyret-editor-service
 
 setup:
 	raco link -n ct-scribble scribble
-	user-repos
+	mkdir user-repos
 
 dep:
 	git submodule init CodeMirror pyret-editor-backend ct-assignments
@@ -10,11 +10,6 @@ dep:
 
 pyret-editor-service:
 	cd pyret-editor-backend; make pyret
-
-rails:
-	cd web; \
-  rake db:setup \
-  guard
 
 
 test:
