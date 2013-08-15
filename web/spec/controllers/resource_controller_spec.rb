@@ -595,3 +595,48 @@ describe ResourceController do
   end
 
 end
+
+describe "Encrypting resources" do
+  before(:all) do
+    CT_KEY = File.read(KEY_FILE).unpack('m')[0]
+  end
+
+  it "should round-trip" do
+    teststr = "b:r:some-activity-id:42"
+    cipher = Resource::encrypt_resource_string(teststr)
+    plain = Resource::decrypt_resource_string(cipher)
+
+    # puts "Original: #{teststr}\n"
+    # puts "Cipher: #{cipher}\n"
+    # puts "Plain: #{plain}\n"
+
+    cipher.should_not(eq(teststr))
+    plain.should(eq(teststr))
+  end
+
+  it "should not be deterministic" do
+    teststr = "b:r:some-activity-id:42"
+    cipher1 = Resource::encrypt_resource_string(teststr)
+    cipher2 = Resource::encrypt_resource_string(teststr)
+
+    plain1 = Resource::decrypt_resource_string(cipher1)
+    plain2 = Resource::decrypt_resource_string(cipher2)
+
+    message1, iv1 = cipher1.split("$")
+    message2, iv2 = cipher2.split("$")
+
+    # puts "Original: #{teststr}\n"
+    # puts "Cipher1: #{cipher1}\n"
+    # puts "Cipher2: #{cipher2}\n"
+    # puts "Plain1: #{plain1}\n"
+    # puts "Plain2: #{plain2}\n"
+
+    cipher1.should_not(eq(cipher2))
+    message1.should_not(eq(message2))
+    iv1.should_not(eq(iv2))
+
+    plain1.should(eq(plain2))
+    plain1.should(eq(teststr))
+    plain2.should(eq(teststr))
+  end
+end

@@ -79,3 +79,7 @@ App::Application.configure do
   # Use default logging formatter so that PID and timestamp are not suppressed.
   config.log_formatter = ::Logger::Formatter.new
 end
+
+KEY_FILE = File.expand_path("../../production.key", __FILE__)
+ENCRYPTION = true
+

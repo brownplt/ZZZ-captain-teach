@@ -22,3 +22,8 @@ REVIEWS_SUBPATH = "reviews"
 
 WHALESONG_URL = "http://localhost:8080"
 APP_URL = "http://localhost:3000"
+
+if(ENCRYPTION)
+  CT_KEY = File.read(KEY_FILE).unpack('m')[0]
+end
+

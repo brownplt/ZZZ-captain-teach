@@ -9,3 +9,4 @@ tests/*.pid
 \#*
 user-repos
 web/public
+web/config/*.key
