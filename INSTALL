@@ -1,0 +1,160 @@
+Here is an example log of an installation on a 12.04 Ubuntu Linode:
+
+(starting as root)
+
+yes | apt-get install uuid
+useradd captain -G sudo -s /bin/bash -m
+passwd captain
+
+apt-get update
+
+yes | apt-get install bison curl file git libreadline6-dev libsqlite3-dev libxml2-dev zlib1g-dev build-essential libyaml-dev nodejs
+
+yes | apt-get install postgresql-9.1 libpq-dev 
+
+yes | apt-get install rubygems
+
+gem install bluepill # causes error in doc for activesupport
+
+useradd teach -m -s /bin/bash
+passwd teach
+
+su teach
+
+bash --login # maybe repeat after changing paths if things are not found
+
+cd
+mkdir source
+cd source
+
+wget http://download.racket-lang.org/installers/5.3.6/racket/racket-5.3.6-bin-x86_64-linux-ubuntu-precise.sh
+
+
+mkdir ~/bin
+sh racket-5.3.6-bin-x86_64-linux-ubuntu-precise.sh 
+# > no
+# > 3
+# > /home/teach
+
+source ~/.profile
+
+
+\curl -L https://get.rvm.io | bash -s -- --autolibs=read-fail
+
+source ~/.bash_profile
+
+rvm install 2.0.0 --autolibs=0
+
+ssh-keygen
+# <enter>
+# <enter>
+# <enter>
+
+
+git clone https://github.com/brownplt/captain-teach.git
+git clone https://github.com/brownplt/pyret-lang.git
+
+cd pyret-lang
+make dep
+make
+make test # Will ask for libcairo; not necessary for server-pyret
+
+cd
+cd captain-teach
+rvm use 2.0.0
+rvm gemset create captain-teach
+
+make
+cd web
+rvm rvmrc warning ignore /home/teach/captain-teach/web/.rvmrc
+
+bundle
+
+logout
+logout
+su postgres
+cd
+createdb captain_teach
+
+psql
+# create user teach with password 'TEACH_PASSWORD'
+# grant all privileges on database captain_teach to teach;
+
+logout
+su teach
+cd ~/captain-teach/web
+vim config/database.yml
+
+Edit production:
+
+production:
+  adapter: postgresql
+  encoding: utf8
+  database: captain_teach
+  timeout: 5000
+  password: 'TEACH_PASSWORD'
+
+logout
+yes | apt-get install nginx
+
+cat <<EOF > /etc/nginx/sites-enabled/captain-teach.conf
+server {
+	listen 80;
+
+	root /home/teach/captain-teach/web/public;	
+
+	location / {
+	  try_files \$uri @web;
+	}
+
+
+	location @web {
+   	 proxy_pass http://127.0.0.1:3000;
+    	 proxy_set_header Host \$host;
+    	 proxy_set_header X-Real-IP \$remote_addr;
+    	 proxy_set_header X-Forwarded_For \$proxy_add_x_forwarded_for;
+	}
+
+}
+
+server {
+	listen 4000;
+	root /home/teach/captain-teach/pyret-editor-backend/htdocs/;	
+
+	location / {
+	  try_files \$uri @web;
+	}
+
+	location @web {
+	 proxy_pass http://127.0.0.1:8080;
+	 proxy_set_header Host \$host;
+	 proxy_set_header X-Real-IP \$remote_addr;
+	 proxy_set_header X-Forwarded_For \$proxy_add_x_forwarded_for;
+	}
+
+}
+
+# gzip on;
+# gzip_disable "msie6";
+
+gzip_vary on;
+gzip_proxied any;
+gzip_comp_level 9;
+# gzip_buffers 16 8k;
+# gzip_http_version 1.1;
+gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+EOF
+
+rm /etc/nginx/sites-enabled/default
+
+su teach
+cd
+bash --login
+
+cd captain-teach/web
+
+make keys
+rake db:migrate RAILS_ENV=production
+rake db:seeds RAILS_ENV=production
+
+
