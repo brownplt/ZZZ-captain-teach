@@ -100,8 +100,7 @@ Need To Do:
 
 Want To Do:
 [] Doc string on builtins
-[] Standalone check-blocks (for many reasons, one is you can copy your own into repl for someone elses code)
-   - Run this code on my code?
+[] Run this code on my code?
 [] Indentation checker
 [] Confused about whether run did anything (for simple examples)
 [] Draw review blocks as code examples (so you can play with them and reset)

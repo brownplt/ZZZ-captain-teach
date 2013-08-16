@@ -49,6 +49,59 @@ class TestController < ApplicationController
     redirect_to :back
   end
 
+  def editor_tests
+ref = "foo"
+    part_ref = AssignmentController.part_ref(ref, "check")
+    review_ref = AssignmentController.reviews_ref(part_ref)
+    part_ref_foo = AssignmentController.part_ref(ref, "foo")
+    review_ref_foo = AssignmentController.reviews_ref(part_ref_foo)
+    user_index = params[:user] || User.count
+    maybe_u_curr = User.find_by(:email => "test_reviewer#{user_index}")
+    if maybe_u_curr.nil?
+      u_curr = User.create!(:email => "test_reviewer#{user_index}")
+
+      u_curr.user_repo.create_file(ref, JSON.dump({
+          status: { step: "check", reviewing: false },
+          parts: {
+            check: "\n1 is 4\n2 is 10",
+            foo: "\n"
+          }
+        }), "Init", DEFAULT_GIT_USER
+      )
+
+    else
+      u_curr = maybe_u_curr
+    end
+    code_delimiters = [ {type: "code", value: "fun foo():"},
+                        {type: "code", value: "\nwhere:"},
+                        {type: "code", value: "\nend"} ]
+    parts = [ {type: "body", value: "foo"},
+              {type: "fun-checks", value: "check"} ]
+    @data = JSON.dump({
+      user: {
+          args: {
+              name: "FooThing",
+              codeDelimiters: code_delimiters,
+              parts: parts
+            },
+          resources: {
+              path: Resource::mk_resource("p", "rw", ref, {reviews: 2}, u_curr.id),
+              steps: [{
+                  name: "check",
+                  type: "fun-checks",
+                  read_reviews: Resource::mk_resource("inbox-for-read", "r", part_ref, {}, u_curr.id),
+                  do_reviews: Resource::mk_resource("b", "r", review_ref, {}, u_curr.id)
+                }, {
+                  name: "foo",
+                  type: "body",
+                  read_reviews: Resource::mk_resource("inbox-for-read", "r", part_ref_foo, {}, u_curr.id),
+                  do_reviews: Resource::mk_resource("b", "r", review_ref_foo, {}, u_curr.id)
+                }]
+            }
+        }
+    })
+  end
+
   def server_tests
     ref = "foo"
     part_ref = AssignmentController.part_ref(ref, "check")
