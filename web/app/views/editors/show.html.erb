@@ -7,28 +7,33 @@
   $("input[name='code']").attr("value", window.editor.getValue());
   return true;
   }
-  
+
 jQuery(function () {
   container = jQuery("#editor");
-
-  /*var instructions = jQuery("<div>");
-  instructions.html(this.instructions);*/
-   
-  var replContainer = jQuery("<div>");
   var codeContainer = jQuery("<div>");
   container.append(codeContainer);
-  container.append(replContainer);
 
-  var runFun = makeRepl(replContainer);
+  var repl = $("<div>").addClass("repl");
+  repl.css({height: "100%"});
+
+  window.PANEL = createTabPanel($("#REPL"));
+  PANEL.addTab("Interactions", repl, { cannotClose: true });
+  window.REPL = repl;
+  window.RUN_CODE = makeRepl(repl);
+
   window.editor = makeEditor(codeContainer,
                            { initial: $("#initial-code").text(),
                              cmOptions: { lineNumbers: true },
-                             run: runFun });
+                             run: window.RUN_CODE });
 
 });
-  
+
 </script>
 
+<div id="REPL" class="replContainer"></div>
+
+
+<div id="editor">
 <%= form_tag(editor_path, method: "post", style: "display: inline") do %>
  <%= submit_tag("Create New Editor") %>
 <% end %> | Editors:
@@ -57,5 +62,4 @@ jQuery(function () {
 <% end %>
 <% end %>
 
-
-<div id="editor"></div>
+</div>

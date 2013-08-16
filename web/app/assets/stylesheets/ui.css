@@ -342,3 +342,11 @@
 .stt {
   font-family: monospace;
 }
+
+.editorActiveRegion {
+    background-color: #cff;
+}
+
+#editor {
+    width: 55%;
+}
