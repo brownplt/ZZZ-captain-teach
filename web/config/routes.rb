@@ -4,7 +4,6 @@ App::Application.routes.draw do
 
   # You can have the root of your site routed with "root"
   # root 'welcome#index'
-  # for now, editors is the most useful thing we have
   root 'static#index'
 
   post 'login' => 'sessions#create'
@@ -18,6 +17,8 @@ App::Application.routes.draw do
   post 'resource/save'          => 'resource#save'
   get  'resource/versions'      => 'resource#versions'
   post 'resource/submit'        => 'resource#submit'
+
+  post 'notification/report_abuse' => 'notification#report_abuse'
 
   #get 'do_assignment/:uid' => 'assignment#do_assignment'
   get 'assignment/:uid' => 'assignment#get_assignment', as: :assignment
