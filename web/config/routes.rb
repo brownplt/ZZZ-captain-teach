@@ -91,6 +91,7 @@ App::Application.routes.draw do
     get 'all_assignments' => "test#all_assignments"
     get 'fetch_assignments' => "test#fetch_assignments"
     get 'test_assignment' => "test#test_assignment"
+    get 'editor_tests' => "test#editor_tests"
     get 'server_tests' => "test#server_tests"
     get 'submit_tests' => "test#submit_tests"
     get ':action' => 'static#:action'

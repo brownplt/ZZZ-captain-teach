@@ -421,15 +421,6 @@ function createEditor(cm, uneditables, options) {
   };
 }
 
-// push_set wraps up the pattern of appending to an array inside an
-// object when the array may not exist yet
-function push_set(obj, key, value) {
-  if (obj[key]) {
-    obj[key].push(value);
-  } else {
-    obj[key] = [value];
-  }
-}
 
 function steppedEditor(container, uneditables, options) {
 
