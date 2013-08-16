@@ -30,3 +30,7 @@ App::Application.configure do
 
   config.cache_store = :memory_store
 end
+
+KEY_FILE = File.expand_path("../../development.key", __FILE__)
+ENCRYPTION = true
+

@@ -31,6 +31,7 @@
      ['include-run mode]
      ['run mode]
      ['inert mode]
+     ['no-run mode]
      [else (error (format "Invalid mode for code component: ~a" mode))])))
 
 (define current-choice-id (make-parameter ""))

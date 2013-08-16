@@ -36,3 +36,7 @@ App::Application.configure do
 
   config.cache_store = :null_store
 end
+
+KEY_FILE = File.expand_path("../../test.key", __FILE__)
+ENCRYPTION = false
+

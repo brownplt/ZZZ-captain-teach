@@ -322,3 +322,23 @@
   font-style: italic;
   padding-top: 5px;
 }
+
+.SCodeFlow {
+  font-family: monospace;
+  border: 1px solid black;
+  background: white;
+  padding: 1em;
+  width: 90%;
+}
+
+.SCodeFlow tr {
+  height: 1em;
+}
+
+.SCodeFlow p {
+  margin: 0;
+}
+
+.stt {
+  font-family: monospace;
+}

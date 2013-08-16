@@ -1,3 +1,6 @@
+require "openssl"
+require 'base64'
+
 module Resource
 
   # All resources are of the form t:r:i:u where these are:
@@ -62,9 +65,48 @@ module Resource
     end
   end
 
+  def encrypt_resource_string(resource)
+    alg = "AES-256-CBC"
+    iv = OpenSSL::Cipher::Cipher.new(alg).random_iv
+    aes = OpenSSL::Cipher::Cipher.new(alg)
+    aes.encrypt()
+    aes.key = CT_KEY
+    aes.iv = iv
+
+    cipher = aes.update(resource)
+    cipher << aes.final
+
+    cipher64 = Base64.urlsafe_encode64(cipher)
+    iv64 = Base64.urlsafe_encode64(iv)
+
+    cipher64 + "$" + iv64
+  end
+
+  def decrypt_resource_string(resource)
+    alg = "AES-256-CBC"
+    cipher64, iv64 = resource.split("$")
+
+    cipher = Base64.urlsafe_decode64(cipher64)
+    iv = Base64.urlsafe_decode64(iv64)
+
+    decode_cipher = OpenSSL::Cipher::Cipher.new(alg)
+    decode_cipher.decrypt()
+    decode_cipher.key = CT_KEY
+    decode_cipher.iv = iv
+
+    plaintext = decode_cipher.update(cipher)
+    plaintext << decode_cipher.final
+    plaintext
+  end
+
   def mk_user_resource(base, uid)
     # NOTE(dbp): encrypt here
-    "#{base}:#{uid}"
+    resource = "#{base}:#{uid}"
+    if(ENCRYPTION)
+      encrypt_resource_string(resource)
+    else
+      resource
+    end
   end
 
   def mk_resource(type, perm, ref, args, uid)
@@ -97,6 +139,9 @@ module Resource
 
   def parse(resource)
     # TODO(dbp): error handling - exceptions? return types?
+    if(ENCRYPTION)
+      resource = decrypt_resource_string(resource)
+    end
     type,perm,ref,args,uid = resource.split(":")
     args = JSON.parse(Base64.urlsafe_decode64(args))
 
@@ -420,5 +465,7 @@ module_function :assign_reviews,
   :lookup_create,
   :save,
   :versions,
-  :submit
+  :submit,
+  :encrypt_resource_string,
+  :decrypt_resource_string
 end
