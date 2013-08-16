@@ -269,6 +269,8 @@ function codeAssignment(container, resources, args) {
                       var reviewsInline = $("<div>");
                       editor.addWidgetAt(step.name, reviewsInline[0]);
                       f(reviewsInline);
+                      // NOTE(dbp 2013-08-16): Reset reviewsTab size.
+                      editorContainer.css("min-height", "");
                     }
                     ct_log(rd);
                     lookupResource(rd.resource, wrapReviewContent, e);
@@ -377,6 +379,15 @@ function codeAssignment(container, resources, args) {
         saveResource(resources.path, toSave, function() {
             editor.disableAll();
             function afterSubmit() {
+              // NOTE(dbp 2013-08-16): Scroll so the tab panel is
+              // visible.
+              var top = tabs.container.offset().top;
+              if (window.pageYOffset > top) {
+                $("body").animate({
+                  scrollTop: top
+                });
+              }
+
               reviewTabs(tabs, wrapStepForReview(step), function() { afterReview(step.name, resume); });
             }
             submitResource(resources.path, step.name, afterSubmit);

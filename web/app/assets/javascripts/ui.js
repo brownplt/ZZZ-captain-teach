@@ -489,7 +489,11 @@ function steppedEditor(container, uneditables, options) {
   function switchTo(i) {
     if (i > pos) { pos = i; }
     cur = i;
+    // NOTE(dbp 2013-08-16): Without this, drawing causes a jump,
+    // due to something being erased and recreated.
+    container.css("height", container.innerHeight() + "px");
     draw();
+    container.css("height", "");
   }
 
   var instructionWidgets = [];
@@ -541,6 +545,7 @@ function steppedEditor(container, uneditables, options) {
               } else {
                 resume();
               }
+              return false;
             }
           });
           var submitW = editor.addWidgetAt(e, submitButton[0], {atTop: false});
@@ -561,7 +566,6 @@ function steppedEditor(container, uneditables, options) {
           var marker = drawSwitchToStepGutterMarker(i+1);
           $(marker).on("click", function (e) {
             switchTo(i);
-            e.preventDefault();
             return false;
           });
         } else {
@@ -582,7 +586,7 @@ function steppedEditor(container, uneditables, options) {
         cur++;
       }
       pos++;
-      draw();
+      switchTo(cur);
     }
   }
 
@@ -648,12 +652,18 @@ var reviewTabs = ctC("reviewTabs", [TObject, {hasField: "type"}, TFunction],
       reviewData.forEach(function(reviewDatum) {
         reviewDatum.getReview(incrementDone, function(/* notFound */) {
             var reviewsTab = drawReviewsTab();
+            var editorContainer = drawReviewEditorContainer();
+            reviewsTab.append(editorContainer);
+            // NOTE(dbp 2013-08-16): Fix the min-height until it loads,
+            // so if the tab panel is at the end of the page, we don't
+            // jump.
+            editorContainer.css("min-height",
+                                window.innerHeight + "px");
             var reviewTabHandle =
               tabPanel.addTab("Reviews", reviewsTab, { cannotClose: true,
                                                        prioritize: true });
 
-            var editorContainer = drawReviewEditorContainer();
-            reviewsTab.append(editorContainer);
+
             reviewDatum.attachWorkToReview(editorContainer, function(reviewsInline) {
               writeReviews(reviewsInline, {
                   type: step.type,
@@ -1012,7 +1022,8 @@ function createTabPanel(container) {
       switchHere();
 
       return { close: close };
-    }
+    },
+    container: tabContainer
   };
 }
 
