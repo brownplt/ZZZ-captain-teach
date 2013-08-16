@@ -215,6 +215,7 @@ function createEditor(cm, uneditables, options) {
   var i = 0;
   var marks = [];
   var disabled_regions = {};
+  var class_regions = {};
   function forLines(start, end, f) {
     for (var lineNumber = start; lineNumber < end + 1; lineNumber++) {
       f(lineNumber);
@@ -320,6 +321,31 @@ function createEditor(cm, uneditables, options) {
     }
   }
 
+  function addClassAt(indexOrName, cls) {
+    var i = getIndex(indexOrName);
+    var start = marks[i].find().to;
+    var end =  marks[i + 1].find().from;
+    var region = doc.markText(start, end, { className: cls });
+    push_set(class_regions, cls, region);
+  }
+
+  function clearClass(cls) {
+    if (class_regions[cls]) {
+      class_regions[cls].forEach(function (r) {
+        r.clear();
+      });
+      class_regions[cls] = [];
+    }
+  }
+
+  function getCoords(indexOrName) {
+    var i = getIndex(indexOrName);
+    var start = cm_advance_char(doc, marks[i].find().to);
+    var end =  cm_retreat_char(doc, marks[i + 1].find().from);
+    return {beginning: cm.charCoords(start),
+            end: cm.charCoords(end)};
+  }
+
   var indexDict = {};
   var useNames = options.hasOwnProperty("names");
   if (useNames) {
@@ -417,7 +443,10 @@ function createEditor(cm, uneditables, options) {
     enableAt: enableAt,
     disableAt: disableAt,
     disableAll: disableAll,
-    enableAll: enableAll
+    enableAll: enableAll,
+    addClassAt: addClassAt,
+    clearClass: clearClass,
+    getCoords: getCoords
   };
 }
 
@@ -522,6 +551,29 @@ function steppedEditor(container, uneditables, options) {
           );
         });
       }
+
+      if (i === pos) {
+        $(".editorStartMessage").remove();
+        var coords = editor.getCoords(steps[pos]);
+        var width = editor.cm.getScrollInfo().width;
+        var delta = container.find(".CodeMirror-gutters").width();
+        var d = $("<div>").addClass("editorStartMessage").css({
+          width: width - delta + "px",
+          height: coords.end.bottom - coords.beginning.top + "px",
+          "background-color": 'rgba(255,0,0,0.2)',
+          position: "absolute",
+          top: coords.beginning.top + "px",
+          left: coords.beginning.left + "px",
+          // "z-index": "-1",
+          "text-align": "right"
+        });
+        d.text("Start here!");
+        d.click(function () {
+          d.remove();
+        });
+        $(document.body).append(d);
+      }
+
       if (i === cur) {
         var isSubmittable = cur === pos;
         var marker = drawCurrentStepGutterMarker(isSubmittable);
