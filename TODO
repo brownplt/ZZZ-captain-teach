@@ -144,6 +144,12 @@ All Feedback:
    [] Feedback for reviews:
      [x] Helpfulness likert + optional comments
      [] Report abuse button
+       - create a table for abuses:
+         userReporting | abuseData
+       - update drawReview for abuse
+         - showReview's callers need to pass abuseData 
+       - update drawSubmittedFeedback for abuse
+       - update readOnlyEditorFromParts for abuse
    [] Logging on reviews:
      [] Count of times read
    [] Place to see my reviews and feedback on them

@@ -298,6 +298,7 @@
 }
 
 .feedbackGiven {
+  position: relative;
   color: black;
   border: 1px dotted #222;
   background-color: #ffc;
@@ -323,6 +324,27 @@
   padding-top: 5px;
 }
 
+.reportAbuse {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 26px;
+  height: 26px;
+  border: 1px solid transparent;
+}
+
+.reportAbuse img {
+  width: 20px;
+  height: 20px;
+  padding: 3px;
+}
+
+.reportAbuse:hover {
+  border: 1px solid red;
+  background-color: #fcc;
+  cursor: pointer;
+}
+
 .SCodeFlow {
   font-family: monospace;
   border: 1px solid black;
@@ -342,3 +364,4 @@
 .stt {
   font-family: monospace;
 }
+

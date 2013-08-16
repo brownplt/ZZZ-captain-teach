@@ -196,9 +196,10 @@ function getLikertLabel(value) {
   return likertLabels[index];
 }
 
-function drawReview(revData, type) {
+function drawReview(revData, type, abuseData) {
   var prompts = reviewStatements[type];
   return $("<div>").addClass("reviewContents")
+    .append(drawReportAbuse(abuseData))
     .append($("<div>").text(prompts[0]).addClass("likertScoreLabel"))
     .append($("<div>").text(getLikertLabel(revData.review.design))
                       .addClass("likertScore"))
@@ -240,9 +241,11 @@ function drawFeedback(submit) {
     .append(submitButton);
 }
 
-function drawSubmittedFeedback(feedback) {
+function drawSubmittedFeedback(feedback, abuseData) {
   return $("<div>")
     .addClass("feedbackGiven")
+    .append($("<p>").text("Feedback:"))
+    .append(drawReportAbuse(abuseData))
     .append($("<div>").text(feedbackPrompt))
     .append($("<div>").addClass("likertFeedbackScore").append($("<span>").text(getLikertLabel(feedback.helpfullness))))
     .append($("<div>").text("Optional comments"))
@@ -411,3 +414,33 @@ var reviewStatements = {
   "body": [funCorrectStatement, funDesignStatement],
   "data-checks": [dataCorrectStatement, dataDesignStatement]
 };
+
+function reportAbuse(abuseData, success, failure) {
+  $.ajax(RAILS_HOST + "/notifications/report_abuse", {
+    success: function(response, _, xhr) {
+      success(response);
+    },
+    error: failure,
+    type: "POST",
+    data: abuseData
+  });
+}
+
+function drawReportAbuse(abuseData) {
+  var container = $("<div>").addClass("reportAbuse");
+  container.append($("<img>").attr("src", RAILS_HOST + "/assets/Red_flag_waving.png"));
+  container.attr("title", "Report Abuse");
+  container.click(function(e) {
+    var confirmed = ct_confirm("This will send a message to the course staff, identifying this content as an abuse of the system.  Are you sure you want to proceed?");
+    if(confirmed) {
+      reportAbuse(abuseData, function() {
+        ct_alert("Your abuse report was saved."); 
+      }, function() {
+        ct_alert("Your abuse report was not saved because of a server error or connection problem.  Please report your issue directly to the course staff.");
+      });
+    }
+  });
+  return container;
+}
+
+

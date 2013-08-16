@@ -359,3 +359,16 @@ $(function() {
 });
 </script>
 
+<div id="reportAbuseContainer">
+</div>
+<script>
+$(function() {
+  $("#reportAbuseContainer").append(drawReportAbuse(function(){
+      console.log({
+        type: "feedback",
+        helpfullness: 2,
+        comments: "Your code looks like a llama gave birth to a poophead."
+      })
+    }));
+});
+</script>

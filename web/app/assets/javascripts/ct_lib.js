@@ -84,3 +84,7 @@ function ct_exn(/* varargs */) {
 function ct_confirm(message) {
   return window.confirm(message);
 }
+
+function ct_alert(message) {
+  window.alert(message);
+}
