@@ -3,17 +3,16 @@ class EditorsController < ApplicationController
   EDITOR_DIR = File.expand_path("../../../../editors", __FILE__)
   EDITOR_USER = {name: "Edward Teach", email: ""}
 
-  
+
   def index
     @editors = Editor.all
   end
 
   def show
-    @WHALESONG_URL = "localhost:8080"
     @all_editors = Editor.all
     @editor = Editor.find_by(uid: params[:format])
   end
-  
+
   def create
     # create first, so we can use the uid
     @editor = Editor.create!
@@ -48,6 +47,6 @@ class EditorsController < ApplicationController
     @editor.save!
     redirect_to editor_path(@editor.uid)
   end
-    
-  
+
+
 end

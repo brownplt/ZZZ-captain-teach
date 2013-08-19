@@ -4,26 +4,17 @@ class AssignmentController < ApplicationController
 
   def edit_assignment
     @assignment = Assignment.find_by(:uid => params[:uid])
-    if !authenticated?
-      application_not_found
-    elsif(!@assignment.course.teachers.exists?(current_user.id))
-      application_not_found
-    end
+    assignment_require_teacher(@assignment)
   end
 
   def update_assignment
     assignment = Assignment.find_by(:uid => params[:uid])
-    if !authenticated?
-      application_not_found
-    elsif(!assignment.course.teachers.exists?(current_user.id))
-      application_not_found
-    else
-      assignment.release = Time.local(params[:year], params[:month],
-                                      params[:day], params[:hour],
-                                      params[:minute])
-      assignment.save!
-      redirect_to edit_assignment_path(assignment.uid)
-    end
+    assignment_require_teacher(@assignment)
+    assignment.release = Time.local(params[:year], params[:month],
+                                    params[:day], params[:hour],
+                                    params[:minute])
+    assignment.save!
+    redirect_to edit_assignment_path(assignment.uid)
   end
 
   def get_assignment

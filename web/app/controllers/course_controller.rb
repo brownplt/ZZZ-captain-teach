@@ -7,15 +7,6 @@ class CourseController < ApplicationController
                                           :add_teacher,
                                           :add_student]
 
-  # NOTE(dbp): whether someone is a teacher or not depends
-  # upon the course, so we look that up first.
-  before_action :require_teacher, :only => [:show,
-                                            :edit,
-                                            :update,
-                                            :destroy,
-                                            :add_teacher,
-                                            :add_student]
-
   def index
     if current_user
       @student_courses = current_user.student_courses
@@ -27,6 +18,7 @@ class CourseController < ApplicationController
   end
 
   def show
+    course_require_teacher(@course)
   end
 
   def new
@@ -39,18 +31,19 @@ class CourseController < ApplicationController
   end
 
   def edit
-
+    course_require_teacher(@course)
   end
 
   def update
-
+    course_require_teacher(@course)
   end
 
   def destroy
-
+    course_require_teacher(@course)
   end
 
   def add_teacher
+    course_require_teacher(@course)
     t = User.find_by(:email => params[:email])
     if t.nil?
       # FIXME(dbp): actually say what went wrong
@@ -61,6 +54,7 @@ class CourseController < ApplicationController
   end
 
   def add_student
+    course_require_teacher(@course)
     s = User.find_by(:email => params[:email])
     if s.nil?
       # FIXME(dbp): actually say what went wrong
@@ -76,12 +70,5 @@ class CourseController < ApplicationController
     @course = Course.find(params[:id])
   end
 
-
-  def require_teacher
-    logger.error "Showing for user #{current_user.email}"
-    if !@course.teachers.exists?(current_user)
-      application_not_found
-    end
-  end
 
 end

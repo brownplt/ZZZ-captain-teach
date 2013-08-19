@@ -20,10 +20,9 @@ App::Application.routes.draw do
   get 'assignment/:uid/edit' => 'assignment#edit_assignment', as: :edit_assignment
   post 'assignment/:uid/edit' => 'assignment#update_assignment', as: :update_assignment
 
-
+  resource :editor
   get 'editors' => 'editors#index', as: :editors
   post 'editor/:uid/switch' => 'editors#switch_version', as: :editor_switch
-  resource :editor
 
   resources :submitted
   get 'submitted/:id/set_good' => 'submitted#good', :as => :submitted_good
@@ -34,23 +33,21 @@ App::Application.routes.draw do
   get 'user/:id/make_staff' => 'user#make_staff', :as => :make_staff
   get 'user/:id/unmake_staff' => 'user#unmake_staff', :as => :unmake_staff
 
-  get 'assignments' => 'test#all_assignments'
-
-  get 'begin_masquerade' => 'test#masquerade'
-  get 'end_masquerade' => 'test#end_masquerade'
-
   resources :course
-
   post 'course/:id/add_teacher' => 'course#add_teacher', as: :add_teacher
   post 'course/:id/add_student' => 'course#add_student', as: :add_student
 
 
-  # TESTING
-  mount JasmineRails::Engine => "/specs" if defined?(JasmineRails)
-
   # These all have various security or other concerns for running
   # in production, but are very handy when developing
   if Rails.env.development? or Rails.env.test?
+    mount JasmineRails::Engine => "/specs" if defined?(JasmineRails)
+
+    get 'assignments' => 'test#all_assignments'
+
+    get 'begin_masquerade' => 'test#masquerade'
+    get 'end_masquerade' => 'test#end_masquerade'
+
     post 'become_user/:uid' => "awesome#become_user"
     get 'all_users' => "awesome#all_users"
     get 'all_assignments' => "test#all_assignments"
