@@ -2,6 +2,30 @@ require 'nokogiri' # NOTE(dbp): may require gem install nokogiri
 
 class AssignmentController < ApplicationController
 
+  def edit_assignment
+    @assignment = Assignment.find_by(:uid => params[:uid])
+    if !authenticated?
+      application_not_found
+    elsif(!@assignment.course.teachers.exists?(current_user.id))
+      application_not_found
+    end
+  end
+
+  def update_assignment
+    assignment = Assignment.find_by(:uid => params[:uid])
+    if !authenticated?
+      application_not_found
+    elsif(!assignment.course.teachers.exists?(current_user.id))
+      application_not_found
+    else
+      assignment.release = Time.local(params[:year], params[:month],
+                                      params[:day], params[:hour],
+                                      params[:minute])
+      assignment.save!
+      redirect_to edit_assignment_path(assignment.uid)
+    end
+  end
+
   def get_assignment
     assignment = Assignment.find_by(:uid => params[:uid])
     if assignment.nil?

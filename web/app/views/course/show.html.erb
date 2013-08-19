@@ -45,7 +45,7 @@
 <h3>Assignments</h3>
 <ul>
   <% @course.assignments.each do |a| %>
-  <li><%= link_to a.path_ref.path, assignment_path(a.uid) %></li>
+  <li><%= link_to a.path_ref.path, edit_assignment_path(a.uid) %> (<%= link_to "view", assignment_path(a.uid) %>)</li>
     <ul>
     <% @course.students.each do |u| %>
 

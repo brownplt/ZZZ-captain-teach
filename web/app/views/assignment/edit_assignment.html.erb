@@ -1,0 +1,23 @@
+<h4>Assignment <%= @assignment.path_ref.path %></h4>
+
+<p>Will be released at <%= @assignment.release.localtime %></p>
+
+<p>Change release time:
+<%= form_tag do %>
+<%= label_tag(:year, "Year:") %>
+<%= text_field_tag(:year, @assignment.release.localtime.year) %>
+<br/>
+<%= label_tag(:month, "Month:") %>
+<%= text_field_tag(:month, @assignment.release.localtime.month) %>
+<br/>
+<%= label_tag(:day, "Day:") %>
+<%= text_field_tag(:day, @assignment.release.localtime.day) %>
+<br/>
+<%= label_tag(:hour, "Hour:") %>
+<%= text_field_tag(:hour, @assignment.release.localtime.hour) %>
+<br/>
+<%= label_tag(:minute, "Minute:") %>
+<%= text_field_tag(:minute, @assignment.release.localtime.min) %>
+<br/>
+<%= submit_tag("Update") %>
+<% end %>

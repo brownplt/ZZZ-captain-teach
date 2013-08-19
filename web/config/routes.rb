@@ -17,6 +17,9 @@ App::Application.routes.draw do
 
   get 'assignment/:uid' => 'assignment#get_assignment', as: :assignment
   get 'grade/:uid/:user_id' => 'assignment#grade_assignment', as: :grade_assignment
+  get 'assignment/:uid/edit' => 'assignment#edit_assignment', as: :edit_assignment
+  post 'assignment/:uid/edit' => 'assignment#update_assignment', as: :update_assignment
+
 
   get 'editors' => 'editors#index', as: :editors
   post 'editor/:uid/switch' => 'editors#switch_version', as: :editor_switch
