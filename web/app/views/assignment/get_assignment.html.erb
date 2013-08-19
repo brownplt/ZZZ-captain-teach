@@ -1,15 +1,22 @@
 <style>
-body {
-  max-width: 50%;
-  margin-left: 2em;
+  body {
+  margin: 2em;
+  }
+.main {
+width: 50%;
 }
+
+  .main.maximized {
+  width: 85%;
+  }
 </style>
 <%= raw(@html) %>
 <script>
 $(function() {
   var repl = $("<div>").addClass("repl");
   repl.css({height: "100%"});
-  window.PANEL = createTabPanel($("#REPL"));
+  window.PANEL = createTabPanel($("#REPL"), { maximizable: true,
+                                              minimize: ".main" });
   PANEL.addTab("Interactions", repl, { cannotClose: true });
   window.REPL = repl;
   window.RUN_CODE = makeRepl(repl);

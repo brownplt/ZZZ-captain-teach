@@ -434,7 +434,7 @@ function drawReportAbuse(abuseData) {
     var confirmed = ct_confirm("This will send a message to the course staff, identifying this content as an abuse of the system.  Are you sure you want to proceed?");
     if(confirmed) {
       reportAbuse(abuseData, function() {
-        ct_alert("Your abuse report was saved."); 
+        ct_alert("Your abuse report was saved.");
       }, function() {
         ct_alert("Your abuse report was not saved because of a server error or connection problem.  Please report your issue directly to the course staff.");
       });
@@ -444,3 +444,10 @@ function drawReportAbuse(abuseData) {
 }
 
 
+function drawPanelMaximizeButton() {
+  return $("<span>").addClass("maximize");
+}
+
+function drawPanelMinimizeButton() {
+  return $("<span>").addClass("minimize");
+}

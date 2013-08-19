@@ -936,12 +936,37 @@ function autoSaver(container, options) {
 }
 
 
-function createTabPanel(container) {
+function createTabPanel(container, options) {
   var tabContainer = $("<div>").addClass("tabPanel");
   var panelRow = $("<div>").addClass("tabPanels");
   var current = false;
   var tabs = [];
   var titleRow = $("<div>").addClass("tabTitles");
+
+  var minimize;
+  var maximize;
+  if (options && options.maximizable) {
+    var maximize = drawPanelMaximizeButton();
+    maximize.click(function () {
+      if (options.minimize) {
+        minimize.toggle();
+      }
+      container.toggleClass("maximized");
+    });
+    tabContainer.append(maximize);
+  }
+  if (options && options.minimize) {
+    var minimize = drawPanelMinimizeButton();
+    minimize.click(function () {
+      if (options.maximizable) {
+        maximize.toggle();
+      }
+      container.toggleClass("minimized");
+      $(options.minimize).toggleClass("maximized");
+    });
+    tabContainer.append(minimize);
+  }
+
   function switchToCurrent() {
     tabContainer.find(".tab").hide();
     tabContainer.find(".tabTitle").removeClass("currentTab");

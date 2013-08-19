@@ -1,9 +1,15 @@
 <%= javascript_include_tag "grade", "data-turbolinks-track" => true %>
 <style>
-body {
-  max-width: 50%;
-  margin-left: 2em;
+  body {
+  margin: 2em;
+  }
+.main {
+width: 50%;
 }
+
+  .main.maximized {
+  width: 85%;
+  }
 </style>
 <%= raw(@html) %>
 <script>
