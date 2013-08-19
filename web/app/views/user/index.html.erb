@@ -1,0 +1,16 @@
+<h4>All Users</h4>
+
+<ul>
+  <% @users.each do |u| %>
+  <li>
+    <%= u.email %> - role: <%= u.role %>
+    <% if !u.is_staff %>
+    <%= link_to "+staff", make_staff_path(u.id) %>
+    <% elsif u.is_admin %>
+
+    <% else %>
+    <%= link_to "-staff", unmake_staff_path(u.id) %>
+    <% end %>
+  </li>
+  <% end %>
+</ul>

@@ -1,9 +1,4 @@
 App::Application.routes.draw do
-  # The priority is based upon order of creation: first created -> highest priority.
-  # See how all your routes lay out with "rake routes".
-
-  # You can have the root of your site routed with "root"
-  # root 'welcome#index'
   root 'static#index'
 
   post 'login' => 'sessions#create'
@@ -20,13 +15,21 @@ App::Application.routes.draw do
 
   post 'notification/report_abuse' => 'notification#report_abuse'
 
-  #get 'do_assignment/:uid' => 'assignment#do_assignment'
   get 'assignment/:uid' => 'assignment#get_assignment', as: :assignment
   get 'grade/:uid/:user_id' => 'assignment#grade_assignment', as: :grade_assignment
 
   get 'editors' => 'editors#index', as: :editors
   post 'editor/:uid/switch' => 'editors#switch_version', as: :editor_switch
   resource :editor
+
+  resources :submitted
+  get 'submitted/:id/set_good' => 'submitted#good', :as => :submitted_good
+  get 'submitted/:id/set_bad' => 'submitted#bad', :as => :submitted_bad
+  get 'submitted/:id/set_unknown' => 'submitted#unknown', :as => :submitted_unknown
+
+  resources :user
+  get 'user/:id/make_staff' => 'user#make_staff', :as => :make_staff
+  get 'user/:id/unmake_staff' => 'user#unmake_staff', :as => :unmake_staff
 
   get 'assignments' => 'test#all_assignments'
 
@@ -41,48 +44,6 @@ App::Application.routes.draw do
 
   # TESTING
   mount JasmineRails::Engine => "/specs" if defined?(JasmineRails)
-
-  # Example of regular route:
-  #   get 'products/:id' => 'catalog#view'
-
-  # Example of named route that can be invoked with purchase_url(id: product.id)
-  #   get 'products/:id/purchase' => 'catalog#purchase', as: :purchase
-
-  # Example resource route (maps HTTP verbs to controller actions automatically):
-  #   resources :products
-
-  # Example resource route with options:
-  #   resources :products do
-  #     member do
-  #       get 'short'
-  #       post 'toggle'
-  #     end
-  #
-  #     collection do
-  #       get 'sold'
-  #     end
-  #   end
-
-  # Example resource route with sub-resources:
-  #   resources :products do
-  #     resources :comments, :sales
-  #     resource :seller
-  #   end
-
-  # Example resource route with more complex sub-resources:
-  #   resources :products do
-  #     resources :comments
-  #     resources :sales do
-  #       get 'recent', on: :collection
-  #     end
-  #   end
-
-  # Example resource route within a namespace:
-  #   namespace :admin do
-  #     # Directs /admin/products/* to Admin::ProductsController
-  #     # (app/controllers/admin/products_controller.rb)
-  #     resources :products
-  #   end
 
   # These all have various security or other concerns for running
   # in production, but are very handy when developing

@@ -1,0 +1,20 @@
+<h4>All Submissions</h4>
+
+<ul>
+  <% @submitted.each do |s| %>
+  <li>
+    Submitted <%= s.submission_type %> at <%= s.submission_time %>
+    <% if @is_staff %>
+    <br/>
+    <textarea rows=10 cols=60>
+      <%= s.get_contents %>
+    </textarea>
+    <br/>
+    known: <strong><%= s.known %></strong>
+    <%= link_to "set good", submitted_good_path(s.id) %>
+    <%= link_to "set bad", submitted_bad_path(s.id) %>
+    <%= link_to "set unknown", submitted_unknown_path(s.id) %>
+    <% end %>
+  </li>
+  <% end %>
+</ul>

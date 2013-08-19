@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130816185719) do
+ActiveRecord::Schema.define(version: 20130819150212) do
 
   create_table "abuse_records", force: true do |t|
     t.integer  "user_id"
@@ -124,6 +124,7 @@ ActiveRecord::Schema.define(version: 20130816185719) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "review_count",    default: 0
+    t.string   "known"
   end
 
   add_index "submitteds", ["user_id"], name: "index_submitteds_on_user_id"
@@ -145,6 +146,7 @@ ActiveRecord::Schema.define(version: 20130816185719) do
     t.string   "email"
     t.integer  "user_repo_id"
     t.boolean  "is_test"
+    t.string   "role"
   end
 
   add_index "users", ["user_repo_id"], name: "index_users_on_user_repo_id"
