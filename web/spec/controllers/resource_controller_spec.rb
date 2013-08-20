@@ -368,21 +368,32 @@ describe ResourceController do
   end
 
   describe "Submitted" do
-    def create_sub(id)
+
+    def create_sub_known(id, type, known)
       u = User.find_by(:id => id)
       if u.nil?
         User.create!(:id => id)
       end
       Submitted.create!(
-        :submission_type => "check",
+        :submission_type => type,
         :activity_id => @activity_id,
         :resource => Resource::mk_resource('b', 'r', @activity_id, {}, id),
         :user_id => id,
-        :submission_time => Time.zone.now
+        :submission_time => Time.zone.now,
+        :known => known
       )
     end
 
+    def create_sub_type(id, type)
+      create_sub_known(id, type, "unknown")
+    end
+
+    def create_sub(id)
+      create_sub_type(id, "check")
+    end
+
     before(:each) do
+      Resource::set_known_reviews_probability(0)
       Submitted.destroy_all
       Blob.destroy_all
       @activity_id = 'some-activity-id'
@@ -545,6 +556,89 @@ describe ResourceController do
       assert_review_count(22, 0)
       assert_review_count(@user.id, 0)
 
+    end
+
+    it "create reviews for known solutions with canned feedback" do
+      part_ref = AssignmentController.part_ref(@activity_id, "check-for-canned-reviews")
+
+      Resource::set_known_reviews_probability(1)
+      create_sub_type(105, "check-for-canned-reviews")
+      create_sub_type(85, "check-for-canned-reviews")
+      create_sub_known(987, "check-for-canned-reviews", "good")
+
+      b = Blob.create!(:user => @user, :ref => @activity_id, :data => "{}")
+      resource_to_submit =
+        Resource::mk_resource('b', 'r', @activity_id, { reviews: 2 }, @user.id)
+
+      post :submit,
+        :resource => resource_to_submit,
+        :data => JSON.dump({ step_type: "check-for-canned-reviews" }),
+        :format => :json
+      response.response_code.should(eq(200))
+
+      review_ref = AssignmentController.reviews_ref(part_ref)
+
+      review_blob = Blob.find_by(:user => @user, :ref => review_ref)
+      data = JSON.parse(review_blob.data)
+
+      data.length.should(eq(2))
+
+      r1 = data[0]["save_review"]
+      r2 = data[1]["save_review"]
+
+      def check_review(uid, review, part_ref, expected_triggers)
+        type, perm, ref, args, user = Resource::parse(review)
+        type.should(eq('inbox-for-write'))
+        perm.should(eq('rw'))
+        ref.should(eq(part_ref))
+
+        puts "#{args["blob_user_id"]} ==? #{uid}\n\n"
+        puts "#{expected_triggers} ==? #{args["triggers"]}\n\n"
+
+        (args["blob_user_id"] == uid) and (user.id == @user.id) and (args["key"] == @user.id) and
+          (expected_triggers == args["triggers"])
+      end
+
+      (check_review(987, r1, part_ref, ["good"]) or
+        check_review(987, r2, part_ref, ["good"])).should(eq(true))
+
+      (check_review(105, r1, part_ref, []) or
+        check_review(105, r2, part_ref, [])).should(eq(true))
+
+      canned_reviews = [r1, r2].select do |r|
+        type, perm, ref, args, user = Resource::parse(r)
+        args["triggers"] == ["good"]
+      end
+      cr = canned_reviews[0]
+      
+      post :save,
+        :resource => cr,
+        :data => JSON.dump({
+          review: {
+            done: true,
+            design: -1,
+            correctness: -1,
+            correctnessComments: "Not very correct",
+            designComments: "Bad spacing and naming"
+          },
+          resource: Resource::read_only(resource_to_submit)
+        }),
+        :format => :json
+      response.response_code.should(eq(200))
+
+      
+      read_feedback = Resource::mk_resource(
+          "inbox-for-read",
+          "r",
+          AssignmentController.feedback_ref(part_ref),
+          {},
+          @user.id
+        )
+
+      results = Resource::lookup_resource(read_feedback).data
+      results.length.should(eq(1))
+      result = results[0]
+      result["canned"].should(eq(true))
     end
 
 

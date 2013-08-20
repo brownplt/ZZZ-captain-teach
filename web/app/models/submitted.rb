@@ -1,6 +1,8 @@
 class Submitted < ActiveRecord::Base
   belongs_to :user
 
+  validates_format_of :known, :with => /\A(good|bad|unknown)\Z/
+
   def set_good
     self.known = "good"
   end
@@ -10,7 +12,7 @@ class Submitted < ActiveRecord::Base
   end
 
   def set_unknown
-    self.known = nil
+    self.known = "unknown"
   end
 
   def get_contents

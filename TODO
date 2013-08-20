@@ -202,7 +202,18 @@ UI/JS:
 Curricular:
 [] Sensible front-end on finding that the assigned reviews are completely
    missing
-[] Group by user_id and take the first by time in assign_reviews
+[x] Group by user_id and take the first by time in assign_reviews
+[] Pre-seeded reviews
+  [] Two paths in assign_reviews, looking for canned solutions/or not
+    - Should warn us with some urgent message if no canned
+      solutions are available
+  [] inbox-for-write is aware (via private args), that immediate feedback
+     needs to be created, and create appropriate feedback
+  [] client side of writeReview needs to check for feedback immediately,
+     and:
+      - wait to close until getting feedback
+      - show immediate feedback if it is present
+
 
 Refactoring
 [] data-parts needs to become data-steps

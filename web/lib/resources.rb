@@ -1,5 +1,6 @@
 require "openssl"
-require 'base64'
+require "base64"
+require "securerandom"
 
 module Resource
 
@@ -62,6 +63,84 @@ module Resource
     attr_accessor :data
     def initialize(data)
       @data = data
+    end
+  end
+
+  @@triggers = {
+    "good" => Proc.new do |data|
+      feedback_resource = data["feedback"]
+      if ((data["review"]["correctness"] < 0) or
+          (data["review"]["design"] < 0))
+        save_resource(feedback_resource, JSON.dump({
+            canned: true,
+            message:
+              "You may have made a mistake (or been lazy)!  This was a good solution written by the course staff, and you marked it as incorrect or badly designed."
+          }))
+      else
+        save_resource(feedback_resource, JSON.dump({
+            canned: true,
+            message: "Good job!  This was a good solution written by the course staff, and you identified it as such."
+          }))
+      end
+    end,
+    "bad" => Proc.new do |data|
+      feedback_resource = data["feedback"]
+      if ((data["review"]["correctness"] > 0) or
+          (data["review"]["design"] > 0))
+        save_resource(feedback_resource, {
+            canned: true,
+            message:
+              "You may have made a mistake (or been lazy)!  This was a bad solution written by the course staff, and you marked it as correct or well designed."
+          })
+      else
+        save_resource(feedback_resource, {
+            canned: true,
+            message: "Good job!  This was a bad solution written by the course staff, and you identified it as such."
+          })
+      end
+    end
+  }
+
+  @@known_reviews_probability = 0.5
+
+  def set_known_reviews_probability(new_prob)
+    @@known_reviews_probability = new_prob
+  end
+
+  def get_known_reviews_probability
+    @@known_reviews_probability
+  end
+
+  def assign_canned_review?
+    SecureRandom.random_number < @@known_reviews_probability
+  end
+
+  def get_student_submissions(ref, type, id, count)
+    Submitted.where(
+      :activity_id => ref,
+      :submission_type => type,
+    )
+    .order("submission_time ASC")
+    .order("review_count ASC")
+    .where("user_id != ?", id)
+    .where("known = ?", "unknown")
+    .take(count)
+  end
+
+  def get_submissions(ref, type, id, review_count)
+    if assign_canned_review?
+      ss = get_student_submissions(ref, type, id, review_count - 1)
+      canned_solutions = Submitted.where(
+        :activity_id => ref,
+        :submission_type => type,
+      )
+      .where("known != ?", "unknown")
+      a = canned_solutions.to_a
+      canned_solution = a[rand(a.length())]
+      insertion = rand(ss.length() + 1)
+      ss.to_a.insert(insertion, canned_solution)
+    else
+      get_student_submissions(ref, type, id, review_count)
     end
   end
 
@@ -154,6 +233,11 @@ module Resource
     return type,perm,ref,args,user
   end
 
+  def lookup_resource(resource)
+    type, perm, ref, args, user = parse(resource)
+    lookup(type, perm, ref, args, user)
+  end
+
   def lookup(type, _perm, ref, args, user)
     if type == 'b'
       b = Blob.find_by(user: user, ref: ref)
@@ -239,6 +323,11 @@ module Resource
     end
   end
 
+  def save_resource(resource, data)
+    type, perm, ref, args, user = Resource::parse(resource)
+    save(type, perm, ref, args, user, data)
+  end
+
   def save(type, perm, ref, args, user, data)
     if perm != "rw" and perm != "rc"
       return PermissionDenied.new
@@ -284,14 +373,22 @@ module Resource
           b = Blob.create!(ref: ref, user_id: args["blob_user_id"], data: "{}")
         end
         json_data = JSON.parse(b.data)
-        json_data[args["key"].to_s] = JSON.parse(data)
-        this_dict = json_data[args["key"].to_s]
+        key = args["key"].to_s
+        json_data[key] = JSON.parse(data)
+        this_dict = json_data[key]
         payload = args["payload"]
         unless payload.nil?
           payload.keys.each do |k|
             this_dict[k] = payload[k]
           end
         end
+        unless args["triggers"].nil?
+          args["triggers"].each do |t|
+            trigger = @@triggers[t]
+            this_dict = trigger.call(this_dict)
+          end
+        end
+        json_data[key] = this_dict
         b.data = JSON.dump(json_data)
         b.save!
         return Success.new
@@ -353,18 +450,17 @@ module Resource
     if reviews.nil? or reviews == 0
       return
     else
-      submissions_to_review = Submitted.where(
-        :activity_id => ref,
-        :submission_type => type,
-      )
-      .order("submission_time ASC")
-      .order("review_count ASC")
-      .where("user_id != ?", user.id)
-      .take(reviews)
+      submissions_to_review = get_submissions(ref, type, user.id, reviews)
+      puts "str: #{submissions_to_review}\n"
 
       part_ref = AssignmentController.part_ref(ref, type)
 
       data = submissions_to_review.map do |sub|
+        if not (sub.known == 'unknown')
+          triggers = [sub.known] 
+        else
+          triggers = []
+        end
         payload = {
             resource: sub.resource,
             feedback: Resource::mk_resource(
@@ -402,6 +498,7 @@ module Resource
             {
               blob_user_id: sub.user_id,
               key: user.id,
+              triggers: triggers,
               payload: payload
             },
             user.id
@@ -453,6 +550,10 @@ module Resource
     end
   end
 
+  def canned_key(id)
+    "#{id}-canned"
+  end
+
 
 module_function :assign_reviews,
   :find_blob_for_inbox,
@@ -461,11 +562,19 @@ module_function :assign_reviews,
   :read_only,
   :get_commit,
   :parse,
+  :lookup_resource,
   :lookup,
   :lookup_create,
+  :save_resource,
   :save,
   :versions,
   :submit,
   :encrypt_resource_string,
-  :decrypt_resource_string
+  :decrypt_resource_string,
+  :get_known_reviews_probability,
+  :set_known_reviews_probability,
+  :get_submissions,
+  :get_student_submissions,
+  :assign_canned_review?,
+  :canned_key
 end
