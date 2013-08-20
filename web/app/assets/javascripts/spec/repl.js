@@ -37,7 +37,7 @@ describe("repls", function() {
   it("should create a check-failure div for a failure with the function name", function() {
     var prompt = $("#prompt");
     var output = $("#output");
-    var code = "fun foo(): nothing check:" +
+    var code = "fun foo(): nothing where:" +
                "  checkers.check-equals('returns 2', foo(), 2) end";
     runs(function() {
       window.RUN_CODE(code, {}, {check:true});
@@ -61,7 +61,7 @@ describe("repls", function() {
   it("should create a green div for a success", function() {
     var prompt = $("#prompt");
     var output = $("#output");
-    var code = "fun bar(): 5 check: " +
+    var code = "fun bar(): 5 where: " +
                "  checkers.check-equals('returns 5', bar(), 5) end";
     runs(function() {
       window.RUN_CODE(code, {}, {check:true});

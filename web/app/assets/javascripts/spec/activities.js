@@ -14,6 +14,7 @@ function resetMockServer() {
   mockBlobTable = {};
   mockPathTable = {};
   mockSubmittedTable = {};
+  mockReviewTable = {};
 }
 function setMockReviewTable(table) {
   mockReviewTable = table || {};
@@ -197,10 +198,14 @@ window.fail = function() {
 };
 
 describe("mock server", function() {
+  beforeEach(function() {
+    resetMockServer();
+  });
+
   it("should submit resources", function() {
     var submitted = false;
     var r = "b:rw:my-id:1";
-    submitResource(r, { type: 'done' }, function() {
+    submitResource(r, { type: 'done2' }, function() {
         submitted = true;
       },
       function() {
@@ -210,7 +215,7 @@ describe("mock server", function() {
     var vals = getSubmittedForResource(r)[0];
     expect(vals.activityId).toEqual("my-id");
     expect(vals.user).toEqual("1");
-    expect(vals.type).toEqual("done");
+    expect(vals.type).toEqual("done2");
     expect(typeof vals.time).toBe("number");
   });
 
@@ -227,128 +232,16 @@ describe("mock server", function() {
     var val1 = getSubmittedForResource(r)[1];
     expect(val1.activityId).toEqual("my-id");
     expect(val1.user).toEqual("1");
-    expect(val1.type).toEqual("round1");
+    expect(val1.type).toEqual("done");
     expect(typeof val1.time).toBe("number");
     var val2 = getSubmittedForResource(r)[0];
     expect(val2.activityId).toEqual("my-id");
     expect(val2.user).toEqual("1");
-    expect(val2.type).toEqual("done");
+    expect(val2.type).toEqual("round1");
     expect(typeof val2.time).toBe("number");
 
-    expect(val2.time < val1.time).toBe(true);
+    expect(val2.time <= val1.time).toBe(true);
   });
-});
-
-describe("function activities", function() {
-  var functionPathRef = "p:rw:my-id:1";
-  var functionBlobRef = "b:rw:my-id:1";
-  var functionData;
-  var functionArgs = {includes: [], check: "checkers.check-equals(my_foo(),...)", header: "fun my_foo():"};
-  beforeEach(function() {
-    resetMockServer();
-    functionData = builders["function"]($("<div>"), {path: functionPathRef, blob: functionBlobRef}, functionArgs);
-  });
-
-  it("should create codemirror", function () {
-    expect(functionData.container.find(".CodeMirror").length).not.toEqual(0);
-  });
-  it("should have header in codemirror, but not check", function () {
-    var cm = functionData.activityData.codemirror;
-    expect(cm.getValue()).toContainStr(functionArgs.header);
-    expect(cm.getValue()).not.toContainStr(functionArgs.check);
-  });
-
-  it("should have a submit button", function () {
-    console.log("submit button:", functionData.container);
-    expect(functionData.container.find("button.submit").length).toBe(1);
-  });
-
-  it("when you click submit, should create a new version", function () {
-    functionData.container.find("button.submit").click();
-    expect(mockPathTable[functionPathRef].length).toBe(1);
-  });
-
-  it("when you switch to a version, it should put the contents in the editor", function () {
-    resetMockServer();
-    mockPathTable[functionPathRef] = [
-      ["g:r:1:1", {body: 'my new program', userChecks: ''}]
-      ,["g:r:0:1", {body: 'my cool program', userChecks: ''}]
-    ];
-
-    var container = $("<div>");
-    container.hide();
-    $("body").append(container);
-    functionData = builders["function"](container, {path: functionPathRef, blob: functionBlobRef}, functionArgs);
-
-    var versionButtons = functionData.container.find("button.versionButton");
-    console.log(versionButtons);
-    $(versionButtons[1]).click();
-    expect(functionData.activityData
-           .codemirror.getDoc().getValue())
-      .toContainStr("my cool program");
-    window.CM = functionData.activityData.codemirror;
-  });
-
-  describe("grading activities", function() {
-    var functionData, c, reviewContainer;
-    beforeEach(function() {
-      setMockReviewTable();
-      functionData = builders["function"]($("<div>"), {
-          path: "p:rw:my-id:1",
-          blob: "b:rw:my-id:1",
-          reviews: {
-            path: {
-              versions: [{ save: "save/42", lookup: "lookup/42" }],
-              review: { save: "save/47", lookup: "lookup/47" }
-            }
-          }
-        }, functionArgs)
-      c = functionData.container;
-      reviewContainer = c.find(".reviewContainer");
-    });
-
-    it("should add a review div if versions present to review", function () {
-
-      var reviewText = c.find(".reviewText");
-      expect(reviewText.text()).toEqual("");
-
-      expect(reviewContainer.css("display")).not.toEqual("none");
-    });
-
-    it("should save a review", function() {
-      var reviewText = c.find(".reviewText");
-      var comments = "My review body"
-      reviewText.text(comments);
-
-      var reviewButton = c.find("button.writeReview");
-      reviewButton.click();
-
-      var dScore = '5';
-      var cScore = '7';
-      var revD = c.find(".reviewScore-design");
-      var revC = c.find(".reviewScore-correct");
-
-      // NOTE(dbp): on Firefox, for me, the "click()" alone did not
-      // result in them being checked.
-      revD.find("input[value=" + dScore + "]")
-        .prop("checked", true)
-        .click();
-      revC.find("input[value=" + cScore + "]")
-        .prop("checked", true)
-        .click();
-
-      var submitButton = c.find("button.submitReview");
-      submitButton.click();
-
-      lookupReview("lookup/42", function(r) {
-        expect(r.review.comments).toEqual(comments);
-        expect(r.review.design).toEqual(dScore);
-        expect(r.review.correct).toEqual(cScore);
-      });
-
-    });
-  });
-
 });
 
 describe("multiple-choice activities", function() {
@@ -422,204 +315,6 @@ describe("multiple-choice activities", function() {
       expect(i.attr("disabled")).toBe('disabled');
     });
 
-  });
-});
-
-describe("reviews and versions", function () {
-  var panelContainer;
-  var panel;
-  var versionsContainer;
-  var versionLoadLog;
-  var versionsUI;
-
-  beforeEach(function () {
-    panelContainer = $("<div>");
-    panel = createTabPanel(panelContainer);
-    versionsContainer = $("<div>");
-    versionLoadLog = [];
-    versionsUI = versions(versionsContainer, {
-      panel: panel,
-      name: "Phooey!",
-      onLoadVersion: function(response) {
-        versionLoadLog.push(response);
-      },
-      lookupVersions: function(success) {
-        success([
-          {
-            time: "Jun 6, 2014",
-            lookup: function(success2) { success2("Version 3"); },
-            reviews: []
-          },
-          {
-            time: "Jun 5, 2014",
-            lookup: function(success2) { success2("Version 2"); },
-            reviews: [{
-              lookup: function(success2) {
-                success2({ review: {
-                  done: true,
-                  correct: "7",
-                  design: "8",
-                  comments: "Helpers are there, still not passing tests"
-                }});
-              }
-            }, {
-              lookup: function(success2) {
-                success2({review: {
-                  done: true,
-                  correct: "8",
-                  design: "7",
-                  comments: "Avoid parentheses when unnecessary"
-                }});
-              }
-            }
-                     ]
-          },
-          {
-            time: "Jun 4, 2014",
-            lookup: function(success2) { success2("Version 1"); },
-            reviews: [{
-              lookup: function(success2) {
-                success2({ review: {
-                  done: true,
-                  correct: "6",
-                  design: "7",
-                  comments: "Nice try, use more helpers"
-                }});
-              }
-            }]
-          }
-        ])
-      },
-      save: function(success) {
-        success();
-      }
-    });
-  });
-
-  it("should have rev. links for each version w/ revs", function () {
-    expect(versionsContainer.find(".reviewLink").length)
-      .toEqual(2);
-  });
-
-  it("should put the contents of review in tab when you click",
-    function () {
-      // the first link is for the Jun 5 one, which has two reviews
-      $(versionsContainer.find(".reviewLink")[0]).click();
-      var reviews = panelContainer.find(".reviewContents");
-      expect(reviews.length).toEqual(2);
-      expect($(reviews.find("p")[0]).text()).toEqual("Design score: 8");
-      // the panel should now have one tab
-      expect(panelContainer.find(".tab").length).toEqual(1);
-      // close it, to clean up
-      panelContainer.find('.closeTab').click();
-      expect(panelContainer.find(".tab").length).toEqual(0);
-    });
-
-  it("should create two tabs if you click the review button twice",
-    function () {
-      $(versionsContainer.find(".reviewLink")[0]).click();
-      $(versionsContainer.find(".reviewLink")[0]).click();
-      expect(panelContainer.find(".tab").length).toEqual(2);
-      $(panelContainer.find('.closeTab')[0]).click();
-      expect(panelContainer.find(".tab").length).toEqual(1);
-      $(panelContainer.find('.closeTab')[0]).click();
-      expect(panelContainer.find(".tab").length).toEqual(0);
-    });
-
-  it("should call onload handler when the version button is clicked",
-    function () {
-      $(versionsContainer.find("button.versionButton")[0]).click();
-      expect(versionLoadLog).toContain("Version 3");
-      $(versionsContainer.find("button.versionButton")[1]).click();
-      $(versionsContainer.find("button.versionButton")[2]).click();
-      $(versionsContainer.find("button.versionButton")[0]).click();
-      expect(versionLoadLog.length).toEqual(4);
-    });
-
-  describe("student reviews", function() {
-    var container;
-    var theReview;
-    var run = function(prog, options1, options2) {
-      ct_log("Running: ", prog, options1, options2);
-    };
-
-    beforeEach(function() {
-      container = $("<div>");
-      theReview = null;
-    });
-
-    it("should save a review", function() {
-
-      studentCodeReview(
-        container,
-        {
-          run: run,
-          lookupCode: function(k) { k("# Proggy"); },
-          reviewOptions: {
-            reviews: {
-              lookup: function(k) { k(theReview); },
-              save: function(v, k) { theReview = v; k(); }
-            },
-            hasReviews: true
-          }
-        }
-      );
-      var comments = "Not so fast, bucko.";
-      container.find("button.writeReview").click();
-      container.find("textarea.reviewText").val(comments);
-
-      var dScore = '5';
-      var cScore = '7';
-      var revD = container.find(".reviewScore-design");
-      var revC = container.find(".reviewScore-correct");
-      revD.find("input[value=" + dScore + "]").prop("checked", true).click();
-      revC.find("input[value=" + cScore + "]").prop("checked", true).click();
-
-      container.find("button.submitReview").click();
-
-      expect(theReview.review.comments).toEqual(comments);
-      expect(theReview.review.design).toEqual(dScore);
-      expect(theReview.review.correct).toEqual(cScore);
-    });
-
-    it("should not be enabled if the review is done", function() {
-      theReview = {
-        review: {
-          done: true,
-          comments: "You are the best coder I have ever seen fail completely",
-          design: "10",
-          correct: "1"
-        }
-      };
-      studentCodeReview(
-        container,
-        {
-          run: run,
-          lookupCode: function(k) { k("# Proggy"); },
-          reviewOptions: {
-            reviews: {
-              lookup: function(k) { k(theReview); },
-              save: function(v, k) { theReview = v; k(); }
-            },
-            hasReviews: true
-          }
-        }
-      );
-
-      container.find("button.writeReview").click();
-      var rt = container.find("textarea.reviewText");
-      expect(rt.val()).toEqual(theReview.review.comments);
-      expect(rt.prop("disabled")).toEqual(true);
-      var rsd = container.find(".reviewScore-design input:checked");
-      ct_log("rsd; ", rsd);
-      expect(rsd.val()).toEqual("10");
-      expect(rsd.prop("disabled")).toEqual(true);
-      var rsc = container.find(".reviewScore-correct input:checked");
-      ct_log("rsc; ", rsc);
-      expect(rsc.val()).toEqual("1");
-      expect(rsc.prop("disabled")).toEqual(true);
-
-    });
   });
 });
 
