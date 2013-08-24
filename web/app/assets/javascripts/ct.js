@@ -259,7 +259,14 @@ function codeAssignment(container, resources, args) {
                     saveResource(
                         rd.save_review,
                         _.extend(val, { resource: rd.resource }),
-                        success,
+                        function() {
+                          lookupResource(
+                              rd.feedback,
+                              success,
+                              function() { success([]); },
+                              failure
+                          );
+                        },
                         failure
                     );
                   },

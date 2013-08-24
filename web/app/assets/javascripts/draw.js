@@ -242,14 +242,22 @@ function drawFeedback(submit) {
 }
 
 function drawSubmittedFeedback(feedback, abuseData) {
-  return $("<div>")
-    .addClass("feedbackGiven")
-    .append($("<p>").text("Feedback:"))
-    .append(drawReportAbuse(abuseData))
-    .append($("<div>").text(feedbackPrompt))
-    .append($("<div>").addClass("likertFeedbackScore").append($("<span>").text(getLikertLabel(feedback.helpfullness))))
-    .append($("<div>").text("Optional comments"))
-    .append($("<div>").text(feedback.comments).addClass("feedbackComments"));
+  if(feedback.canned) {
+    return $("<div>")
+      .addClass("feedbackGiven")
+      .append($("<p>").text("Feedback:"))
+      .append($("<div>").text(feedback.message).addClass("feedbackComments"));
+  }
+  else {
+    return $("<div>")
+      .addClass("feedbackGiven")
+      .append($("<p>").text("Feedback:"))
+      .append(drawReportAbuse(abuseData))
+      .append($("<div>").text(feedbackPrompt))
+      .append($("<div>").addClass("likertFeedbackScore").append($("<span>").text(getLikertLabel(feedback.helpfullness))))
+      .append($("<div>").text("Optional comments"))
+      .append($("<div>").text(feedback.comments).addClass("feedbackComments"));
+  }
 }
 
 
@@ -451,3 +459,20 @@ function drawPanelMaximizeButton() {
 function drawPanelMinimizeButton() {
   return $("<span>").addClass("minimize");
 }
+
+function drawModal(content, onClose) {
+  function close() {
+    container.hide();
+    onClose();
+  }
+  var container = $("<div>").addClass("modal");
+  var modalClose = $("<div>").addClass("modalClose").text("(close)");
+  modalClose.click(close);
+  $(document).keydown(function(e) {
+    if(e.which === 27) { close(); }
+  });
+  var contentDiv = $("<p>").text(content); 
+  container.append(modalClose).append(contentDiv);
+  $(document.body).append(container);
+}
+

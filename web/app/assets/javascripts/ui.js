@@ -660,9 +660,27 @@ var reviewTabs = ctC("reviewTabs", [TObject, {hasField: "type"}, TFunction],
                   type: step.type,
                   reviews: {
                       save: function(val, f) {
-                        reviewDatum.saveReview(val, function() {
-                            reviewTabHandle.close();
-                            incrementDone();
+                        reviewDatum.saveReview(val, function(feedback) {
+                            var hasCanned = false;
+                            function finishReview() {
+                              reviewTabHandle.close();
+                              incrementDone();
+                              finishReview = function() {};
+                            }
+                            if(feedback && feedback.length > 0) {
+                              feedback.forEach(function(fb) {
+                                if (fb.canned) {
+                                  hasCanned = true;
+                                  drawModal(fb.message, finishReview);
+                                }
+                              });
+                              if (!hasCanned) {
+                                finishReview();
+                              }
+                            }
+                            else {
+                              finishReview();
+                            }
                           },
                           function(e) {
                             // TODO(joe 31 July 2013): Just let them move on if

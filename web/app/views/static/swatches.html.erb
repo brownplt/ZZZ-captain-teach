@@ -372,3 +372,15 @@ $(function() {
     }));
 });
 </script>
+
+<div id="modalContainer">
+<span id="clickMeForModal">Click me to see a modal!</span>
+</div>
+<script>
+$(function() {
+  $("#clickMeForModal").click(function() {
+    drawModal("You may have made a mistake (or been lazy)!  This was a good solution written by the course staff, and you marked it as incorrect or badly designed.", function() { ct_log("Modal closed"); })
+  });
+});
+</script>
+
