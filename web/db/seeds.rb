@@ -36,7 +36,7 @@ if Rails.env.test?
   FileUtils.rm_rf(USER_GIT_REPO_PATH)
   FileUtils.mkdir(USER_GIT_REPO_PATH)
 
-  captain = User.create!(:email => "edward@captainteach.org")
+  captain = User.create!(:email => "edward@captainteach.org", :role => "admin")
   mates_log = UserRepo.create!(:path => REPOSITORY_PATH)
   course = Course.create!(:title => "TEST")
   course.teachers << captain
@@ -61,7 +61,7 @@ if Rails.env.development?
   FileUtils.rm_rf(USER_GIT_REPO_PATH)
   FileUtils.mkdir(USER_GIT_REPO_PATH)
 
-  captain = User.create!(:email => "edward@captainteach.org")
+  captain = User.create!(:email => "edward@captainteach.org", :role => "admin")
   captains_log = UserRepo.create!(:path => ASSIGNMENTS_PATH)
 
   course = Course.create!(:title => "CS001")

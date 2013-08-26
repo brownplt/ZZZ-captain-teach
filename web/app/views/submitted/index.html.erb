@@ -6,9 +6,15 @@
     Submitted <%= s.submission_type %> at <%= s.submission_time %>
     <% if @is_staff %>
     <br/>
-    <textarea rows=10 cols=60>
-      <%= s.get_contents %>
+    <textarea id=<%= s.id %> rows=10 cols=60>
     </textarea>
+    <script>
+      $(function() {
+        $("#<%= s.id %>").text(
+          JSON.stringify(JSON.parse(<%= render inline: JSON.dump(s.get_contents[:file]) %>), null, 2)
+        );
+      });
+    </script>
     <br/>
     known: <strong><%= s.known %></strong>
     <%= link_to "set good", submitted_good_path(s.id) %>
