@@ -129,7 +129,6 @@ module Resource
 
   def get_submissions(ref, type, id, review_count)
     if assign_canned_review?
-      ss = get_student_submissions(ref, type, id, review_count - 1)
       canned_solutions = Submitted.where(
         :activity_id => ref,
         :submission_type => type,
@@ -137,8 +136,14 @@ module Resource
       .where("known != ?", "unknown")
       a = canned_solutions.to_a
       canned_solution = a[rand(a.length())]
-      insertion = rand(ss.length() + 1)
-      ss.to_a.insert(insertion, canned_solution)
+      if not canned_solution.nil?
+        ss = get_student_submissions(ref, type, id, review_count - 1)
+        insertion = rand(ss.length() + 1)
+        ss.to_a.insert(insertion, canned_solution)
+        return ss
+      else
+        return get_student_submissions(ref, type, id, review_count)
+      end
     else
       get_student_submissions(ref, type, id, review_count)
     end
