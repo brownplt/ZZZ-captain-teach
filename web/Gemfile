@@ -36,7 +36,7 @@ gem 'uuidtools'
 gem 'nokogiri'
 
 # authentication
-gem 'browserid-rails', git: 'git://github.com/dbp/browserid-rails.git', ref: 'a3cbb2bb60a23be717b4f206c9afe75341911edb'
+gem 'browserid-rails', git: 'https://github.com/dbp/browserid-rails', ref: 'a3cbb2bb60a23be717b4f206c9afe75341911edb'
 
 group :doc do
   # bundle exec rake doc:rails generates the API under doc/api.
@@ -50,7 +50,7 @@ group :development, :test do
 end
 
 # NOTE(joe); the ref below is from branch 'development' on 10 Jun 2013
-gem 'rugged', git: 'git://github.com/libgit2/rugged.git', ref: '35ebf0f1e56883dfbc5775fce163d2d8fa259ae6', submodules: true
+gem 'rugged', git: 'https://github.com/libgit2/rugged', ref: '35ebf0f1e56883dfbc5775fce163d2d8fa259ae6', submodules: true
 
 group :development do
   gem 'guard-rails'
