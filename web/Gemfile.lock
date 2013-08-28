@@ -1,5 +1,5 @@
 GIT
-  remote: git://github.com/dbp/browserid-rails.git
+  remote: https://github.com/dbp/browserid-rails
   revision: a3cbb2bb60a23be717b4f206c9afe75341911edb
   ref: a3cbb2bb60a23be717b4f206c9afe75341911edb
   specs:
@@ -8,7 +8,7 @@ GIT
       railties (~> 4.0)
 
 GIT
-  remote: git://github.com/libgit2/rugged.git
+  remote: https://github.com/libgit2/rugged
   revision: 35ebf0f1e56883dfbc5775fce163d2d8fa259ae6
   ref: 35ebf0f1e56883dfbc5775fce163d2d8fa259ae6
   submodules: true
