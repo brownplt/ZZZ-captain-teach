@@ -20,7 +20,7 @@ To Do Before Demo On 8/13:
 [] Format / make pretty feedback recieved on reviews
 [] UI jump when submitting work and starting reviews
 [] <unprintable-expr> on pretty printer
-[] See feedback on your reviews
+[x] See feedback on your reviews
 [x] repl loses newlines in echo
 [x] Rewrite tutorial to eliminate field names, introduce lists as data first
    and foremost
@@ -108,8 +108,10 @@ Want To Do:
 
 Not Necessary:
 [] switch Enter and Shift-Enter?
-[] should print nothing? *note*: we do if you call "print" - it is javascript that skips
-[] Should we stub out functions so they pass type checking? / Should run only be shown for definition stages.
+[] should print nothing? *note*: we do if you call "print" - it is javascript
+   that skips
+[] Should we stub out functions so they pass type checking? / Should run only
+   be shown for definition stages.
 [] Tab at beginning of line with text should jump to beginning of text
 [] Think about narrow screens
 
@@ -136,6 +138,7 @@ All Feedback:
 [] Review Interface / Design
    [x] Concrete rubric for reviews (data/tests/function different)
      [] Get feedback from Kathi
+     [] Rewrite first tests question
    [x] confidence for review?
     - No
    [x] Concern: "same as the last guy" for comments. Maybe don't close tabs until all reviews done?
@@ -204,10 +207,10 @@ Curricular:
    missing
 [x] Group by user_id and take the first by time in assign_reviews
 [] Pre-seeded reviews
-  [] Two paths in assign_reviews, looking for canned solutions/or not
+  [x] Two paths in assign_reviews, looking for canned solutions/or not
     - Should warn us with some urgent message if no canned
       solutions are available
-  [] inbox-for-write is aware (via private args), that immediate feedback
+  [x] inbox-for-write is aware (via private args), that immediate feedback
      needs to be created, and create appropriate feedback
   [] client side of writeReview needs to check for feedback immediately,
      and:
