@@ -45,7 +45,7 @@ end
 
 guard 'pyretservice'
 
-guard 'rails' do
+guard 'rails', :server => :thin do
   watch('Gemfile.lock')
   watch(%r{^(config|lib)/.*})
 end
