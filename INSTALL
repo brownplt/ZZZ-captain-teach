@@ -50,6 +50,7 @@ ssh-keygen
 # <enter>
 # <enter>
 
+# <Copy public key to Github release key for captain-teach-assignments>
 
 git clone https://github.com/brownplt/captain-teach.git
 git clone https://github.com/brownplt/pyret-lang.git
