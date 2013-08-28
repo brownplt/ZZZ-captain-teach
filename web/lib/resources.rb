@@ -278,6 +278,7 @@ module Resource
         json_data.keys.sort.each do |key|
           values.push(json_data[key])
         end
+        InboxReadEvent.create!(:user => user, :ref => ref)
         return Normal.new(values)
       end
     elsif type == 'inbox-for-write'

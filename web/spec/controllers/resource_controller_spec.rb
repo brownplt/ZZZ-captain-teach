@@ -311,6 +311,9 @@ describe ResourceController do
       resp = JSON::parse(response.body)
       resp[0].should(eq(JSON.parse(data)))
       resp[1].should(eq(JSON.parse(data2)))
+
+      InboxReadEvent.last.user_id.should(eq(@user.id))
+      InboxReadEvent.last.ref.should(eq(ref))
     end
 
     it "should incorporate payload into written data" do
