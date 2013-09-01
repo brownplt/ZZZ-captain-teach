@@ -669,7 +669,8 @@ var reviewTabs = ctC("reviewTabs", [TObject, {hasField: "type"}, TFunction],
                             }
                             if(feedback && feedback.length > 0) {
                               feedback.forEach(function(fb) {
-                                if (fb.canned) {
+                                ct_log("fb, reviewD", fb, reviewDatum);
+                                if (fb.canned && fb.submission_id === reviewDatum.submission_id) {
                                   hasCanned = true;
                                   drawModal(fb.message, finishReview);
                                 }
@@ -691,6 +692,8 @@ var reviewTabs = ctC("reviewTabs", [TObject, {hasField: "type"}, TFunction],
                       lookup: function(f) { f(null); }
                     }
                 });
+            }, function(e) {
+              ct_error("Work for review not found: ", e);
             });
           });
       });

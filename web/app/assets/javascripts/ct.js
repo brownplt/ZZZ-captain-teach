@@ -254,14 +254,16 @@ function codeAssignment(container, resources, args) {
         getReviewData: function(f, e) {
           function wrapResult(reviewData) {
             f(reviewData.map(function(rd) {
+                ct_log("review data: ", rd);
                 return {
+                  submission_id: rd.submission_id,
                   saveReview: function(val, success, failure) {
                     saveResource(
                         rd.save_review,
                         _.extend(val, { resource: rd.resource }),
                         function() {
                           lookupResource(
-                              rd.feedback,
+                              step.read_feedback,
                               success,
                               function() { success([]); },
                               failure

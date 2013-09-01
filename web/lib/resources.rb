@@ -69,8 +69,8 @@ module Resource
   @@triggers = {
     "good" => Proc.new do |data|
       feedback_resource = data["feedback"]
-      if ((data["review"]["correctness"] < 0) or
-          (data["review"]["design"] < 0))
+      if ((data["review"]["correctness"].to_f < 0) or
+          (data["review"]["design"].to_f < 0))
         save_resource(feedback_resource, JSON.dump({
             canned: true,
             message:
@@ -85,8 +85,8 @@ module Resource
     end,
     "bad" => Proc.new do |data|
       feedback_resource = data["feedback"]
-      if ((data["review"]["correctness"] > 0) or
-          (data["review"]["design"] > 0))
+      if ((data["review"]["correctness"].to_f > 0) or
+          (data["review"]["design"].to_f > 0))
         save_resource(feedback_resource, {
             canned: true,
             message:
@@ -135,13 +135,16 @@ module Resource
       )
       .where("known != ?", "unknown")
       a = canned_solutions.to_a
+      print "\n\n\n CANNED SOLUTIONS: #{ref} #{type} #{a} \n\n\n"
       canned_solution = a[rand(a.length())]
       if not canned_solution.nil?
         ss = get_student_submissions(ref, type, id, review_count - 1)
         insertion = rand(ss.length() + 1)
         ss.to_a.insert(insertion, canned_solution)
+        print "\n\n\n CANNED SOLUTION USED: #{ss} \n\n\n"
         return ss
       else
+        print "\n\n\n CANNED SOLUTION NOT USED \n\n\n"
         return get_student_submissions(ref, type, id, review_count)
       end
     else
@@ -477,6 +480,7 @@ module Resource
                 blob_user_id: user.id,
                 key: sub.user_id,
                 payload: {
+                  submission_id: sub.id,
                   content: sub.resource,
                   review: Resource::mk_resource(
                     'inbox-for-write',
@@ -497,6 +501,7 @@ module Resource
         sub.save!
         {
           resource: sub.resource,
+          submission_id: sub.id,
           save_review: Resource::mk_resource(
             'inbox-for-write',
             'rw',

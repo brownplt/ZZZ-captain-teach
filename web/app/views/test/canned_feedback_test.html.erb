@@ -1,0 +1,55 @@
+
+  <%= stylesheet_link_tag    "jasmine", media: "all" %>
+
+  <!-- include spec files here... -->
+  <%= javascript_include_tag "jasmine" %>
+  <%= javascript_include_tag "jasmine-html" %>
+  <%= javascript_include_tag "spec/SpecHelper" %>
+  <%= javascript_include_tag "spec/canned_tests.js" %>
+
+  <script type="text/javascript">
+    (function() {
+      var jasmineEnv = jasmine.getEnv();
+      jasmineEnv.updateInterval = 1000;
+
+      var htmlReporter = new jasmine.HtmlReporter();
+
+      jasmineEnv.addReporter(htmlReporter);
+
+      jasmineEnv.specFilter = function(spec) {
+        return htmlReporter.specFilter(spec);
+      };
+
+      var currentWindowOnload = window.onload;
+
+      window.onload = function() {
+        if (currentWindowOnload) {
+          currentWindowOnload();
+        }
+        execJasmine();
+      };
+
+      function execJasmine() {
+        jasmineEnv.execute();
+      }
+
+    })();
+  </script>
+
+<script>
+var TESTDATA = <%= raw(@data) %>;
+$(function() {
+  console.log("The index for the user is: ", TESTDATA.user_index);
+  var repl = $("<div>").addClass("repl");
+  repl.css({height: "100%"});
+  window.PANEL = createTabPanel($("#REPL"));
+  PANEL.addTab("Interactions", repl, { cannotClose: true });
+  window.REPL = repl;
+  window.RUN_CODE = makeRepl(repl);
+
+});
+</script>
+<div id="REPL" class="replContainer"></div>
+
+
+<div id="review-editor1" style="width: 50%"></div>

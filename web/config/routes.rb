@@ -56,6 +56,7 @@ App::Application.routes.draw do
     get 'editor_tests' => "test#editor_tests"
     get 'server_tests' => "test#server_tests"
     get 'submit_tests' => "test#submit_tests"
+    get 'canned_feedback_test' => "test#canned_feedback_test"
     get ':action' => 'static#:action'
   end
 end
