@@ -117,10 +117,11 @@
 (define-syntax-rule (function-reviewable mode1 unique-id elt ...)
   (begin
     (letrec [(mode (validate-mode mode1))
-             (parts (filter holder? (list elt ...)))
+             (elts (list elt ...))
+             (parts (filter holder? elts))
              ;;(include (holder-elt (first parts)))
-             (header (_header-header (first parts)))
-             (check (holder-elt (second parts)))]
+             (header (_header-header (first (filter _header? elts))))
+             (check (_check-check (first (filter _check? elts))))]
       (element
           (style #f
             (list
@@ -134,7 +135,8 @@
                                        (list (cons 'path (mk-resource "p" "rw" unique-id (make-hash (list (cons 'reviews 2)))))
                                              (cons 'blob (mk-resource "b" "rw" unique-id (make-hash)))))))
                (cons 'data-type "function")
-               (cons 'data-parts (jsexpr->string (list "check" "body")))
+               (cons 'data-parts (jsexpr->string (list (hash 'type "code" 'value "check")
+                                                       (hash 'type "code" 'value "body"))))
                (cons 'data-args (jsexpr->string
                                  (make-hash
                                   (list
@@ -205,6 +207,7 @@
 
 (struct _name (name))
 (struct _header (header))
+(struct _check (check))
 
 (define-syntax-rule (library-part part-name str ...)
   (_library-part part-name (string-append* (list str ...))))
@@ -222,6 +225,8 @@
   (_name (string-append* (list str ...))))
 (define-syntax-rule (header str ...)
   (_header (string-append* (list str ...))))
+(define-syntax-rule (check str ...)
+  (_check (string-append* (list str ...))))
 
 (define-syntax-rule (code-assignment unique-id review-count elt ...)
   (let ()
@@ -307,9 +312,6 @@
 (define-syntax-rule (include elt ...)
   (holder (list elt ...)))
 
-
-(define-syntax-rule (check elt ...)
-  (holder (string-append* (list elt ...))))
 
 (define-syntax-rule (journey unique-id)
   (current-id-prefix unique-id))
