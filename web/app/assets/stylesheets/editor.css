@@ -32,6 +32,7 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 }
 
 .check {
+  font-family: monospace;
   border: 1px solid black;
   border-radius: 3px;
   padding: 10px;
