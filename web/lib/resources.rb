@@ -135,16 +135,13 @@ module Resource
       )
       .where("known != ?", "unknown")
       a = canned_solutions.to_a
-      print "\n\n\n CANNED SOLUTIONS: #{ref} #{type} #{a} \n\n\n"
       canned_solution = a[rand(a.length())]
       if not canned_solution.nil?
         ss = get_student_submissions(ref, type, id, review_count - 1)
         insertion = rand(ss.length() + 1)
         ss.to_a.insert(insertion, canned_solution)
-        print "\n\n\n CANNED SOLUTION USED: #{ss} \n\n\n"
         return ss
       else
-        print "\n\n\n CANNED SOLUTION NOT USED \n\n\n"
         return get_student_submissions(ref, type, id, review_count)
       end
     else

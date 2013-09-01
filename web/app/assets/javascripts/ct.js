@@ -254,7 +254,6 @@ function codeAssignment(container, resources, args) {
         getReviewData: function(f, e) {
           function wrapResult(reviewData) {
             f(reviewData.map(function(rd) {
-                ct_log("review data: ", rd);
                 return {
                   submission_id: rd.submission_id,
                   saveReview: function(val, success, failure) {
