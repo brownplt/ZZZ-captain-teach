@@ -16,6 +16,9 @@
 //= require browserid
 //= require pyretMaps
 //= require codemirror
+//= require addon/fold/foldcode.js
+//= require addon/fold/foldgutter.js
+//= require addon/fold/indent-fold.js
 //= require runmode
 //= require matchbrackets
 //= require ct_lib

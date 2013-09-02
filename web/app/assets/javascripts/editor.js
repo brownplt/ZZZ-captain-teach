@@ -23,6 +23,13 @@ function makeEditor(container, options) {
 
   var useLineNumbers = !options.simpleEditor;
 
+  if(options.cmOptions && options.cmOptions.gutters) {
+    var optGutters = options.cmOptions.gutters;
+    delete options.cmOptions.gutters;
+  }
+  else {
+    var optGutters = [];
+  }
   var cmOptions = {
     extraKeys: {
       "Shift-Enter": function(cm) { runFun(cm.getValue(), {check: true, "type-env": !options.simpleEditor }); },
@@ -30,9 +37,15 @@ function makeEditor(container, options) {
       "Tab": "indentAuto"
     },
     indentUnit: 2,
+    tabSize: 2,
     viewportMargin: Infinity,
     lineNumbers: useLineNumbers,
-    matchBrackets: true
+    matchBrackets: true,
+    foldGutter: {
+      rangeFinder: CodeMirror.fold.indent,
+      indicatorOpen: "
+    },
+    gutters: optGutters.concat(["CodeMirror-foldgutter"])
   };
 
   cmOptions = merge(cmOptions, options.cmOptions);

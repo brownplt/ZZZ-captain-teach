@@ -15,6 +15,16 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     color: #606;
 }
 
+.CodeMirror-foldgutter {
+  width: 1em;
+}
+.CodeMirror-foldgutter-open:after {
+  content: "\25BE";
+}
+.CodeMirror-foldgutter-folded:after {
+  content: "\25B8";
+}
+
 
 .inlineExample {
     font-family: monospace;
