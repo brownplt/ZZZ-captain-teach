@@ -42,8 +42,7 @@ function makeEditor(container, options) {
     lineNumbers: useLineNumbers,
     matchBrackets: true,
     foldGutter: {
-      rangeFinder: CodeMirror.fold.indent,
-      indicatorOpen: "
+      rangeFinder: CodeMirror.fold.indent
     },
     gutters: optGutters.concat(["CodeMirror-foldgutter"])
   };
