@@ -466,7 +466,7 @@ function drawModal(content, onClose) {
     onClose();
   }
   var container = $("<div>").addClass("modal");
-  var modalClose = $("<div>").addClass("modalClose").text("(close)");
+  var modalClose = $("<div>").addClass("modalClose").text("close");
   modalClose.click(close);
   $(document).keydown(function(e) {
     if(e.which === 27) { close(); }
