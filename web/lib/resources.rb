@@ -82,6 +82,7 @@ module Resource
             message: "Good job!  This was a good solution written by the course staff, and you identified it as such."
           }))
       end
+      data
     end,
     "bad" => Proc.new do |data|
       feedback_resource = data["feedback"]
@@ -98,6 +99,7 @@ module Resource
             message: "Good job!  This was a bad solution written by the course staff, and you identified it as such."
           })
       end
+      data
     end
   }
 
@@ -457,7 +459,6 @@ module Resource
       return
     else
       submissions_to_review = get_submissions(ref, type, user.id, reviews)
-      puts "str: #{submissions_to_review}\n"
 
       part_ref = AssignmentController.part_ref(ref, type)
 

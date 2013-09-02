@@ -506,8 +506,6 @@ describe ResourceController do
       part_ref = AssignmentController.part_ref(@activity_id, "check2")
       review_ref = AssignmentController.reviews_ref(part_ref)
 
-      puts review_ref
-
       review_blob = Blob.find_by(:user => @second_user, :ref => review_ref)
       data = JSON.parse(review_blob.data)
 
@@ -628,7 +626,6 @@ describe ResourceController do
         }),
         :format => :json
       response.response_code.should(eq(200))
-
       
       read_feedback = Resource::mk_resource(
           "inbox-for-read",
@@ -642,6 +639,9 @@ describe ResourceController do
       results.length.should(eq(1))
       result = results[0]
       result["canned"].should(eq(true))
+      rev_result = Resource::lookup_resource(result["review"])
+      rev_result.data["review"]["design"].should(eq(-1))
+      rev_result.data["review"]["correctness"].should(eq(-1))
     end
 
 
