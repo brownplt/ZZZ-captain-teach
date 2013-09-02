@@ -120,6 +120,7 @@
 
 .replContainer.maximized {
     width: 90%;
+    z-index: 9000;
 }
 
 .replContainer.minimized {
@@ -412,7 +413,7 @@
 }
 
 .modal {
-  z-index: 100001;
+  z-index: 10000;
   width: 100%;
   height: 100%;
   position: fixed;
