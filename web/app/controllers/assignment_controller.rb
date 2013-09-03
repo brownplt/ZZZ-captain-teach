@@ -42,7 +42,8 @@ class AssignmentController < ApplicationController
         if(assignment.course.teachers.exists?(current_user.id))
           user = User.find(params[:user_id])
           path = AssignmentController::path_ref_to_path(assignment.path_ref)
-          @html = path_to_grade_html(user, path)
+          @html = AssignmentController::path_to_grade_html(user, path)
+          @gradee_email = user.email
         else
           application_not_found("No access to assignment")
         end
@@ -75,7 +76,7 @@ class AssignmentController < ApplicationController
   end
 
 
-  def self.path_to_html(user, path)
+  def self.path_to_html(user, path, read_only = false)
     scribbled = Scribble::render(path)
     doc = Nokogiri::HTML(scribbled)
     main = doc.css('div.main').first
@@ -88,7 +89,11 @@ class AssignmentController < ApplicationController
       if node["data-resources"]
         resources = JSON.parse(node["data-resources"])
         resources.keys.each do |k|
-          resources[k] = AssignmentController.resource_from_dict(resources[k], user.id)
+          r = AssignmentController.resource_from_dict(resources[k], user.id)
+          if read_only
+            r = Resource::read_only(r)
+          end
+          resources[k] = r
         end
         node["data-resources"] = resources.to_json
 
@@ -148,44 +153,8 @@ class AssignmentController < ApplicationController
     end
   end
 
-  def path_to_grade_html(user, path)
-    scribbled = Scribble::render(path)
-    doc = Nokogiri::HTML(scribbled)
-    main = doc.css('div.main').first
-    if main.nil?
-      # NOTE(dbp): a scribble doc without a main div is bad.
-      raise Scribble::ScribbleError, scribbled
-    end
-
-    main.css("[data-ct-node='1']").each do |node|
-      if node["data-resources"]
-        resources = JSON.parse(node["data-resources"])
-        reviews = {}
-        resources.keys.each do |k|
-          # add user credentials and encrypt
-          resource = Resource::read_only(resource_from_dict(resources[k], user.id))
-          type, perm, ref, args, uid = Resource::parse(resource)
-          versions = Resource::versions(type, perm, ref, args, uid, resource)
-          resources[k] = resource
-          versionsResources = []
-          if versions.instance_of?(Resource::Normal)
-            versionsResources = versions.data
-          end
-          versionsReviews = versionsResources.map { |v|
-            versionReview = Review.setup_review(node["data-activity-id"], v[:resource], current_user, user)
-            ReviewController.reviewer_links(versionReview)
-          }
-          review = Review.setup_review(node["data-activity-id"], resources[k], current_user, user)
-          reviews[k] = {}
-          reviews[k][:review] = ReviewController.reviewer_links(review)
-          reviews[k][:versions] = versionsReviews
-        end
-        resources[:reviews] = reviews
-        node["data-resources"] = resources.to_json
-        node.delete("data-activity-id")
-      end
-    end
-    main.to_html
+  def self.path_to_grade_html(user, path)
+    self.path_to_html(user, path, true)
   end
 
 end

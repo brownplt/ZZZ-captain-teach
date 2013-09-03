@@ -4,7 +4,7 @@ div#awesome-panel {
   top: 0;
   background-color: #eee;
   border: 2px solid black;
-  z-index: 10000;
+  z-index: 12000;
 }
 
 a.awesome-toggle {

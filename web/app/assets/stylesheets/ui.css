@@ -452,3 +452,12 @@
   background-color: white;
 }
 
+.grade-mode-warning {
+  font-weight : bold;
+  background-color : #f33;
+  color : white;
+  position : fixed;
+  top : 0;
+  width : 100%;
+  z-index : 11000;
+}

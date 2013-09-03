@@ -1,4 +1,3 @@
-<%= javascript_include_tag "grade", "data-turbolinks-track" => true %>
 <style>
   body {
   margin: 2em;
@@ -14,19 +13,19 @@ width: 50%;
 <%= raw(@html) %>
 <script>
 $(function() {
-  var repl = $("<div>").addClass("repl");;
-  repl.css({
-    position: "fixed",
-    right: "2em",
-    bottom: "2em",
-    width: "40%",
-    height: "90%",
-    "border": "1px solid #333",
-    "background-color": "white"
-  });
+  var repl = $("<div>").addClass("repl");
+  repl.css({height: "100%"});
+  window.PANEL = createTabPanel($("#REPL"), { maximizable: true,
+                                              minimize: ".main" });
+  PANEL.addTab("Interactions", repl, { cannotClose: true });
   window.REPL = repl;
   window.RUN_CODE = makeRepl(repl);
-  $(document.body).append(repl);
   ct_transform($(document.body));
 });
+
 </script>
+<div id="REPL" class="replContainer"></div>
+<div class="grade-mode-warning">
+YOU ARE VIEWING THIS ASSIGNMENT AS A GRADER.  THIS WORK BELONGS TO <%= @gradee_email %>.
+Work in editors will not be saved, and attempting to submit will fail.
+</div>
