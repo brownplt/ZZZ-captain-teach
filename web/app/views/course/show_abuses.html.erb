@@ -13,6 +13,13 @@
       <pre><%= Resource::lookup_resource(data["review"]["feedback"]).data %></pre>
     <% end %>
     <%= link_to "See in context (link is a best guess)", {:controller => "assignment", :action => "grade_assignment", :uid => likely_assignment_id, :user_id => a.user.id} %>
+    <pre><%= controller.abusive_blob(a) %></pre>
+    <% u = controller.abusive_user(a) %>
+    <% if u %>
+      <%= u.to_json %>
+    <% else %>
+      Culprit not found.
+    <% end %>
   <% rescue JSON::ParserError%>
     <%= "No abuse data." %>
   <% end %>

@@ -198,9 +198,11 @@ function getLikertLabel(value) {
 
 function drawReview(revData, type, abuseData) {
   var prompts = reviewStatements[type];
-  return $("<div>").addClass("reviewContents")
-    .append(drawReportAbuse(abuseData))
-    .append($("<div>").text(prompts[0]).addClass("likertScoreLabel"))
+  var rev = $("<div>").addClass("reviewContents");
+  if (abuseData) {
+    rev.append(drawReportAbuse(abuseData))
+  }
+  return rev.append($("<div>").text(prompts[0]).addClass("likertScoreLabel"))
     .append($("<div>").text(getLikertLabel(revData.review.design))
                       .addClass("likertScore"))
     .append($("<p>").text("Justification: " + revData.review.designComments))
@@ -249,11 +251,13 @@ function drawSubmittedFeedback(feedback, abuseData) {
       .append($("<div>").text(feedback.message).addClass("feedbackComments"));
   }
   else {
-    return $("<div>")
+    var fb = $("<div>")
       .addClass("feedbackGiven")
-      .append($("<p>").text("Feedback:"))
-      .append(drawReportAbuse(abuseData))
-      .append($("<div>").text(feedbackPrompt))
+      .append($("<p>").text("Feedback:"));
+    if (abuseData) {
+      fb.append(drawReportAbuse(abuseData))
+    }
+    return fb.append($("<div>").text(feedbackPrompt))
       .append($("<div>").addClass("likertFeedbackScore").append($("<span>").text(getLikertLabel(feedback.helpfullness))))
       .append($("<div>").text("Optional comments"))
       .append($("<div>").text(feedback.comments).addClass("feedbackComments"));
@@ -424,13 +428,14 @@ var reviewStatements = {
 };
 
 function reportAbuse(abuseData, success, failure) {
+  ct_log("Abuse: ", abuseData);
   $.ajax(RAILS_HOST + "/notification/report_abuse", {
     success: function(response, _, xhr) {
       success(response);
     },
     error: failure,
     type: "POST",
-    data: { abuse_data: abuseData }
+    data: { abuse_data: JSON.stringify(abuseData) }
   });
 }
 

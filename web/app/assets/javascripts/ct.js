@@ -329,7 +329,7 @@ function codeAssignment(container, resources, args) {
                                                 succ,
                                                 fail);
                                  },
-                                 abuseData(r, step));
+                                 reviewAbuseData(r, toRead, step));
                     }
                     lookupResource(r.feedback, function(feedback) {
                       handleFeedback(feedback);
@@ -365,7 +365,7 @@ function codeAssignment(container, resources, args) {
                            delimiterValues,
                            code.parts,
                            sharedOptions);
-                         showReview(editor, step, r, f, function() { /* intentional no-op */ }, abuseData(r, step));
+                         showReview(editor, step, r, f, function() { /* intentional no-op */ }, feedbackAbuseData(r, step.read_feedback, step));
                       });
                    }, function() { ct_log("Review target content failed"); });
                 });
@@ -380,11 +380,18 @@ function codeAssignment(container, resources, args) {
         }
       });
 
-    function abuseData(rev, step) {
+    function reviewAbuseData(rev, resource, step) {
       var url = String(window.location);
       return {
-        review: { type: "review", review: rev, url: url, step: step },
-        feedback: { type: "feedback", review: rev, url: url, step: step }
+        review: { type: "review", review: rev, resource: resource, url: url, step: step },
+        feedback: false
+      }
+    }
+    function feedbackAbuseData(rev, resource, step) {
+      var url = String(window.location);
+      return {
+        review: false,
+        feedback: { type: "feedback", review: rev, resource: resource, url: url, step: step }
       };
     }
 
