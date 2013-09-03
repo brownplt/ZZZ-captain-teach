@@ -636,6 +636,30 @@ function functionBuilder(container, resources, args) {
   return {container: container, activityData: {codemirror: cm}};
 }
 
+function numberResponse(container, resources, args) {
+  var input = $("<input type='text'>");
+  var button = $("<button>").prop("disabled", true).text("Submit");
+  function drawExisting(response) {
+    input.val(response.answer);
+    input.prop("disabled", true);
+    button.prop("disabled", true);
+  }
+  lookupResource(resources.blob, drawExisting, function() {
+    input.on("keyup", function(e) {
+      var val = Number(input.val());
+      var okVal = ((val <= args.max) && (val >= args.min));
+      button.prop("disabled", !okVal);
+    });
+    button.on("click", function(e) {
+      var response = { answer: Number(input.val()) };
+      saveResource(resources.blob, response, function() { drawExisting(response); },
+        function() { ct_error("Failed to save answer: ", answer); });
+    });
+  })
+  container.append(input).append(button);
+  return {container: container, activityData: {}};
+}
+
 function multipleChoice(container, resources, args)  {
   var id = resources.blob;
   function optionId(option) {
@@ -650,6 +674,10 @@ function multipleChoice(container, resources, args)  {
         if(option.type === "choice-incorrect") {
           labelNode.css("background-color", "red");
           optNode.css("background-color", "red");
+        }
+        if(option.type === "choice-neutral") {
+          labelNode.css("background-color", "gray");
+          optNode.css("background-color", "gray");
         }
       }
       if(option.type === "choice-correct") {
@@ -714,6 +742,7 @@ var builders = {
   "function": functionBuilder,
   "code-assignment": codeAssignment,
   "multiple-choice": multipleChoice,
+  "number-response": numberResponse,
   "code-library": function(container, id, args) {
     ASSIGNMENT_PIECES.push({id: id, code: args.code, mode: args.mode});
     return $("<div>");

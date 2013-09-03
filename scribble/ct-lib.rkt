@@ -60,7 +60,9 @@
 (define-syntax-rule (choice-incorrect id content ...)
   (create-choice id "choice-incorrect" content ...))
 
-;; TODO(joe): this is an obfuscation point
+(define-syntax-rule (choice-neutral id content ...)
+  (create-choice id "choice-neutral" content ...))
+
 (define-syntax-rule (choice-correct id content ...)
   (create-choice id "choice-correct" content ...))
 
@@ -84,6 +86,29 @@
                         (cons 'choices (map choice-data choices))
                         (cons 'id unique-id)))))))))
       (map choice-html choices)))))
+
+(define-syntax-rule (number-response unique-id min-val max-val elt ...)
+  (begin
+    (let [(prompt (string-join (list elt ...)))]
+    (element
+      (style #f
+             (list
+              (alt-tag "div")
+              (attributes
+                (list
+                  (cons 'data-ct-node "1")
+                  (cons 'data-activity-id (mk-id unique-id))
+                  (cons 'data-resources (single-resource 'blob (mk-resource "b" "rc" unique-id (make-hash))))
+                  (cons 'data-type "number-response")
+                  (cons 'data-args (jsexpr->string
+                    (make-hash
+                      (list
+                        (cons 'min min-val)
+                        (cons 'max max-val)
+                        (cons 'prompt prompt)
+                        (cons 'id unique-id)))))))))
+        ""))))
+
 
 (define-syntax-rule (function mode1 unique-id elt ...)
    (begin

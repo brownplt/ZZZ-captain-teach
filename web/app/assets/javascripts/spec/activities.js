@@ -318,10 +318,27 @@ describe("multiple-choice activities", function() {
   });
 });
 
-describe("Student review interface", function() {
+describe("Open response activities", function() {
 
-  it("should start with a button that starts the review", function() {
+  it("should render", function() {
+    resetMockServer();
+    var container = $("<div>");
+    var rcId = "b:rc:oc-id:user-id";
+    var result = numberResponse(container, { blob: rcId }, { min: 0, max: 100, prompt: "A number from 0 to 100." });
+    var data = container.find("input");
+    var button = container.find("button");
+    expect(button.prop("disabled")).toEqual(true);
+    data.val("102");
+    expect(button.prop("disabled")).toEqual(true);
+    data.val("50");
+    data.trigger("change");
+    expect(button.prop("disabled")).toEqual(false);
+
+    button.click();
+
+    expect(mockBlobTable[rcId]).toEqual({answer: 50})
 
   });
 
 });
+
