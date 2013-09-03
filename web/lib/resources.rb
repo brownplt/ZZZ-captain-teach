@@ -245,7 +245,7 @@ module Resource
     lookup(type, perm, ref, args, user)
   end
 
-  def lookup(type, _perm, ref, args, user, current_user = user)
+  def lookup(type, _perm, ref, args, user)
     if type == 'b'
       b = Blob.find_by(user: user, ref: ref)
       if b.nil?
