@@ -5,7 +5,8 @@ class CourseController < ApplicationController
                                           :update,
                                           :destroy,
                                           :add_teacher,
-                                          :add_student]
+                                          :add_student,
+                                          :show_abuses]
 
   def index
     if current_user
@@ -62,6 +63,11 @@ class CourseController < ApplicationController
     end
     @course.students << s
     redirect_to course_path(@course)
+  end
+
+  def show_abuses
+    course_require_teacher(@course)
+    @abuses = AbuseRecord.all
   end
 
   private

@@ -36,6 +36,7 @@ App::Application.routes.draw do
   resources :course
   post 'course/:id/add_teacher' => 'course#add_teacher', as: :add_teacher
   post 'course/:id/add_student' => 'course#add_student', as: :add_student
+  get 'course/:id/show_abuses' => 'course#show_abuses'
 
 
   # These all have various security or other concerns for running

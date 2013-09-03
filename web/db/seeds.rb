@@ -44,7 +44,8 @@ if Rails.env.test?
   path1 = PathRef.create!(:user_repo => mates_log, :path => "tests/scribble/assignments/simple.jrny")
   example_assignment1 = Assignment.create!({
     :path_ref => path1,
-    :course => course
+    :course => course,
+    :release => DateTime::now
   })
 
 
@@ -71,55 +72,64 @@ if Rails.env.development?
   path1 = PathRef.create!(:user_repo => captains_log, :path => "multiple-choice.jrny")
   example_assignment1 = Assignment.create!({
     :path_ref => path1,
-    :course => course
+    :course => course,
+    :release => DateTime::now
   })
 
   path2 = PathRef.create!(:user_repo => captains_log, :path => "function.jrny")
   example_assignment2 = Assignment.create!({
     :path_ref => path2,
-    :course => course
+    :course => course,
+    :release => DateTime::now
   })
 
   path3 = PathRef.create!(:user_repo => captains_log, :path => "oracle.jrny")
   example_assignment3 = Assignment.create!({
     :path_ref => path3,
-    :course => course
+    :course => course,
+    :release => DateTime::now
   })
 
   path4 = PathRef.create!(:user_repo => captains_log, :path => "tutorial.jrny")
   example_assignment4 = Assignment.create!({
     :path_ref => path4,
-    :course => course
+    :course => course,
+    :release => DateTime::now
   })
 
   path5 = PathRef.create!(:user_repo => captains_log, :path => "updater.jrny")
   example_assignment5 = Assignment.create!({
     :path_ref => path5,
-    :course => course
+    :course => course,
+    :release => DateTime::now
   })
 
   path6 = PathRef.create!(:user_repo => captains_log, :path => "sortacle.jrny")
   example_assignment6 = Assignment.create!({
     :path_ref => path6,
-    :course => course
+    :course => course,
+    :release => DateTime::now
   })
 
   path7 = PathRef.create!(:user_repo => captains_log, :path => "sorting.jrny")
   example_assignment7 = Assignment.create!({
     :path_ref => path7,
-    :course => course
+    :course => course,
+    :release => DateTime::now
   })
 
   path8 = PathRef.create!(:user_repo => captains_log, :path => "sample-assignment.jrny")
   example_assignment8 = Assignment.create!({
     :path_ref => path8,
-    :course => course
+    :course => course,
+    :release => DateTime::now
   })
   
   path9 = PathRef.create!(:user_repo => captains_log, :path => "reference.jrny")
   example_assignment9 = Assignment.create!({
     :path_ref => path9,
-    :course => course
+    :course => course,
+    :release => DateTime::now
   })
 
 

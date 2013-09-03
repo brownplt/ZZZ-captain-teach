@@ -424,13 +424,13 @@ var reviewStatements = {
 };
 
 function reportAbuse(abuseData, success, failure) {
-  $.ajax(RAILS_HOST + "/notifications/report_abuse", {
+  $.ajax(RAILS_HOST + "/notification/report_abuse", {
     success: function(response, _, xhr) {
       success(response);
     },
     error: failure,
     type: "POST",
-    data: abuseData
+    data: { abuse_data: abuseData }
   });
 }
 

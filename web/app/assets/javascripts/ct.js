@@ -328,7 +328,8 @@ function codeAssignment(container, resources, args) {
                                                 f,
                                                 succ,
                                                 fail);
-                                 });
+                                 },
+                                 abuseData(r, step));
                     }
                     lookupResource(r.feedback, function(feedback) {
                       handleFeedback(feedback);
@@ -364,7 +365,7 @@ function codeAssignment(container, resources, args) {
                            delimiterValues,
                            code.parts,
                            sharedOptions);
-                         showReview(editor, step, r, f, function() { /* intentional no-op */ });
+                         showReview(editor, step, r, f, function() { /* intentional no-op */ }, abuseData(r, step));
                       });
                    }, function() { ct_log("Review target content failed"); });
                 });
@@ -378,6 +379,15 @@ function codeAssignment(container, resources, args) {
           }, function() { ct_log("read_feedback failed"); });
         }
       });
+
+    function abuseData(rev, step) {
+      var url = String(window.location);
+      return {
+        review: { type: "review", review: rev, url: url, step: step },
+        feedback: { type: "feedback", review: rev, url: url, step: step }
+      };
+    }
+
 
     resources.steps.forEach(function(step) {
       editorOptions.afterHandlers[step.name] = function(editor, resume) {

@@ -1,0 +1,19 @@
+<% @abuses.each do |a| %>
+  <h2>Reported by: <%= a.user.email %> at <%= a.created_at.to_s %></h2>
+  <% begin %>
+    <% data = JSON.parse(a.abuse_data) %>
+    <% url = data["url"] %>
+    <p>While visiting: <%= url %></p>
+    <% likely_assignment_id = url[url.index("assignment/") + 11, url.length] %>
+    <% if data["type"] == "review" %>
+      <p>Blaming the contents of this review:</p>
+      <pre><%= data["review"] %></pre>
+    <% else %>
+      <p>Blaming the contents of this feedback:</p>
+      <pre><%= Resource::lookup_resource(data["review"]["feedback"]).data %></pre>
+    <% end %>
+    <%= link_to "See in context (link is a best guess)", {:controller => "assignment", :action => "grade_assignment", :uid => likely_assignment_id, :user_id => a.user.id} %>
+  <% rescue JSON::ParserError%>
+    <%= "No abuse data." %>
+  <% end %>
+<% end %>

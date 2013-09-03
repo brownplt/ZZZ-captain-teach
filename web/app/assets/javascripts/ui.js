@@ -1,104 +1,3 @@
-
-/*
-options<a>: {
-  save: (-> undefined) -> undefined,
-  lookupVersions: ([Version<a>] -> undefined) -> undefined,
-  onLoadVersion: a -> undefined,
-  panel: { addTab: String, DOM, tabOptions -> undefined }
-}
-
-where
-
-Version = {time: String, reviews: [Review], lookup: (a -> undefined) -> undefined}
-Review = {lookup: ({(design|correct|comments): String} -> undefined) -> undefined}
-*/
-
-function versions(container, options) {
-
-  var versionsList = drawVersionsList(false, []);
-  var versionsButton = drawVersionsButton().on("click", function () {
-      versionsList.toggle();
-    });
-  var versionsContainer = drawVersionsContainer(versionsButton, versionsList);
-  // NOTE(dbp): When we change to an old version, we save the current work as
-  // a revision. However, if we are switching between many versions, we don't want
-  // to keep creating new ones (only the first one).
-  var onChangeVersionsCreateRevision = true;
-
-  function saveVersion() {
-    onChangeVersionsCreateRevision = false;
-    setVersionsButtonPending(versionsButton);
-    options.save(function() {
-        setTimeout(function () {
-          setVersionsButtonReady(versionsButton);
-          loadVersions();
-        }, 1000);
-      },
-      function (xhr, response) {
-        console.error("Saving failed.");
-      });
-  }
-
-  function loadVersions() {
-    versionsList.text("");
-    options.lookupVersions(function (versions) {
-      if (versions.length === 0) {
-        versionsList.append(drawNoVersions());
-      }
-      versions.forEach(function (v) {
-        var b = drawVersionButton(v.time);
-        b.on("click", function () {
-          if (onChangeVersionsCreateRevision) {
-            saveVersion();
-          }
-          v.lookup(function (response) {
-            loadVersions();
-            // NOTE(dbp): cache onChange... so changes from loading don't overwrite it
-            var oc = onChangeVersionsCreateRevision;
-            options.onLoadVersion(response);
-            onChangeVersionsCreateRevision = oc;
-          },
-           function () { console.error("Couldn't find resource from version. This is bad!"); });
-        });
-
-        var numReviews = v.reviews.length;
-        var revsButton = drawReviewsButton(numReviews);
-        if (numReviews > 0) {
-          revsButton.on("click", function() {
-            var reviewsDiv = drawReviewsDiv(options.name, v.time);
-            v.reviews.forEach(function(r) {
-              var reviewContainer = drawReviewContainer();
-              reviewsDiv.append(reviewContainer);
-              r.lookup(function(revData) {
-                reviewContainer.append(drawReview(revData));
-              });
-            });
-            options.panel.addTab(options.name + "@" + v.time, reviewsDiv);
-            versionsList.toggle();
-            return false;
-          });
-        }
-
-        var versionEntry = drawVersionEntry(revsButton, b);
-
-        versionsList.append(versionEntry);
-
-      });
-    });
-  }
-
-  loadVersions();
-
-  container.append(versionsContainer);
-
-  return {
-    onChange: function() { onChangeVersionsCreateRevision = true; },
-    onStartSave: function() { setVersionsButtonPending(versionsButton); },
-    onFinishSave: function() { setVersionsButtonReady(versionsButton); },
-    saveVersion: saveVersion
-  }
-}
-
 function showCode(container, getCode, options) {
   if (options.run) {
     var run = drawCodeRunButton();
@@ -1089,11 +988,12 @@ function showReview(editor,
                     step,
                     review,
                     feedback,
-                    saveFeedback) {
+                    saveFeedback,
+                    abuseData) {
 
   var container = drawReviewContainer();
 
-  var review = drawReview(review, step.type);
+  var review = drawReview(review, step.type, abuseData.review);
 
   container.append(review);
 
@@ -1105,7 +1005,7 @@ function showReview(editor,
       };
       saveFeedback(feedback, function () {
         feedbackDiv.remove();
-        container.append(drawSubmittedFeedback(feedback));
+        container.append(drawSubmittedFeedback(feedback, abuseData.feedback));
       }, function () {
         ct_error("Couldn't save feedback");
       });
@@ -1113,7 +1013,7 @@ function showReview(editor,
 
     container.append(feedbackDiv);
   } else {
-    container.append(drawSubmittedFeedback(feedback));
+    container.append(drawSubmittedFeedback(feedback, abuseData.feedback));
   }
 
   editor.addWidgetAt(step.name, container[0]);
