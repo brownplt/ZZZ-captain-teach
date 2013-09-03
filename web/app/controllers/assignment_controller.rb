@@ -26,7 +26,7 @@ class AssignmentController < ApplicationController
         @html = "Not logged in"
       else
         path = AssignmentController::path_ref_to_path(assignment.path_ref)
-        @html = AssignmentController::path_to_html(ct_current_user, path)
+        @html = AssignmentController::path_to_html(ct_current_user, params[:uid], path)
       end
     end
   end
@@ -42,7 +42,7 @@ class AssignmentController < ApplicationController
         if(assignment.course.teachers.exists?(current_user.id))
           user = User.find(params[:user_id])
           path = AssignmentController::path_ref_to_path(assignment.path_ref)
-          @html = AssignmentController::path_to_grade_html(user, path)
+          @html = AssignmentController::path_to_grade_html(user, params[:uid], path)
           @gradee_email = user.email
         else
           application_not_found("No access to assignment")
@@ -76,7 +76,7 @@ class AssignmentController < ApplicationController
   end
 
 
-  def self.path_to_html(user, path, read_only = false)
+  def self.path_to_html(user, path, assignment_id, read_only = false)
     scribbled = Scribble::render(path)
     doc = Nokogiri::HTML(scribbled)
     main = doc.css('div.main').first
@@ -110,14 +110,14 @@ class AssignmentController < ApplicationController
                   "inbox-for-read",
                   "r",
                   part_ref,
-                  {},
+                  {assignment_id: assignment_id},
                   user.id
                 ),
               read_feedback: Resource::mk_resource(
                   "inbox-for-read",
                   "r",
                   AssignmentController.feedback_ref(part_ref),
-                  {},
+                  {assignment_id: assignment_id},
                   user.id
                 ),
               do_reviews: Resource::mk_resource(
@@ -126,7 +126,7 @@ class AssignmentController < ApplicationController
                   AssignmentController.reviews_ref(
                       AssignmentController.part_ref(activity_id, key)
                     ),
-                  {},
+                  {assignment_id: assignment_id},
                   user.id
                 )
             }
@@ -139,7 +139,7 @@ class AssignmentController < ApplicationController
   end
 
   def self.path_to_json(user, path)
-    html = Nokogiri::HTML(AssignmentController.path_to_html(user, path))
+    html = Nokogiri::HTML(AssignmentController.path_to_html(user, path, "unknown_assignment_id_path_to_json"))
     html.css("[data-ct-node='1']").map do |node|
       if not node["data-parts"].nil?
         {
@@ -153,8 +153,8 @@ class AssignmentController < ApplicationController
     end
   end
 
-  def self.path_to_grade_html(user, path)
-    self.path_to_html(user, path, true)
+  def self.path_to_grade_html(user, uid, path)
+    self.path_to_html(user, path, uid, true)
   end
 
 end

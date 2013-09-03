@@ -19,6 +19,9 @@ USER_GIT_REPO_PATH =
 
 REVIEWS_SUBPATH = "reviews"
 
+FROM_EMAIL = "joe@cs.brown.edu"
+
+CONTACT_EMAIL = "joe@cs.brown.edu"
 
 WHALESONG_URL = "http://localhost:8080"
 APP_URL = "http://localhost:3000"

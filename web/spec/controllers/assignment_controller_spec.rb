@@ -55,7 +55,7 @@ describe AssignmentController do
       def o.path
         scribble_file("function_with_review.jrny")
       end
-      html = AssignmentController.path_to_html(@not_the_teacher,o)
+      html = AssignmentController.path_to_html(@not_the_teacher, o, "unknown_assignment_id")
       doc = Nokogiri::HTML(html)
       node = doc.css("[data-parts]")[0]
       parts = JSON.parse(node["data-parts"])

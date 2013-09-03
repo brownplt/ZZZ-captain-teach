@@ -67,7 +67,7 @@ module Resource
   end
 
   @@triggers = {
-    "good" => Proc.new do |data|
+    "good" => Proc.new do |data, args|
       feedback_resource = data["feedback"]
       if ((data["review"]["correctness"].to_f < 0) or
           (data["review"]["design"].to_f < 0))
@@ -84,7 +84,7 @@ module Resource
       end
       data
     end,
-    "bad" => Proc.new do |data|
+    "bad" => Proc.new do |data, args|
       feedback_resource = data["feedback"]
       if ((data["review"]["correctness"].to_f > 0) or
           (data["review"]["design"].to_f > 0))
@@ -99,6 +99,14 @@ module Resource
             message: "Good job!  This was a bad solution written by the course staff, and you identified it as such."
           })
       end
+      data
+    end,
+    "notify_recipient" => Proc.new do |data, args|
+      UserMailer.review_email(
+          User.find_by(:id => args["blob_user_id"]),
+          Assignment.find_by(:uid => args["assignment_id"]),
+          data["review"]
+        )
       data
     end
   }
@@ -392,7 +400,7 @@ module Resource
         unless args["triggers"].nil?
           args["triggers"].each do |t|
             trigger = @@triggers[t]
-            this_dict = trigger.call(this_dict)
+            this_dict = trigger.call(this_dict, args)
           end
         end
         json_data[key] = this_dict
@@ -463,9 +471,9 @@ module Resource
 
       data = submissions_to_review.map do |sub|
         if not (sub.known == 'unknown')
-          triggers = [sub.known] 
+          triggers = ["notify_recipient", sub.known] 
         else
-          triggers = []
+          triggers = ["notify_recipient"]
         end
         payload = {
             resource: sub.resource,

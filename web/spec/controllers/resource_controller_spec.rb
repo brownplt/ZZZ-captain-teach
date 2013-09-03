@@ -600,15 +600,15 @@ describe ResourceController do
           (expected_triggers == args["triggers"])
       end
 
-      (check_review(987, r1, part_ref, ["good"]) or
-        check_review(987, r2, part_ref, ["good"])).should(eq(true))
+      (check_review(987, r1, part_ref, ["notify_recipient", "good"]) or
+        check_review(987, r2, part_ref, ["notify_recipient", "good"])).should(eq(true))
 
-      (check_review(105, r1, part_ref, []) or
-        check_review(105, r2, part_ref, [])).should(eq(true))
+      (check_review(105, r1, part_ref, ["notify_recipient"]) or
+        check_review(105, r2, part_ref, ["notify_recipient"])).should(eq(true))
 
       canned_reviews = [r1, r2].select do |r|
         type, perm, ref, args, user = Resource::parse(r)
-        args["triggers"] == ["good"]
+        args["triggers"] == ["notify_recipient", "good"]
       end
       cr = canned_reviews[0]
       
