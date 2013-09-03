@@ -14,6 +14,9 @@ class ResourceController < ApplicationController
   def lookup
     # any perm is okay, because this is read
     type,_perm,ref,args,user = get_resource()
+    if (type == 'inbox-for-read')
+      InboxReadEvent.create!(:user => user, :current_user_id => ct_current_user, :resource => params[:resource], :ref => ref)
+    end
     Resource::lookup(type, _perm, ref, args, user).respond(self)
   end
 

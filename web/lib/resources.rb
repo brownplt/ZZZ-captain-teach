@@ -245,7 +245,7 @@ module Resource
     lookup(type, perm, ref, args, user)
   end
 
-  def lookup(type, _perm, ref, args, user)
+  def lookup(type, _perm, ref, args, user, current_user = user)
     if type == 'b'
       b = Blob.find_by(user: user, ref: ref)
       if b.nil?
@@ -280,7 +280,6 @@ module Resource
         json_data.keys.sort.each do |key|
           values.push(json_data[key])
         end
-        InboxReadEvent.create!(:user => user, :ref => ref)
         return Normal.new(values)
       end
     elsif type == 'inbox-for-write'

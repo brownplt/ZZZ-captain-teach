@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130828205950) do
+ActiveRecord::Schema.define(version: 20130903021637) do
 
   create_table "abuse_records", force: true do |t|
     t.integer  "user_id"
@@ -75,6 +75,8 @@ ActiveRecord::Schema.define(version: 20130828205950) do
     t.integer  "user_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "current_user_id"
+    t.string   "resource"
   end
 
   add_index "inbox_read_events", ["user_id"], name: "index_inbox_read_events_on_user_id"
