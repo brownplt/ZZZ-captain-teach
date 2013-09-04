@@ -78,14 +78,19 @@ class AssignmentController < ApplicationController
 
   def self.path_to_html(user, path, read_only = false, assignment_id = false)
     cache_id = nil
+    existing = nil
     if assignment_id
       cache_id = "scribbled_#{assignment_id}"
       existing = Rails.cache.read("scribbled_#{assignment_id}")
-      if not (existing.nil?)
-        return existing
+    end
+    if not (existing.nil?)
+      scribbled = existing
+    else
+      scribbled = Scribble::render(path)
+      if assignment_id
+        Rails.cache.write(cache_id, scribbled)
       end
     end
-    scribbled = Scribble::render(path)
     doc = Nokogiri::HTML(scribbled)
     main = doc.css('div.main').first
     if main.nil?
@@ -143,11 +148,7 @@ class AssignmentController < ApplicationController
         end
       end
     end
-    answer = main.to_html
-    if assignment_id
-      Rails.cache.write(cache_id, answer)
-    end
-    answer
+    main.to_html
   end
 
   def self.path_to_json(user, path)
