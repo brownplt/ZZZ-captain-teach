@@ -1,0 +1,18 @@
+You've received a new review on your submitted program:
+
+Design: <%= @review["designScore"] %>
+
+Comments on design:
+
+<%= @review["designComments"] %>
+
+Correctness: <%= @review["correctnessScore"] %>
+
+<%= @review["correctnessComments"] %>
+
+Visit the assignment at 
+
+<%= link_to "thing", {controller: "assignment", action: "get_assignment", uid: @assignment.uid} %>
+
+Happy testing,
+The Captain Teach Staff
