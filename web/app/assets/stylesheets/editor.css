@@ -25,6 +25,9 @@ div.CodeMirror span.CodeMirror-matchingbracket {
   content: "\25B8";
 }
 
+#output {
+  font-family : monospace;
+}
 
 .inlineExample {
     font-family: monospace;
