@@ -26,7 +26,7 @@ class AssignmentController < ApplicationController
         @html = "Not logged in"
       else
         path = AssignmentController::path_ref_to_path(assignment.path_ref)
-        @html = AssignmentController::path_to_html(ct_current_user, path)
+        @html = AssignmentController::path_to_html(ct_current_user, path, false, assignment.uid)
       end
     end
   end
@@ -76,7 +76,15 @@ class AssignmentController < ApplicationController
   end
 
 
-  def self.path_to_html(user, path, read_only = false)
+  def self.path_to_html(user, path, read_only = false, assignment_id = false)
+    cache_id = nil
+    if assignment_id
+      cache_id = "scribbled_#{assignment_id}"
+      existing = Rails.cache.read("scribbled_#{assignment_id}")
+      if not (existing.nil?)
+        return existing
+      end
+    end
     scribbled = Scribble::render(path)
     doc = Nokogiri::HTML(scribbled)
     main = doc.css('div.main').first
@@ -135,7 +143,11 @@ class AssignmentController < ApplicationController
         end
       end
     end
-    main.to_html
+    answer = main.to_html
+    if assignment_id
+      Rails.cache.write(cache_id, answer)
+    end
+    answer
   end
 
   def self.path_to_json(user, path)
