@@ -21,13 +21,15 @@ if Rails.env.production?
   sorting = PathRef.create!(:user_repo => captains_log, :path => "tutorial.jrny")
   sorting_assignment = Assignment.create!({
     :path_ref => sorting,
-    :course => course
+    :course => course,
+    :release => DateTime::now
   })
 
   sorting1 = PathRef.create!(:user_repo => captains_log, :path => "tutorial-test-dont-click-here.jrny")
   sorting1_assignment = Assignment.create!({
     :path_ref => sorting1,
-    :course => course
+    :course => course,
+    :release => DateTime::now
   })
 end
 

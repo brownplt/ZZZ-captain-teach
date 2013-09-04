@@ -441,7 +441,7 @@ function reportAbuse(abuseData, success, failure) {
 
 function drawReportAbuse(abuseData) {
   var container = $("<div>").addClass("reportAbuse");
-  container.append($("<img>").attr("src", RAILS_HOST + "/assets/Red_flag_waving.png"));
+  container.append($("<img>").attr("src", "<%= asset_path('Red_flag_waving.png') %>"));
   container.attr("title", "Report Abuse");
   container.click(function(e) {
     var confirmed = ct_confirm("This will send a message to the course staff, identifying this content as an abuse of the system.  Are you sure you want to proceed?");
