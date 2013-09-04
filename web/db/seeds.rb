@@ -132,6 +132,13 @@ if Rails.env.development?
     :release => DateTime::now
   })
 
+  pathlol = PathRef.create!(:user_repo => captains_log, :path => "pre-course-survey.jrny")
+  example_assignmentlol = Assignment.create!({
+    :path_ref => pathlol,
+    :course => course,
+    :release => DateTime::now
+  })
+
 
   user1 = User.create!(:email => "henry@cs.brown.edu")
   course.students << user1
@@ -144,6 +151,4 @@ if Rails.env.development?
 
   
   APP_URL = "http://localhost:3000"
-  print("Visit the demo course at: #{APP_URL}/course/#{course.id}\n")
-
-end
+  print("Visit the demo course at: #{APP_URL}/course/#{course.id}\n") end
