@@ -11,11 +11,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130903021637) do
+ActiveRecord::Schema.define(version: 20130904191506) do
 
   create_table "abuse_records", force: true do |t|
     t.integer  "user_id"
-    t.string   "abuse_data"
+    t.text     "abuse_data", limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -35,9 +35,9 @@ ActiveRecord::Schema.define(version: 20130903021637) do
 
   create_table "blobs", force: true do |t|
     t.string   "uid"
-    t.string   "ref"
+    t.text     "ref",        limit: 255
     t.integer  "user_id"
-    t.string   "data"
+    t.text     "data",       limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -65,26 +65,26 @@ ActiveRecord::Schema.define(version: 20130903021637) do
   create_table "git_refs", force: true do |t|
     t.integer  "user_repo_id"
     t.string   "git_oid"
-    t.string   "path"
+    t.text     "path",         limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
   create_table "inbox_read_events", force: true do |t|
-    t.string   "ref"
+    t.text     "ref",             limit: 255
     t.integer  "user_id"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "current_user_id"
-    t.string   "resource"
+    t.text     "resource",        limit: 255
   end
 
   add_index "inbox_read_events", ["user_id"], name: "index_inbox_read_events_on_user_id"
 
   create_table "notifications", force: true do |t|
     t.integer  "user_id"
-    t.string   "message"
-    t.string   "action"
+    t.text     "message",    limit: 255
+    t.text     "action",     limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -93,7 +93,7 @@ ActiveRecord::Schema.define(version: 20130903021637) do
 
   create_table "path_refs", force: true do |t|
     t.integer  "user_repo_id"
-    t.string   "path"
+    t.text     "path",         limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -101,10 +101,10 @@ ActiveRecord::Schema.define(version: 20130903021637) do
   create_table "review_assignments", force: true do |t|
     t.integer  "reviewer_id"
     t.integer  "reviewee_id"
-    t.string   "activity_id"
+    t.text     "activity_id", limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "resource"
+    t.text     "resource",    limit: 255
   end
 
   add_index "review_assignments", ["activity_id"], name: "index_review_assignments_on_activity_id"
@@ -129,14 +129,14 @@ ActiveRecord::Schema.define(version: 20130903021637) do
 
   create_table "submitteds", force: true do |t|
     t.integer  "user_id"
-    t.string   "activity_id"
-    t.string   "resource"
+    t.text     "activity_id",     limit: 255
+    t.text     "resource",        limit: 255
     t.datetime "submission_time"
     t.string   "submission_type"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "review_count",    default: 0
-    t.string   "known",           default: "unknown", null: false
+    t.integer  "review_count",                default: 0
+    t.string   "known",                       default: "unknown", null: false
   end
 
   add_index "submitteds", ["user_id"], name: "index_submitteds_on_user_id"
@@ -147,7 +147,7 @@ ActiveRecord::Schema.define(version: 20130903021637) do
   end
 
   create_table "user_repos", force: true do |t|
-    t.string   "path"
+    t.text     "path",       limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
   end
