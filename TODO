@@ -1,62 +1,77 @@
-Feedback from 8/13:
-[] Break button when you "run" doesn't actually break - just re-enables prompt
+ASAP
+[] Don't depend on user-visible names when creating resource sections for scribble!
+[x] 500 notification emails
+[] Open-response questions
+[] Confused about whether run did anything (for simple examples)
+[] Repl scrolling is awful
+[] notify when reviews show up
+[x] color for passing tests in fixed region doesn't show up until active
+[] <unprintable-expr> on pretty printer
+[] Highlight the part you are reviewing
+[] Highlight the part you are editing
+[] Distinguish review vs. step buttons
+[] Run button, title, and saving indicator should follow page down with scrolling
+[] Buttons for reviews/feedback should have a gradient or other indicator of
+   good/bad
+[] = vs. is accident in test cases; do a parse-test before submission?
+  - Well-formedness error with a URL for the explanation of construct
+[] Can someone get the same code to review twice?
+[] Reviews need timestamps (any blob stuff needs timestamp)
+
+Late sept
+[] Focus interactions when things run
+[] Clicking a review link should focus that review tab, not open a new one
+[] Refreshing when in reviews doesn't focus review tabs, and doesn't move
+   editor to the right step
 [] Tutorial
   - better description of what you should do for append
   - make it clear that before running definitions, they aren't defined
   - explain
   - fold example gives away what it is doing
   - more cases examples - explain what List means, etc
-[] Break button graphic needs work - maybe have it have text
-[] infinite loops with recursion... erp.
-[] check-block-N identifiers are whack.
-[] color for tests in fixed region is still broken
-[] submit button is still present in last section
-[] notify when reviews show up
-[] clicking on past repl entries copies into prompt
-[] grammar reference! maybe tooltip on keywords?
-[] an option to give up on examples that ask you to fix things
+  - different examples for CS019 (we're teaching sorting, so...)
+[] Submit button got lost sometimes - highlight and delete?
+[] Flow changes:
+  [x] Variants done before checks in DD
+  [] Variants go unreviewed (review after example data)
 
-To Do Before Demo On 8/13:
+Feedback from 8/13:
+[] Break button when you "run" sometimes doesn't break - just re-enables prompt
+   - infinite loops with recursion wouldn't break for Eisenstat
+[] Break button graphic needs work - maybe have it have text rather than just a
+   stop sign
+[] check-block-N identifiers in standalone check blocks are off (names for
+   check blocks?)
+[] submit button is still present in last section after refreshing (no-op on
+   server, but weird that it's there)
+[] Feature idea: clicking on past repl entries copies into prompt
+[] Feature idea: an option to give up on examples that ask you to fix things, and have it
+   filled in for you
+
 [] Format / make pretty feedback recieved on reviews
-[] UI jump when submitting work and starting reviews
-[] <unprintable-expr> on pretty printer
+[x] UI jump when submitting work and starting reviews
 Candidates:
-[] Highlight the part you are reviewing
-[] Highlight the part you are editing
-[] Run button, title, and saving indicator should follow page down.
 [] phrasing of values not equal in "is" (maybe "expected...")
-[] Plumb name of editor for sending to server, so parse errors aren't in program "run".
-[] Refreshing when in reviews doesn't focus review tabs, and doesn't move
-   editor to the right step
+[x] Plumb name of editor for sending to server, so parse errors aren't in program "run".
+  - Needs careful choice of name
 
-Feedback:
 [] Highlight column/span information?
-[] Repl scrolling is awful
-[] More information in stop sign for breaking
 [] Instructions should tell you which run button to click early on
-[] Buttons for reviews/feedback should have a gradient or other indicator of
-   good/bad
 [] Spaces around operators
-[] "but not" -> "that are not"
 [] Return type annotation not introduced in tutorial
 [] Better error message when extra ends are added
-[] Clicking a review link should focus that review tab, not open a new one
-[] Horizontal scrolling in editors is bad (hides e.g. Strongly Agree)
-[] Tim saw multiple copies of the same review/feedback in the same review panel
-[] Review needs to show more context about which thing you're reviewing
+[x] Horizontal scrolling in editors is bad (hides e.g. Strongly Agree)
+[x] Tim saw multiple copies of the same review/feedback in the same review panel
 [] Summary on hidden instructions (next to "click to show")
 [] Workflow hard to follow, needs more inline instructions (Eisenstat)
 [] Block import statements (security)
-[] Catch "print arg" because Python/Ruby users might try that
+[x] Catch "print arg" because Python/Ruby users might try that
 
 Justin:
 [] Make buttons look more like buttons
 [] More instructions about which part of the editor is edit-able
 [] Figure out this comment: 'Connor asked "should we see a 1 on the side?"
    after seeing only an arrow in the editor.'
-[] = vs. is accident in test cases; do a parse-test before submission?
-[] Code highlighting in immutable areas broken
-[] Can someone get the same code to review twice?
 
 Need To Do:
 [] Review should have better feedback when you don't fill in values
@@ -77,25 +92,22 @@ Need To Do:
 [] Well formedness
    - ERRORS DONT HAVE SRCLOCS when run with raco pyret.
    - multiple expressions on the same line (should at least be error on repl)
-[] syntax for check-exn
+[x] syntax for check-exn
 [] Highlighting on errors should be removed
 [] Progress is wierd - shouldn't fill when you are on the last step. Maybe use orange/blue?
-[] Submit button got lost sometimes - highlight and delete?
 [] Handling of unexpected racket errors (like unbound identifiers?)
-[] Indentation bugs:
+[x] Indentation bugs:
    - except(e):
    - fun f():
      o.{o:x} # not indented
      end
-[] Filter payloads on inbox-for-write or partition data
+[x] Filter payloads on inbox-for-write or partition data
 
 Want To Do:
 [] Doc string on builtins
 [] Run this code on my code?
 [] Indentation checker
-[] Confused about whether run did anything (for simple examples)
 [] Draw review blocks as code examples (so you can play with them and reset)
-[] Printing vs evaling (ie, 2 == 3, run, should print false) the result of program
 
 Not Necessary:
 [] switch Enter and Shift-Enter?
@@ -134,7 +146,7 @@ All Feedback:
     - No
    [x] Concern: "same as the last guy" for comments. Maybe don't close tabs until all reviews done?
     - No worries, bad feedback will catch this
-   [] Feedback for reviews:
+   [x] Feedback for reviews:
      [x] Helpfulness likert + optional comments
      [x] Report abuse button
        - create a table for abuses:
@@ -146,9 +158,6 @@ All Feedback:
    [x] Logging on reviews:
      [x] Count of times read
    [x] Place to see my reviews and feedback on them
-   [] Flow changes:
-     [x] Variants done before checks in DD
-     [] Variants go unreviewed (review after example data)
 
 
 Deployment & Performance;
@@ -158,7 +167,6 @@ Deployment & Performance;
    commits in the name field)
 [] Figure out how pathrefs should be created in the database... so
    that caching can work (right now, we create path refs many times)
-[] Reviews need timestamps (any blob stuff needs timestamp)
 
 Scribble:
 [] Choosing identifier names?
@@ -166,11 +174,10 @@ Scribble:
 
 UI/JS:
 [] Make CodeMirror behave with respect to zooming
-[] Do something with scrolling at the bottom of the REPL
 [] Extend code-assignment builder to do versioning
   - and save intermediate code!
 [] Copy to beginning of the file even with atomic
-[] Focus interactions when things run
+  - button for popping out just text
 
 Curricular:
 [] Sensible front-end on finding that the assigned reviews are completely
@@ -317,3 +324,4 @@ Grading/Teacher view
 [x] Don't try to save versions in teacher review mode when switching versions
    - doesn't exist anymore
 
+[x] grammar reference! maybe tooltip on keywords?
