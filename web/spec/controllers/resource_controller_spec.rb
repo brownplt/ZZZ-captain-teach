@@ -560,88 +560,107 @@ describe ResourceController do
     end
 
     it "create reviews for known solutions with canned feedback" do
-      part_ref = AssignmentController.part_ref(@activity_id, "check-for-canned-reviews")
 
-      Resource::set_known_reviews_probability(1)
-      create_sub_type(105, "check-for-canned-reviews")
-      create_sub_type(85, "check-for-canned-reviews")
-      create_sub_known(987, "check-for-canned-reviews", "good")
+      def test(good_or_bad, review)
+        part_name = "check-for-canned-reviews-#{good_or_bad}"
+        part_ref = AssignmentController.part_ref(@activity_id, part_name)
 
-      b = Blob.create!(:user => @user, :ref => @activity_id, :data => "{}")
-      resource_to_submit =
-        Resource::mk_resource('b', 'r', @activity_id, { reviews: 2 }, @user.id)
+        Resource::set_known_reviews_probability(1)
+        id1 = 10000 + rand(10000)
+        id2 = 10000 + rand(10000)
+        id3 = 10000 + rand(10000)
+        create_sub_type(id1, part_name)
+        create_sub_type(id2, part_name)
+        create_sub_known(id3, part_name, good_or_bad)
 
-      post :submit,
-        :resource => resource_to_submit,
-        :data => JSON.dump({ step_type: "check-for-canned-reviews" }),
-        :format => :json
-      response.response_code.should(eq(200))
+        b = Blob.create!(:user => @user, :ref => @activity_id, :data => "{}")
+        resource_to_submit =
+          Resource::mk_resource('b', 'r', @activity_id, { reviews: 2 }, @user.id)
 
-      review_ref = AssignmentController.reviews_ref(part_ref)
+        post :submit,
+          :resource => resource_to_submit,
+          :data => JSON.dump({ step_type: part_name }),
+          :format => :json
+        response.response_code.should(eq(200))
 
-      review_blob = Blob.find_by(:user => @user, :ref => review_ref)
-      data = JSON.parse(review_blob.data)
+        review_ref = AssignmentController.reviews_ref(part_ref)
 
-      data.length.should(eq(2))
+        review_blob = Blob.find_by(:user => @user, :ref => review_ref)
+        data = JSON.parse(review_blob.data)
 
-      r1 = data[0]["save_review"]
-      r2 = data[1]["save_review"]
+        data.length.should(eq(2))
 
-      def check_review(uid, review, part_ref, expected_triggers)
-        type, perm, ref, args, user = Resource::parse(review)
-        type.should(eq('inbox-for-write'))
-        perm.should(eq('rw'))
-        ref.should(eq(part_ref))
+        r1 = data[0]["save_review"]
+        r2 = data[1]["save_review"]
 
-        puts "#{args["blob_user_id"]} ==? #{uid}\n\n"
-        puts "#{expected_triggers} ==? #{args["triggers"]}\n\n"
+        def check_review(uid, review, part_ref, expected_triggers)
+          type, perm, ref, args, user = Resource::parse(review)
+          type.should(eq('inbox-for-write'))
+          perm.should(eq('rw'))
+          ref.should(eq(part_ref))
 
-        (args["blob_user_id"] == uid) and (user.id == @user.id) and (args["key"] == @user.id) and
-          (expected_triggers == args["triggers"])
+          puts "#{args["blob_user_id"]} ==? #{uid}\n\n"
+          puts "#{expected_triggers} ==? #{args["triggers"]}\n\n"
+
+          (args["blob_user_id"] == uid) and (user.id == @user.id) and (args["key"] == @user.id) and
+            (expected_triggers == args["triggers"])
+        end
+
+        (check_review(id3, r1, part_ref, [good_or_bad]) or
+          check_review(id3, r2, part_ref, [good_or_bad])).should(eq(true))
+
+        (check_review(id1, r1, part_ref, []) or
+          check_review(id1, r2, part_ref, [])).should(eq(true))
+
+        canned_reviews = [r1, r2].select do |r|
+          type, perm, ref, args, user = Resource::parse(r)
+          args["triggers"] == [good_or_bad]
+        end
+        cr = canned_reviews[0]
+        
+        post :save,
+          :resource => cr,
+          :data => JSON.dump({
+            review: review,
+            resource: Resource::read_only(resource_to_submit)
+          }),
+          :format => :json
+        response.response_code.should(eq(200))
+        
+        read_feedback = Resource::mk_resource(
+            "inbox-for-read",
+            "r",
+            AssignmentController.feedback_ref(part_ref),
+            {},
+            @user.id
+          )
+
+        results = Resource::lookup_resource(read_feedback).data
+        results.length.should(eq(1))
+        result = results[0]
+        result["canned"].should(eq(true))
+        rev_result = Resource::lookup_resource(result["review"])
+        rev_result.data["review"]["design"].should(eq(review[:design]))
+        rev_result.data["review"]["correctness"].should(eq(review[:correctness]))
       end
 
-      (check_review(987, r1, part_ref, ["good"]) or
-        check_review(987, r2, part_ref, ["good"])).should(eq(true))
-
-      (check_review(105, r1, part_ref, []) or
-        check_review(105, r2, part_ref, [])).should(eq(true))
-
-      canned_reviews = [r1, r2].select do |r|
-        type, perm, ref, args, user = Resource::parse(r)
-        args["triggers"] == ["good"]
-      end
-      cr = canned_reviews[0]
-      
-      post :save,
-        :resource => cr,
-        :data => JSON.dump({
-          review: {
-            done: true,
-            design: -1,
-            correctness: -1,
-            correctnessComments: "Not very correct",
-            designComments: "Bad spacing and naming"
-          },
-          resource: Resource::read_only(resource_to_submit)
-        }),
-        :format => :json
-      response.response_code.should(eq(200))
-      
-      read_feedback = Resource::mk_resource(
-          "inbox-for-read",
-          "r",
-          AssignmentController.feedback_ref(part_ref),
-          {},
-          @user.id
-        )
-
-      results = Resource::lookup_resource(read_feedback).data
-      results.length.should(eq(1))
-      result = results[0]
-      result["canned"].should(eq(true))
-      rev_result = Resource::lookup_resource(result["review"])
-      rev_result.data["review"]["design"].should(eq(-1))
-      rev_result.data["review"]["correctness"].should(eq(-1))
+      bad_review =
+      {
+        done: true,
+        design: -1,
+        correctness: -1,
+        correctnessComments: "Not very correct",
+        designComments: "Bad spacing and naming"
+      }
+      good_review = {
+        done: true,
+        design: 1,
+        correctness: 1,
+        correctnessComments: "Great job!",
+        designComments: "Great spacing and naming"
+      }
+      test("good", bad_review)
+      test("bad", good_review)
     end
 
 
