@@ -66,21 +66,27 @@ module Resource
     end
   end
 
+  def save_canned_feedback(feedback_resource, message)
+    save_resource(feedback_resource, JSON.dump({
+        canned: true,
+        message: message
+      }))
+  end
+
   @@triggers = {
     "good" => Proc.new do |data, args|
       feedback_resource = data["feedback"]
       if ((data["review"]["correctness"].to_f < 0) or
           (data["review"]["design"].to_f < 0))
-        save_resource(feedback_resource, JSON.dump({
-            canned: true,
-            message:
-              "You may have made a mistake (or been lazy)!  This was a good solution written by the course staff, and you marked it as incorrect or badly designed."
-          }))
+        save_canned_feedback(
+            feedback_resource, 
+            "You may have made a mistake (or been lazy)!  This was a good solution written by the course staff, and you marked it as incorrect or badly designed."
+          )
       else
-        save_resource(feedback_resource, JSON.dump({
-            canned: true,
-            message: "Good job!  This was a good solution written by the course staff, and you identified it as such."
-          }))
+        save_canned_feedback(
+            feedback_resource, 
+            "Good job!  This was a good solution written by the course staff, and you identified it as such."
+          )
       end
       data
     end,
@@ -88,16 +94,15 @@ module Resource
       feedback_resource = data["feedback"]
       if ((data["review"]["correctness"].to_f > 0) or
           (data["review"]["design"].to_f > 0))
-        save_resource(feedback_resource, {
-            canned: true,
-            message:
-              "You may have made a mistake (or been lazy)!  This was a bad solution written by the course staff, and you marked it as correct or well designed."
-          })
+        save_canned_feedback(
+            feedback_resource, 
+            "You may have made a mistake (or been lazy)!  This was a bad solution written by the course staff, and you marked it as correct or well designed."
+          )
       else
-        save_resource(feedback_resource, {
-            canned: true,
-            message: "Good job!  This was a bad solution written by the course staff, and you identified it as such."
-          })
+        save_canned_feedback(
+            feedback_resource, 
+            "Good job!  This was a bad solution written by the course staff, and you identified it as such."
+          )
       end
       data
     end,
@@ -331,7 +336,7 @@ module Resource
           contents = data
         end
         return Normal.new({file: contents})
-      else
+     else
         # you can't create a gitref...
         return Invalid.new
       end
@@ -592,5 +597,6 @@ module_function :assign_reviews,
   :get_submissions,
   :get_student_submissions,
   :assign_canned_review?,
-  :canned_key
+  :canned_key,
+  :save_canned_feedback
 end

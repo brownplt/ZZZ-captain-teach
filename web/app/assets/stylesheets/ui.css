@@ -216,19 +216,19 @@
 }
 
 .lineError {
-  background-color: #fcc;
+  background-color: #fcc !important;
 }
 
 .lineSuccess {
-  background-color: #cfc;
+  background-color: #cfc !important;
 }
 
-.lineError.cptteach-fixed {
-  background-color: #cfc;
+.lineError + pre .cptteach-fixed {
+  background-color: #fcc;
 }
 
-.lineError.cptteach-fixed {
-  background-color: #f66;
+.lineSuccess + pre .cptteach-fixed {
+  background-color: #cfc;
 }
 
 .saveIndicator {

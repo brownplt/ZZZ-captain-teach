@@ -21,13 +21,15 @@ if Rails.env.production?
   sorting = PathRef.create!(:user_repo => captains_log, :path => "tutorial.jrny")
   sorting_assignment = Assignment.create!({
     :path_ref => sorting,
-    :course => course
+    :course => course,
+    :release => DateTime::now
   })
 
   sorting1 = PathRef.create!(:user_repo => captains_log, :path => "tutorial-test-dont-click-here.jrny")
   sorting1_assignment = Assignment.create!({
     :path_ref => sorting1,
-    :course => course
+    :course => course,
+    :release => DateTime::now
   })
 end
 
@@ -132,6 +134,13 @@ if Rails.env.development?
     :release => DateTime::now
   })
 
+  pathlol = PathRef.create!(:user_repo => captains_log, :path => "pre-course-survey.jrny")
+  example_assignmentlol = Assignment.create!({
+    :path_ref => pathlol,
+    :course => course,
+    :release => DateTime::now
+  })
+
 
   user1 = User.create!(:email => "henry@cs.brown.edu")
   course.students << user1
@@ -144,6 +153,4 @@ if Rails.env.development?
 
   
   APP_URL = "http://localhost:3000"
-  print("Visit the demo course at: #{APP_URL}/course/#{course.id}\n")
-
-end
+  print("Visit the demo course at: #{APP_URL}/course/#{course.id}\n") end

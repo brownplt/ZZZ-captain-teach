@@ -26,7 +26,7 @@ class AssignmentController < ApplicationController
         @html = "Not logged in"
       else
         path = AssignmentController::path_ref_to_path(assignment.path_ref)
-        @html = AssignmentController::path_to_html(ct_current_user, params[:uid], path)
+        @html = AssignmentController::path_to_html(ct_current_user, path, params[:uid])
       end
     end
   end
@@ -76,8 +76,21 @@ class AssignmentController < ApplicationController
   end
 
 
-  def self.path_to_html(user, path, assignment_id, read_only = false)
-    scribbled = Scribble::render(path)
+  def self.path_to_html(user, path, read_only = false, assignment_id = false)
+    cache_id = nil
+    existing = nil
+    if assignment_id
+      cache_id = "scribbled_#{assignment_id}"
+      existing = Rails.cache.read("scribbled_#{assignment_id}")
+    end
+    if not (existing.nil?)
+      scribbled = existing
+    else
+      scribbled = Scribble::render(path)
+      if assignment_id
+        Rails.cache.write(cache_id, scribbled)
+      end
+    end
     doc = Nokogiri::HTML(scribbled)
     main = doc.css('div.main').first
     if main.nil?
@@ -139,7 +152,7 @@ class AssignmentController < ApplicationController
   end
 
   def self.path_to_json(user, path)
-    html = Nokogiri::HTML(AssignmentController.path_to_html(user, path, "unknown_assignment_id_path_to_json"))
+    html = Nokogiri::HTML(AssignmentController.path_to_html(user, path))
     html.css("[data-ct-node='1']").map do |node|
       if not node["data-parts"].nil?
         {
