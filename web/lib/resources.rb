@@ -107,10 +107,11 @@ module Resource
       data
     end,
     "notify_recipient" => Proc.new do |data, args|
+      puts "args: #{args}\n"
       UserMailer.review_email(
           User.find_by(:id => args["blob_user_id"]),
           Assignment.find_by(:uid => args["assignment_id"]),
-          data["review"]
+          args["type"]
         )
       data
     end
@@ -466,7 +467,7 @@ module Resource
     end
   end
 
-  def assign_reviews(user, ref, type, reviews)
+  def assign_reviews(user, ref, type, reviews, assignment_id)
     if reviews.nil? or reviews == 0
       return
     else
@@ -489,6 +490,8 @@ module Resource
               {
                 blob_user_id: user.id,
                 key: sub.user_id,
+                type: type,
+                assignment_id: assignment_id,
                 payload: {
                   submission_id: sub.id,
                   content: sub.resource,
@@ -518,6 +521,8 @@ module Resource
             part_ref,
             {
               blob_user_id: sub.user_id,
+              type: type,
+              assignment_id: assignment_id,
               key: user.id,
               triggers: triggers,
               payload: payload
@@ -562,7 +567,7 @@ module Resource
         )
 
         if not_already_submitted
-          assign_reviews(user, ref, step_type, args["reviews"])
+          assign_reviews(user, ref, step_type, args["reviews"], args["assignment_id"])
         end
         return Success.new
       end

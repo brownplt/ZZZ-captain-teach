@@ -102,7 +102,11 @@ class AssignmentController < ApplicationController
       if node["data-resources"]
         resources = JSON.parse(node["data-resources"])
         resources.keys.each do |k|
-          r = AssignmentController.resource_from_dict(resources[k], user.id)
+          resource_dict = resources[k]
+          if assignment_id
+            resource_dict["args"]["assignment_id"] = assignment_id
+          end
+          r = AssignmentController.resource_from_dict(resource_dict, user.id)
           if read_only
             r = Resource::read_only(r)
           end

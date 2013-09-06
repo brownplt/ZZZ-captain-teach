@@ -9,7 +9,31 @@ describe ResourceController do
     @file = "blah"
     @user.user_repo.create_file("foo", @file,
                                 "message", DEFAULT_GIT_USER)
+
+    @c = Course.create!(:title => "Foo Talkin Real Good")
+    email = "teacher@talkinthefoo.org"
+    @teacher = User.create!(:email => email)
+    @pr = PathRef.create!(
+      :user_repo => @teacher.user_repo,
+      :path => "test-assignment.jrny"
+    )
+    @pr.create_file("#lang scribble/base\n", "Test assignment", DEFAULT_GIT_USER)
+    @a = Assignment.create!(:path_ref => @pr, :course => @c)
   end
+
+  before(:each) do
+    ActionMailer::Base.deliveries.clear
+  end
+
+  after(:all) do
+    @teacher.delete
+    @c.delete
+    @b.delete
+    @user.delete
+    @pr.delete
+    @a.delete
+  end
+
 
   describe "Blobs" do
 
@@ -375,9 +399,9 @@ describe ResourceController do
     def create_sub_known(id, type, known)
       u = User.find_by(:id => id)
       if u.nil?
-        User.create!(:id => id)
+        u = User.create!(:id => id, :email => "submission-user-#{id}")
       end
-      Submitted.create!(
+      s = Submitted.create!(
         :submission_type => type,
         :activity_id => @activity_id,
         :resource => Resource::mk_resource('b', 'r', @activity_id, {}, id),
@@ -385,6 +409,7 @@ describe ResourceController do
         :submission_time => Time.zone.now,
         :known => known
       )
+      [u, s]
     end
 
     def create_sub_type(id, type)
@@ -421,20 +446,21 @@ describe ResourceController do
     end
 
     it "should allow submission, and set up reviews" do
-      part_ref = AssignmentController.part_ref(@activity_id, "check")
+      step_type = "check"
+      part_ref = AssignmentController.part_ref(@activity_id, step_type)
 
-      create_sub(102)
-      create_sub(89)
-      create_sub(35)
-      create_sub(23)
+      u1, s1 = create_sub(102)
+      u2, s2 = create_sub(89)
+      u3, s3 = create_sub(35)
+      u4, s4 = create_sub(23)
 
       b = Blob.create!(:user => @user, :ref => @activity_id, :data => "{}")
       resource_to_submit =
-        Resource::mk_resource('b', 'r', @activity_id, { reviews: 3 }, @user.id)
+        Resource::mk_resource('b', 'r', @activity_id, { reviews: 3, assignment_id: @a.uid }, @user.id)
 
       post :submit,
         :resource => resource_to_submit,
-        :data => JSON.dump({ step_type: "check" }),
+        :data => JSON.dump({ step_type: step_type }),
         :format => :json
       response.response_code.should(eq(200))
 
@@ -464,15 +490,11 @@ describe ResourceController do
       check_feedback(102, r1[3]["payload"]["feedback"], part_ref)
       r1[4].should(eq(@user))
 
-      print "Done with user 1\n"
-
       r2[0].should(eq("inbox-for-write"))
       r2[2].should(eq(part_ref))
       r2[3]["blob_user_id"].should(eq(89))
       check_feedback(89, r2[3]["payload"]["feedback"], part_ref)
       r2[4].should(eq(@user))
-
-      print "Done with user 2\n"
 
       r3[0].should(eq("inbox-for-write"))
       r3[2].should(eq(part_ref))
@@ -480,13 +502,34 @@ describe ResourceController do
       check_feedback(35, r3[3]["payload"]["feedback"], part_ref)
       r3[4].should(eq(@user))
 
+      post :save,
+        :resource => data[0]["save_review"],
+        :data => JSON.dump({
+            review: {
+              done: true,
+              design: -1,
+              correctness: -1,
+              designComments: "not so great",
+              correctnessComments: "got answer wrong"
+            },
+            resource: Resource::read_only(resource_to_submit)
+          }),
+        :format => :json
+
+      ActionMailer::Base.deliveries.length.should(eq(1))
+      notification = ActionMailer::Base.deliveries.last
+      notification.to[0].should(eq(u1.email))
+      notification.body.should(match("You've received a new review"))
+      notification.body.should(match(step_type))
+      notification.body.should(match(@a.uid))
+
     end
 
     it "should assign reviews to a second user submitting" do
       @second_user = User.create!
       b = Blob.create!(:user => @user, :ref => @activity_id, :data => "{}")
       resource_to_submit =
-        Resource::mk_resource('b', 'r', @activity_id, { reviews: 3 }, @user.id)
+        Resource::mk_resource('b', 'r', @activity_id, { reviews: 3, assignment_id: @a.uid }, @user.id)
 
       post :submit,
         :resource => resource_to_submit,
@@ -495,7 +538,7 @@ describe ResourceController do
 
       b2 = Blob.create!(:user => @second_user, :ref => @activity_id, :data => "{}")
       second_resource_to_submit =
-        Resource::mk_resource('b', 'r', @activity_id, { reviews: 3 },
+        Resource::mk_resource('b', 'r', @activity_id, { reviews: 3, assignment_id: @a.uid },
                               @second_user.id)
 
       post :submit,
@@ -522,7 +565,7 @@ describe ResourceController do
 
       b = Blob.create!(:user => @user, :ref => @activity_id, :data => "{}")
       resource_to_submit =
-        Resource::mk_resource('b', 'r', @activity_id, { reviews: 3 }, @user.id)
+        Resource::mk_resource('b', 'r', @activity_id, { reviews: 3, assignment_id: @a.uid }, @user.id)
 
       post :submit,
         :resource => resource_to_submit,
@@ -575,7 +618,7 @@ describe ResourceController do
 
         b = Blob.create!(:user => @user, :ref => @activity_id, :data => "{}")
         resource_to_submit =
-          Resource::mk_resource('b', 'r', @activity_id, { reviews: 2 }, @user.id)
+          Resource::mk_resource('b', 'r', @activity_id, { reviews: 2, assignment_id: @a.uid }, @user.id)
 
         post :submit,
           :resource => resource_to_submit,
@@ -609,8 +652,8 @@ describe ResourceController do
         (check_review(id3, r1, part_ref, ["notify_recipient", good_or_bad]) or
           check_review(id3, r2, part_ref, ["notify_recipient", good_or_bad])).should(eq(true))
 
-        (check_review(id1, r1, part_ref, []) or
-          check_review(id1, r2, part_ref, [])).should(eq(true))
+        (check_review(id1, r1, part_ref, ["notify_recipient"]) or
+          check_review(id1, r2, part_ref, ["notify_recipient"])).should(eq(true))
 
         canned_reviews = [r1, r2].select do |r|
           type, perm, ref, args, user = Resource::parse(r)
@@ -707,6 +750,18 @@ describe ResourceController do
       s = Submitted.first
       s.resource.should(eq(Resource::read_only(resource_to_submit)))
       s.user_id.should(eq(@user.id))
+    end
+
+    it "should send a single email notification to the right person" do
+      submitter = User.create!(:email => "submitter#{User.count + 1}@example.com")
+      reviewer = User.create!(:email => "reviewer#{User.count + 1}@example.com")
+      resource_to_submit =
+        Resource.mk_resource('b', 'rw', @activity_id, {}, @user.id)
+      post :submit,
+        :resource => resource_to_submit,
+        :data => JSON.dump({ step_type: "done" }),
+        :format => :json
+
     end
   end
 

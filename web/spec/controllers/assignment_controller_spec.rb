@@ -16,6 +16,7 @@ describe AssignmentController do
     email = "dbp@not-a-foo-talker-yet.biz"
     @not_the_teacher = User.create!(:email => email)
     @c.students << @not_the_teacher
+    @c.save!
   end
 
   after(:all) do
