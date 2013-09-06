@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130904200813) do
+ActiveRecord::Schema.define(version: 20130906021432) do
 
   create_table "abuse_records", force: true do |t|
     t.integer  "user_id"
@@ -20,7 +20,7 @@ ActiveRecord::Schema.define(version: 20130904200813) do
     t.datetime "updated_at"
   end
 
-  add_index "abuse_records", ["user_id"], name: "index_abuse_records_on_user_id"
+  add_index "abuse_records", ["user_id"], name: "index_abuse_records_on_user_id", using: :btree
 
   create_table "assignments", force: true do |t|
     t.string   "uid"
@@ -31,7 +31,7 @@ ActiveRecord::Schema.define(version: 20130904200813) do
     t.datetime "release"
   end
 
-  add_index "assignments", ["course_id"], name: "index_assignments_on_course_id"
+  add_index "assignments", ["course_id"], name: "index_assignments_on_course_id", using: :btree
 
   create_table "blobs", force: true do |t|
     t.string   "uid"
@@ -42,7 +42,7 @@ ActiveRecord::Schema.define(version: 20130904200813) do
     t.datetime "updated_at"
   end
 
-  add_index "blobs", ["user_id"], name: "index_blobs_on_user_id"
+  add_index "blobs", ["user_id"], name: "index_blobs_on_user_id", using: :btree
 
   create_table "courses", force: true do |t|
     t.string   "title"
@@ -59,8 +59,8 @@ ActiveRecord::Schema.define(version: 20130904200813) do
     t.integer  "git_ref_id"
   end
 
-  add_index "editors", ["git_ref_id"], name: "index_editors_on_git_ref_id"
-  add_index "editors", ["path_ref_id"], name: "index_editors_on_path_ref_id"
+  add_index "editors", ["git_ref_id"], name: "index_editors_on_git_ref_id", using: :btree
+  add_index "editors", ["path_ref_id"], name: "index_editors_on_path_ref_id", using: :btree
 
   create_table "git_refs", force: true do |t|
     t.integer  "user_repo_id"
@@ -79,7 +79,7 @@ ActiveRecord::Schema.define(version: 20130904200813) do
     t.text     "resource"
   end
 
-  add_index "inbox_read_events", ["user_id"], name: "index_inbox_read_events_on_user_id"
+  add_index "inbox_read_events", ["user_id"], name: "index_inbox_read_events_on_user_id", using: :btree
 
   create_table "notifications", force: true do |t|
     t.integer  "user_id"
@@ -89,7 +89,7 @@ ActiveRecord::Schema.define(version: 20130904200813) do
     t.datetime "updated_at"
   end
 
-  add_index "notifications", ["user_id"], name: "index_notifications_on_user_id"
+  add_index "notifications", ["user_id"], name: "index_notifications_on_user_id", using: :btree
 
   create_table "path_refs", force: true do |t|
     t.integer  "user_repo_id"
@@ -107,9 +107,9 @@ ActiveRecord::Schema.define(version: 20130904200813) do
     t.text     "resource"
   end
 
-  add_index "review_assignments", ["activity_id"], name: "index_review_assignments_on_activity_id"
-  add_index "review_assignments", ["reviewee_id"], name: "index_review_assignments_on_reviewee_id"
-  add_index "review_assignments", ["reviewer_id"], name: "index_review_assignments_on_reviewer_id"
+  add_index "review_assignments", ["activity_id"], name: "index_review_assignments_on_activity_id", using: :btree
+  add_index "review_assignments", ["reviewee_id"], name: "index_review_assignments_on_reviewee_id", using: :btree
+  add_index "review_assignments", ["reviewer_id"], name: "index_review_assignments_on_reviewer_id", using: :btree
 
   create_table "reviews", force: true do |t|
     t.integer  "review_assignment_id"
@@ -119,8 +119,8 @@ ActiveRecord::Schema.define(version: 20130904200813) do
     t.datetime "updated_at"
   end
 
-  add_index "reviews", ["path_ref_id"], name: "index_reviews_on_path_ref_id"
-  add_index "reviews", ["review_assignment_id"], name: "index_reviews_on_review_assignment_id"
+  add_index "reviews", ["path_ref_id"], name: "index_reviews_on_path_ref_id", using: :btree
+  add_index "reviews", ["review_assignment_id"], name: "index_reviews_on_review_assignment_id", using: :btree
 
   create_table "students_courses", id: false, force: true do |t|
     t.integer "user_id"
@@ -139,7 +139,7 @@ ActiveRecord::Schema.define(version: 20130904200813) do
     t.string   "known",           default: "unknown", null: false
   end
 
-  add_index "submitteds", ["user_id"], name: "index_submitteds_on_user_id"
+  add_index "submitteds", ["user_id"], name: "index_submitteds_on_user_id", using: :btree
 
   create_table "teachers_courses", id: false, force: true do |t|
     t.integer "user_id"
@@ -159,8 +159,9 @@ ActiveRecord::Schema.define(version: 20130904200813) do
     t.integer  "user_repo_id"
     t.boolean  "is_test"
     t.string   "role"
+    t.boolean  "send_email",   default: true
   end
 
-  add_index "users", ["user_repo_id"], name: "index_users_on_user_repo_id"
+  add_index "users", ["user_repo_id"], name: "index_users_on_user_repo_id", using: :btree
 
 end

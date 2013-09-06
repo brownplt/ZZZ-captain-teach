@@ -30,6 +30,7 @@ App::Application.routes.draw do
   get 'submitted/:id/set_unknown' => 'submitted#unknown', :as => :submitted_unknown
 
   resources :user
+  post 'user/set_send_email' => 'user#set_send_email', :as => :set_send_email
   get 'user/:id/make_staff' => 'user#make_staff', :as => :make_staff
   get 'user/:id/unmake_staff' => 'user#unmake_staff', :as => :unmake_staff
 

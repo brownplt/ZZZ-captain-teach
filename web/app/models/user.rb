@@ -32,6 +32,14 @@ class User < ActiveRecord::Base
     self.role == "admin"
   end
 
+  def enable_email
+    self.send_email = true
+  end
+
+  def disable_email
+    self.send_email = false
+  end
+
   private
 
   def create_user_repo

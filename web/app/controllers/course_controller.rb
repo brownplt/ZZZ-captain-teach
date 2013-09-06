@@ -10,6 +10,7 @@ class CourseController < ApplicationController
 
   def index
     if current_user
+      @user = current_user
       @student_courses = current_user.student_courses
       @teacher_courses = current_user.teacher_courses
     else
