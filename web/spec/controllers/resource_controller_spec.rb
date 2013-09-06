@@ -523,6 +523,47 @@ describe ResourceController do
       notification.body.should(match(step_type))
       notification.body.should(match(@a.uid))
 
+      # Test for defaults on users in production
+      u2.send_email = nil
+      u2.save!
+      ActionMailer::Base.deliveries.clear
+
+      post :save,
+        :resource => data[1]["save_review"],
+        :data => JSON.dump({
+            review: {
+              done: true,
+              design: 1,
+              correctness: 1,
+              designComments: "not so great",
+              correctnessComments: "got answer wrong"
+            },
+            resource: Resource::read_only(resource_to_submit)
+          }),
+        :format => :json
+
+      ActionMailer::Base.deliveries.length.should(eq(0))
+
+      # Make sure email isn't sent to false users, also
+      u3.send_email = false
+      u3.save!
+      ActionMailer::Base.deliveries.clear
+
+      post :save,
+        :resource => data[2]["save_review"],
+        :data => JSON.dump({
+            review: {
+              done: true,
+              design: 2,
+              correctness: 2,
+              designComments: "Fantastic",
+              correctnessComments: "You're awesome"
+            },
+            resource: Resource::read_only(resource_to_submit)
+          }),
+        :format => :json
+
+      ActionMailer::Base.deliveries.length.should(eq(0))
     end
 
     it "should assign reviews to a second user submitting" do

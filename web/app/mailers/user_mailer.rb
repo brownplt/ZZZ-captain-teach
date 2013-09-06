@@ -2,7 +2,7 @@ class UserMailer < ActionMailer::Base
   default from: FROM_EMAIL
 
   def review_email(user, assignment, step)
-    if user.send_email
+    if user.send_email and not (user.send_email.nil?)
       @user = user
       @assignment = assignment
       @step = step
