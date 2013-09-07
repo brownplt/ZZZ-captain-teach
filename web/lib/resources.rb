@@ -110,7 +110,7 @@ module Resource
       puts "args: #{args}\n"
       UserMailer.review_email(
           User.find_by(:id => args["blob_user_id"]),
-          Assignment.find_by(:uid => args["assignment_id"]),
+          args["assignment_id"],
           args["type"]
         )
       data

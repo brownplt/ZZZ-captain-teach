@@ -26,7 +26,7 @@ class AssignmentController < ApplicationController
         @html = "Not logged in"
       else
         path = AssignmentController::path_ref_to_path(assignment.path_ref)
-        @html = AssignmentController::path_to_html(ct_current_user, path, params[:uid])
+        @html = AssignmentController::path_to_html(ct_current_user, path, false, params[:uid])
       end
     end
   end
@@ -45,7 +45,7 @@ class AssignmentController < ApplicationController
           @html = AssignmentController::path_to_grade_html(user, params[:uid], path)
           @gradee_email = user.email
         else
-          application_not_found("No access to assignment")
+          application_not_found("No access to assignment by #{ct_current_user.email}")
         end
       end
     end
@@ -171,7 +171,7 @@ class AssignmentController < ApplicationController
   end
 
   def self.path_to_grade_html(user, uid, path)
-    self.path_to_html(user, path, uid, true)
+    self.path_to_html(user, path, true, uid)
   end
 
 end

@@ -10,7 +10,20 @@ describe AssignmentController do
       :user_repo => @teacher.user_repo,
       :path => "test-assignment.jrny"
     )
-    @pr.create_file("#lang scribble/base\n", "Test assignment", DEFAULT_GIT_USER)
+    @pr.create_file('
+#lang scribble/base #test
+
+@(require ct-scribble/ct-lib)
+
+@journey{034852b4-f93e-11e2-b6ba-cf7c3de49d69}
+
+@title{Function Definition With Review}
+
+@function-reviewable[\'include-run "1d47760e-f93e-11e2-a40e-8f0fb1c03259"]{
+  @header{foo(x):}
+  @check{}
+}
+', "Test assignment", DEFAULT_GIT_USER)
     @a = Assignment.create!(:path_ref => @pr, :course => @c)
     @c.teachers << @teacher
     email = "dbp@not-a-foo-talker-yet.biz"
@@ -51,14 +64,32 @@ describe AssignmentController do
   end
 
   describe "Scribble" do
-    it "should have a resource for getting reviews" do
+    before(:all) do
       o = Object.new
       def o.path
         scribble_file("function_with_review.jrny")
       end
-      html = AssignmentController.path_to_html(@not_the_teacher, o, "unknown_assignment_id")
+      html = AssignmentController.path_to_html(@not_the_teacher, o, false, "unknown_assignment_id")
+      @doc = Nokogiri::HTML(html)
+    end
+
+    it "should have a resource for saving" do
+      controller.login_browserid @not_the_teacher.email
+      get :get_assignment, :uid => @a.uid
+      html = controller.instance_variable_get(:@html)
       doc = Nokogiri::HTML(html)
-      node = doc.css("[data-parts]")[0]
+      node = doc.css("[data-resources]")[0]
+      resources = JSON.parse(node["data-resources"])
+      type, perm, ref, args, user = Resource::parse(resources["path"])
+      type.should(eq("p"))
+      perm.should(eq("rw"))
+      user.should(eq(@not_the_teacher))
+      args.should(eq({"assignment_id" => @a.uid, "reviews" => 2}))
+      controller.logout_browserid
+    end
+
+    it "should have a resource for getting reviews" do
+      node = @doc.css("[data-parts]")[0]
       parts = JSON.parse(node["data-parts"])
 
       check_part = parts[0]
