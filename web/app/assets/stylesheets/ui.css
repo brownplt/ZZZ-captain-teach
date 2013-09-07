@@ -1,3 +1,10 @@
+.main {
+  background-color: #fff;
+  padding: 20px;
+  font-family: Georgia, serif;
+  line-height: 1.5;
+}
+
 #REPL .tabPanels .tab {
 }
 
@@ -250,7 +257,7 @@
     color: #eee;
     text-align: center;
     margin: 3px 3px 3px auto;
-    padding: 5px;
+    padding: 1px 5px;
 }
 
 .blueButton:hover {

@@ -32,6 +32,7 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 .inlineExample {
     font-family: monospace;
     padding: 0 2px;
+    border: 1px solid #ccc;
 }
 
 /* from http://codemirror.net/demo/resize.html */
