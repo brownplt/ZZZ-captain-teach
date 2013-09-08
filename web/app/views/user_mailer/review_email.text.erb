@@ -1,9 +1,7 @@
 You've received a new review on your submitted program, for the "<%= @step %>"
 step.
 
-See it by visiting the assignment at 
-
-<%= url_for {controller: "assignment", action: "get_assignment", uid: @assignment_id} %>
+See it by visiting the assignment <%= link_to "here", {controller: "assignment", action: "get_assignment", uid: @assignment_id} %>.
 
 --
 
