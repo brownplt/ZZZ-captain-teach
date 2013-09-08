@@ -554,19 +554,18 @@ module Resource
         read_only_resource = Resource::read_only(resource_versions[0][:resource])
         not_already_submitted = Submitted.find_by(
           :user => user,
-          :resource => read_only_resource,
           :activity_id => ref,
           :submission_type => step_type
         ).nil?
-        submitted = Submitted.create!(
-          :user => user,
-          :resource => read_only_resource,
-          :activity_id => ref,
-          :submission_type => step_type, #TODO(joe): review -- allow client-chosen type?
-          :submission_time => Time.zone.now
-        )
 
         if not_already_submitted
+          submitted = Submitted.create!(
+            :user => user,
+            :resource => read_only_resource,
+            :activity_id => ref,
+            :submission_type => step_type, #TODO(joe): review -- allow client-chosen type?
+            :submission_time => Time.zone.now
+          )
           assign_reviews(user, ref, step_type, args["reviews"], args["assignment_id"])
         end
         return Success.new

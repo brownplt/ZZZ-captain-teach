@@ -566,6 +566,37 @@ describe ResourceController do
       ActionMailer::Base.deliveries.length.should(eq(0))
     end
 
+    it "should not create two submissions on double submission" do
+      b = Blob.create!(:user => @user, :ref => @activity_id, :data => "{}")
+      resource_to_submit =
+        Resource::mk_resource('b', 'r', @activity_id, {}, @user.id)
+
+      post :submit,
+        :resource => resource_to_submit,
+        :data => JSON.dump({ step_type: "done" }),
+        :format => :json
+      response.response_code.should(eq(200))
+
+      s = Submitted.last
+      s.resource.should(eq(resource_to_submit))
+      s.user_id.should(eq(@user.id))
+      s.submission_type.should(eq("done"))
+      s.activity_id.should(eq(@activity_id))
+
+      count_before = Submitted.count
+
+      post :submit,
+        :resource => resource_to_submit,
+        :data => JSON.dump({ step_type: "done" }),
+        :format => :json
+      response.response_code.should(eq(200))
+
+      count_after = Submitted.count
+
+      count_before.should(eq(count_after))
+
+    end
+
     it "should assign reviews to a second user submitting" do
       @second_user = User.create!
       b = Blob.create!(:user => @user, :ref => @activity_id, :data => "{}")
