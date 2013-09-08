@@ -1,9 +1,13 @@
-You've received a new review on your submitted program, for the "<%= @step %>
+You've received a new review on your submitted program, for the "<%= @step %>"
 step.
 
 See it by visiting the assignment at 
 
-<%= link_to "thing", {controller: "assignment", action: "get_assignment", uid: @assignment_id} %>
+<%= url_for {controller: "assignment", action: "get_assignment", uid: @assignment_id} %>
 
-Happy testing,
-The Captain Teach Staff
+--
+
+This is an automated message from Captain Teach.
+
+If you believe you received this message in error, simply reply to this email.
+
