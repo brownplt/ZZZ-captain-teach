@@ -1,3 +1,11 @@
+<h3>Options</h3>
+<div class="options-box">
+<%= form_tag(set_send_email_path) %>
+<%= label_tag(:send_email, "Send me email notifications about reviews") %>
+<%= check_box_tag "send_email", "send_email", @user.send_email %>
+<%= submit_tag("Update") %>
+</div>
+
 <% if @student_courses.length != 0 %>
   <h3>Courses I'm Taking:</h3>
   <% @student_courses.each do |c| %>
