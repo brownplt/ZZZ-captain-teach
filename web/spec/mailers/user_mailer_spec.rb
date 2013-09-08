@@ -9,6 +9,7 @@ describe UserMailer do
       mail.subject.should == "You've got a review!"
       mail.to.should == [address]
       mail.from.should == [FROM_EMAIL]
+      ActionMailer::Base.deliveries.length.should(eq(1))
     end
 
     it "shouldn't send mail for folks configured to not send mail" do

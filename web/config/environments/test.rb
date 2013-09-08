@@ -39,4 +39,5 @@ end
 
 KEY_FILE = File.expand_path("../../test.key", __FILE__)
 ENCRYPTION = false
+SEND_EMAIL = true
 

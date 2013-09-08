@@ -33,4 +33,5 @@ end
 
 KEY_FILE = File.expand_path("../../development.key", __FILE__)
 ENCRYPTION = true
+SEND_EMAIL = true
 
