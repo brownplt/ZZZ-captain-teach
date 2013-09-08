@@ -333,7 +333,7 @@ function steppedEditor(container, uneditables, options) {
   var steps = options.steps || [];
   var pos = 0;
   var cur = 0;
-  var done = false;
+  var done = options.done ? true : false;
 
   var progress = progressBar(container, steps.length);
 
@@ -394,7 +394,7 @@ function steppedEditor(container, uneditables, options) {
     setCurrentStepTitle(currentSectionTitle, steps[cur]);
     cm.clearGutter(gutterId);
     cm.clearGutter(partGutter);
-    progress.set(pos);
+    progress.set(done ? pos + 1 : pos);
 
     ephemeralWidgets.forEach(function(ew) {
       editor.clearWidgetAt(ew[0], ew[1]);
@@ -422,7 +422,7 @@ function steppedEditor(container, uneditables, options) {
         });
       }
       if (i === cur) {
-        var isSubmittable = cur === pos;
+        var isSubmittable = cur === pos && !done;
         var marker = drawCurrentStepGutterMarker(isSubmittable);
         if (isSubmittable) {
           var submitButton = drawSubmitStepButton(steps[pos]);
@@ -476,8 +476,11 @@ function steppedEditor(container, uneditables, options) {
         cur++;
       }
       pos++;
-      switchTo(cur);
     }
+    else {
+      done = true;
+    }
+    switchTo(cur);
   }
 
   return merge(editor, {
@@ -487,6 +490,7 @@ function steppedEditor(container, uneditables, options) {
     advanceFrom: function(step) {
       var nextStep = _.indexOf(steps, step) + 1;
       if (nextStep >= steps.length) {
+        done = true;
         switchTo(steps.length - 1);
       } else {
         switchTo(nextStep);
@@ -509,11 +513,15 @@ function progressBar(container, numberSteps) {
 
   function setCurrentStep(n) {
     for (var i = 0; i < steps.length; i++) {
-      if (i <= n) {
+      if (i < n) {
         steps[i].addClass("done");
       } else {
         steps[i].removeClass("done");
       }
+    }
+    if (n === steps.length) {
+      progressContainer.empty();
+      progressContainer.append(drawProgressDone());
     }
   }
 

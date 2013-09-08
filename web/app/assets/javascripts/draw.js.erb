@@ -309,6 +309,10 @@ function drawProgressStep(width) {
   return $("<span>").addClass("progressStep").css("width", width + "%");
 }
 
+function drawProgressDone() {
+  return $("<div>").text("You have submitted all parts of this assignment.").addClass("progressDone");
+}
+
 function drawCurrentStepTitle() {
   return $("<h3>");
 }

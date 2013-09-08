@@ -236,6 +236,7 @@ function codeAssignment(container, resources, args) {
         editor.enableAll();
         if (indexOfStep === (resources.steps.length - 1)) {
           status = { done: true, step: step };
+          ct_alert("You have submitted all parts of this assignment.  You can still edit it, and changes you make before the deadline can help your final grade.");
         }
         else {
           status = {
@@ -297,6 +298,7 @@ function codeAssignment(container, resources, args) {
 
     var editorOptions = merge(sharedOptions, {
         initial: activityState.parts,
+        done: currentState.done,
         drawPartGutter: function(stepName, insert) {
           function insertOnce(elt) {
             insert(elt[0]);

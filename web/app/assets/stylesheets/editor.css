@@ -131,6 +131,14 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     background-color: green;
 }
 
+.progressDone {
+    color: green;
+    font-style: italic;
+    text-align: center;
+    width: 50%;
+    margin: auto;
+}
+
 .steppedGutterPart {
     width: 25px;
     padding-right: 3px;
