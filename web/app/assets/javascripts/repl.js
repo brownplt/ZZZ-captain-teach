@@ -144,6 +144,7 @@ function makeRepl(container) {
       CM.getDoc().eachLine(function (line) {
         CM.removeLineClass(line, 'background', 'cptteach-fixed');
       });
+      output.get(0).scrollTop = output.get(0).scrollHeight;
       return handler(result);
     };
   }
@@ -182,7 +183,13 @@ function makeRepl(container) {
         'Ctrl-Up': function(cm) {
           prevItem();
         },
+        'Ctrl-Alt-Up': function(cm) {
+          prevItem();
+        },
         'Ctrl-Down': function(cm) {
+          nextItem();
+        },
+        'Ctrl-Alt-Down': function(cm) {
           nextItem();
         }
       }
@@ -194,7 +201,6 @@ function makeRepl(container) {
 
   var write = function(dom) {
     output.append(dom);
-    output.get(0).scrollTop = output.get(0).scrollHeight;
   };
 
   var clear = function() {
