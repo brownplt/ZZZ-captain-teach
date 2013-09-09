@@ -271,7 +271,7 @@ ref = "foo"
 
     henryPath = henryData[1][:resources]["path"]
     save(henryPath, {
-      status: { step: "append-checks", reviewing: true },
+      status: { step: "append-checks", reviewing: false },
       parts: {
         "append-checks" => "\nappend([1], [2]) is [1,2]\n",
         "append-body" => "\n",
@@ -285,7 +285,7 @@ ref = "foo"
 
     cedricPath = cedricData[1][:resources]["path"]
     save(cedricPath, {
-      status: { step: "append-checks", reviewing: true },
+      status: { step: "append-checks", reviewing: false },
       parts: {
         "append-checks" => "\nappend([1], [1, 3]) is [1,3]",
         "append-body" => "\n",
