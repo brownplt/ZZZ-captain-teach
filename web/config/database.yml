@@ -6,7 +6,7 @@
 development:
   adapter: postgresql
   encoding: utf8
-  database: captain_teach   
+  database: captain_teach_dev
   timeout: 5000 
   user: captain_teach
   password: "captain_teach"
