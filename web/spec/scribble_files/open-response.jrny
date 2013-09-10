@@ -1,0 +1,9 @@
+#lang scribble/base
+
+@(require ct-scribble/ct-lib)
+
+@journey{sample-open-response}
+
+@title{Open Response}
+
+@open-response["open-response-1" 3 "Scope"]
