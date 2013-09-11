@@ -1,6 +1,11 @@
 App::Application.routes.draw do
   root 'static#index'
 
+  # NOTE(dbp 2013-09-11): So noscripters see a useful message.
+  get 'login' => 'static#login'
+  # NOTE(dbp 2013-09-11): Not a bug - login and logout page is the same.
+  get 'logout' => 'static#login'
+
   post 'login' => 'sessions#create'
   post 'logout' => 'sessions#destroy'
 
