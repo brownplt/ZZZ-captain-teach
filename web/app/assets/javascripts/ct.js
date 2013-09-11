@@ -170,7 +170,8 @@ function openResponse(container, resources, args) {
     tabName: "Response",
     runButton: false,
     highlight: false,
-    lineWrap: true
+    lineWrap: true,
+    overrideSectionName: args.name
   };
   args.codeDelimiters = [{type: "code", value: " "}, {type: "code", value: "\n "}];
   return steppedAssignment(container, resources, args, options);
@@ -181,7 +182,8 @@ function codeAssignment(container, resources, args) {
     tabName: "Code",
     runButton: true,
     highlight: true,
-    lineWrap: false
+    lineWrap: false,
+    overrideSectionName: false
   };
   return steppedAssignment(container, resources, args, options);
 }
@@ -326,6 +328,7 @@ function steppedAssignment(container, resources, args, options) {
     }
 
     var editorOptions = merge(sharedOptions, {
+        overrideSectionName: options.overrideSectionName,
         initial: activityState.parts,
         done: currentState.done,
         drawPartGutter: function(stepName, insert) {

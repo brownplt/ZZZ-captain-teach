@@ -115,7 +115,7 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 
 .progressContainer {
     width: 90%;
-    height: 10px;
+    height: 2em;
     padding: 5px;
     text-align: center;
 }

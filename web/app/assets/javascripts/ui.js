@@ -394,9 +394,13 @@ function steppedEditor(container, uneditables, options) {
   var instructionWidgets = [];
   var domUneditableWidgets = [];
 
+  function getCurrentStepName() {
+    return options.overrideSectionName || steps[cur];
+  }
+
   var ephemeralWidgets = [];
   function draw() {
-    setCurrentStepTitle(currentSectionTitle, steps[cur]);
+    setCurrentStepTitle(currentSectionTitle, getCurrentStepName());
     cm.clearGutter(gutterId);
     cm.clearGutter(partGutter);
     progress.set(done ? pos + 1 : pos);
