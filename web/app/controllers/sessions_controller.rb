@@ -15,6 +15,7 @@ class SessionsController < ApplicationController
       head :ok
     end
   rescue StandardError => e
+    Airbrake.notify(e)
     # TODO: distinguish between process failures and invalid assertions
     logger.warn "Failed to verify BrowserID assertion: #{e.message}"
     render status: :forbidden, text: e.message

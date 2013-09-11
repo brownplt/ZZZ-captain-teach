@@ -34,17 +34,6 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  if Rails.env.production?
-    rescue_from Exception, with: :render_500
-  end
-
-  def render_500
-    logger.info.exception.backtrace.join("\n")
-    respond_to do |format|
-
-    end
-  end
-
   def application_not_found(message = "Not Found")
     raise ActionController::RoutingError.new(message)
   end
