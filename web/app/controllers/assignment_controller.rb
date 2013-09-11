@@ -9,7 +9,7 @@ class AssignmentController < ApplicationController
 
   def update_assignment
     assignment = Assignment.find_by(:uid => params[:uid])
-    assignment_require_teacher(@assignment)
+    assignment_require_teacher(assignment)
     assignment.release = Time.local(params[:year], params[:month],
                                     params[:day], params[:hour],
                                     params[:minute])

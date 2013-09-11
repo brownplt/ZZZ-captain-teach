@@ -135,7 +135,7 @@ describe AssignmentController do
 
       parts[0]["type"].should(eq("open-response"))
       or_resource = Resource::parse(parts[0]["read_reviews"])
-      or_resource[2].should(eq(AssignmentController.part_ref(node["data-activity-id"], "response")))
+      or_resource[2].should(eq(AssignmentController.part_ref(node["data-activity-id"], "open-response")))
       or_resource[0].should(eq("inbox-for-read"))
 
     end
