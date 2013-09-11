@@ -14,8 +14,7 @@ class CourseController < ApplicationController
       @student_courses = current_user.student_courses
       @teacher_courses = current_user.teacher_courses
     else
-      @student_courses = []
-      @teacher_courses = []
+      redirect_to root_url
     end
   end
 
@@ -100,7 +99,7 @@ class CourseController < ApplicationController
         }
         User.find_by(:id => the_key[0].to_i)
       elsif data["type"] == "feedback"
-        the_key = b.keys.sort.select { |k| 
+        the_key = b.keys.sort.select { |k|
           b[k] == Resource::lookup_resource(data["review"]["feedback"]).data
         }
         #Resource::lookup_resource(data["review"]["feedback"]).data
