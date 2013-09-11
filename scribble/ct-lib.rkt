@@ -345,11 +345,11 @@
                         (hash
                           'path (mk-resource "p" "rw" id (make-hash (list (cons 'reviews review-count)))))))
                 (cons 'data-parts
-                      (jsexpr->string (list (hash 'type "open-response" 'value "response"))))
+                      (jsexpr->string (list (hash 'type "open-response" 'value "open-response"))))
                 (cons 'data-type "open-response")
                 (cons 'data-args (jsexpr->string
                   (hash 'name a-name
-                        'parts (list (hash 'type "open-response" 'value "response")))))))))
+                        'parts (list (hash 'type "open-response" 'value "open-response")))))))))
    ""))
 
 

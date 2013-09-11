@@ -155,7 +155,7 @@ function codeExample(container, resources, args) {
 
   container.append(codeContainer);
   var cm = makeEditor(codeContainer, {
-      simpleEditor: simple, 
+      simpleEditor: simple,
       initial: code,
       run: namedRunner(makeHighlightingRunCode(RUN_CODE), "example")
    });
@@ -165,13 +165,39 @@ function codeExample(container, resources, args) {
   return { container: container, activityData: {editor: cm} };
 }
 
+function openResponse(container, resources, args) {
+  var options = {
+    tabName: "Response",
+    runButton: false,
+    highlight: false,
+    lineWrap: true
+  };
+  args.codeDelimiters = [{type: "code", value: " "}, {type: "code", value: "\n "}];
+  return steppedAssignment(container, resources, args, options);
+}
+
 function codeAssignment(container, resources, args) {
+  var options = {
+    tabName: "Code",
+    runButton: true,
+    highlight: true,
+    lineWrap: false
+  };
+  return steppedAssignment(container, resources, args, options);
+}
+
+function steppedAssignment(container, resources, args, options) {
   var tabs = createTabPanel(container);
   var editorContainer = drawEditorContainer();
-  tabs.addTab("Code", editorContainer, { cannotClose: true });
+  tabs.addTab(options.tabName, editorContainer, { cannotClose: true });
 
   var saveContainer = drawSaveContainer();
   editorContainer.append(saveContainer);
+
+  var sharedCmOptions = {
+    mode: options.highlight ? "pyret" : null,
+    lineWrapping: options.lineWrap
+  };
 
   var codeDelimiters =
     args.codeDelimiters.map(function (cd) {
@@ -212,10 +238,13 @@ function codeAssignment(container, resources, args) {
       steps.push(elt.name);
     });
     var sharedOptions = {
-      run: namedRunner(makeHighlightingRunCode(RUN_CODE), args.name),
+      run: options.runButton ?
+        namedRunner(makeHighlightingRunCode(RUN_CODE), args.name) :
+        false,
       names: names,
       steps: steps,
-      afterHandlers: {}
+      afterHandlers: {},
+      cmOptions: sharedCmOptions
     };
 
     function getContents() {
@@ -748,7 +777,8 @@ var builders = {
   "code-library": function(container, id, args) {
     ASSIGNMENT_PIECES.push({id: id, code: args.code, mode: args.mode});
     return $("<div>");
-  }
+  },
+  "open-response": openResponse
 };
 
 

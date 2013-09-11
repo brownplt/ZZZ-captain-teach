@@ -428,33 +428,35 @@ ref = "foo"
     user1 = User.find_by(:email => "henry@cs.brown.edu")
     user2 = User.find_by(:email => "cedric@cs.brown.edu")
 
-    henryData = AssignmentController.path_to_json(user1, o)
-    cedricData = AssignmentController.path_to_json(user2, o)
+    henryData = AssignmentController.path_to_json(user1, o)[2]
+    cedricData = AssignmentController.path_to_json(user2, o)[2]
 
-    henryPath = henryData[2][:resources]["path"]
+    henryPath = henryData[:resources]["path"]
     Resource::save_resource(henryPath, JSON.dump({
-      status: { reviewing: false },
-      parts: { response: "" }
+      status: { step: "open-response", reviewing: false },
+      parts: { "open-response" => "\nSomething great!" }
     }))
 
-    cedricPath = cedricData[1][:resources]["path"]
-    Resource::save_resource(cedricPath, JSON.dump({
-      status: { reviewing: false },
-      parts: { response: "" }
-    }))
+    cedricPath = cedricData[:resources]["path"]
+    # Resource::save_resource(cedricPath, JSON.dump({
+    #   status: { step: "open-response", reviewing: false },
+    #   parts: { "open-response" => "\n" }
+    # }))
 
-    henryResources = henryData[2][:resources]
-    cedricResources = cedricData[2][:resources]
+    henryResources = henryData[:resources]
+    henryResources["steps"] = henryData[:parts]
+    cedricResources = cedricData[:resources]
+    cedricResources["steps"] = cedricData[:parts]
 
     @data = JSON.dump({
       user_index: "N/A",
       user1: {
         resources: henryResources,
-        args: henryData[2][:args]
+        args: henryData[:args]
       },
       user2: {
         resources: cedricResources,
-        args: cedricData[2][:args]
+        args: cedricData[:args]
       }
     })
 
