@@ -425,10 +425,14 @@ var testsDesignStatement = "These tests are representative of the possible input
 var funCorrectStatement = "This code correctly implements the desired behavior.";
 var funDesignStatement = "This code is structured well."
 
+var openResponseCorrectStatement = "This response answers the question correctly.";
+var openResponseDesignStatement = "This response is concise and understandable.";
+
 var reviewStatements = {
   "fun-checks": [testsCorrectStatement, testsDesignStatement],
   "body": [funCorrectStatement, funDesignStatement],
-  "data-checks": [dataCorrectStatement, dataDesignStatement]
+  "data-checks": [dataCorrectStatement, dataDesignStatement],
+  "open-response": [openResponseCorrectStatement, openResponseDesignStatement]
 };
 
 function reportAbuse(abuseData, success, failure) {
@@ -480,8 +484,7 @@ function drawModal(content, onClose) {
   $(document).keydown(function(e) {
     if(e.which === 27) { close(); }
   });
-  var contentDiv = $("<p>").text(content); 
+  var contentDiv = $("<p>").text(content);
   container.append(modalClose).append(contentDiv);
   $(document.body).append(container);
 }
-

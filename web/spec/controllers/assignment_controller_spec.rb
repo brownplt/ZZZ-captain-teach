@@ -121,5 +121,24 @@ describe AssignmentController do
 
 
     end
+
+    it "should have a resource for saving the path in open response" do
+      o2 = Object.new
+      def o2.path
+        scribble_file("open-response.jrny")
+      end
+      html2 = AssignmentController.path_to_html(@not_the_teacher, o2, false, "open-response")
+      @doc_or = Nokogiri::HTML(html2)
+
+      node = @doc_or.css("[data-parts]")[0]
+      parts = JSON.parse(node["data-parts"])
+
+      parts[0]["type"].should(eq("open-response"))
+      or_resource = Resource::parse(parts[0]["read_reviews"])
+      or_resource[2].should(eq(AssignmentController.part_ref(node["data-activity-id"], "response")))
+      or_resource[0].should(eq("inbox-for-read"))
+
+    end
   end
+
 end

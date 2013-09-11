@@ -331,6 +331,26 @@
                           (cons 'parts (pairs->json (parts-part-names data)))))))))))
        "")))
 
+(define-syntax-rule (open-response id review-count a-name)
+  (element
+    (style #f
+           (list
+            (alt-tag "div")
+            (attributes
+              (list
+                (cons 'data-ct-node "1")
+                (cons 'data-activity-id (mk-id id))
+                (cons 'data-resources
+                      (jsexpr->string
+                        (hash
+                          'path (mk-resource "p" "rw" id (make-hash (list (cons 'reviews review-count)))))))
+                (cons 'data-parts
+                      (jsexpr->string (list (hash 'type "open-response" 'value "open-response"))))
+                (cons 'data-type "open-response")
+                (cons 'data-args (jsexpr->string
+                  (hash 'name a-name
+                        'parts (list (hash 'type "open-response" 'value "open-response")))))))))
+   ""))
 
 
 

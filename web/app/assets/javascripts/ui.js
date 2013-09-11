@@ -337,12 +337,17 @@ function steppedEditor(container, uneditables, options) {
 
   var progress = progressBar(container, steps.length);
 
+  var cmOptions = {};
+  if (options.cmOptions) {
+    cmOptions = options.cmOptions;
+  }
+
   var cm = makeEditor(
     $(container),
     {
       initial: "",
       run: options.run,
-      cmOptions:  { gutters: [partGutter, gutterId]}
+      cmOptions:  merge({ gutters: [partGutter, gutterId]}, cmOptions)
     }
   );
 
@@ -977,10 +982,10 @@ function readOnlyEditorFromParts(container,
                                  sharedOptions) {
   var cm = makeEditor(
     container,
-    {
+    merge({
       initial: "",
       run: makeHighlightingRunCode(RUN_CODE)
-    }
+    }, sharedOptions)
   );
   var thisEditorOptions = merge(sharedOptions, {
     initial: parts
