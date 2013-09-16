@@ -712,6 +712,9 @@ function makeHighlightingRunCode(codeRunner) {
             },
             function(e) {
               ct_error("Couldn't get trace: ", e);
+              ct_log(err.racketError);
+              var errDom = drawErrorMessage("Error: " + err.racketError._fields[0]);
+              output.append(errDom);
             }
           );
       }

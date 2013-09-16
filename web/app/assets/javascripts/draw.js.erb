@@ -406,6 +406,12 @@ function drawErrorMessageWithLoc(message, link) {
     .append(errorMessage);
 }
 
+function drawErrorMessage(message) {
+  var errorMessage = $("<span>").text(message);
+  return $("<div>").addClass("errorMessage")
+    .append(errorMessage);
+}
+
 function drawErrorLocations(links) {
   var container = $("<div>").addClass("errorLocations");
   links.forEach(function(l) {
