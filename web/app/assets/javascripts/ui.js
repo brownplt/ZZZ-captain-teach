@@ -775,7 +775,7 @@ function makeHighlightingRunCode(codeRunner) {
       if(blockResultsJSON.results.length === 0) {
         whalesongFFI.callPyretFun(
             whalesongFFI.getPyretLib("torepr"),
-            [blockResultsJSON.val],
+            [pyretMaps.get(pyretMaps.toDictionary(obj), "val")],
             function(s) {
               var str = pyretMaps.getPrim(s);
               output.append(jQuery("<span class='repl-output'>").text(str));
