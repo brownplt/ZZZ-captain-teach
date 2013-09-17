@@ -182,7 +182,7 @@ function codeAssignment(container, resources, args) {
     tabName: "Code",
     runButton: true,
     highlight: true,
-    lineWrap: false,
+    lineWrap: true,
     overrideSectionName: false
   };
   return steppedAssignment(container, resources, args, options);
