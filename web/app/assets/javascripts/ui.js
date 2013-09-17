@@ -772,6 +772,19 @@ function makeHighlightingRunCode(codeRunner) {
 
       var blockResultsJSON = pyretMaps.pyretToJSON(obj);
 
+      if(blockResultsJSON.results.length === 0) {
+        whalesongFFI.callPyretFun(
+            whalesongFFI.getPyretLib("torepr"),
+            [blockResultsJSON.val],
+            function(s) {
+              var str = pyretMaps.getPrim(s);
+              output.append(jQuery("<span class='repl-output'>").text(str));
+              output.append(jQuery('<br/>'));
+            }, function(e) {
+              ct_err("Failed to tostring: ", result);
+            });
+        return true;
+      }
 
       blockResultsJSON.results.map(function(result) {
         result.map(function(checkBlockResult) {

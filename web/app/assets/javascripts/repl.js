@@ -171,10 +171,10 @@ function makeRepl(container) {
         evaluator.run('interactions',
                     src,
                     clear,
-                    prettyPrint,
+                    enablePrompt(uiOptions.wrappingReturnHandler(output)),
                     write,
                     enablePrompt(uiOptions.wrappingOnError(output)),
-                    merge(options, _.merge(replOpts, {check: false})));
+                    merge(options, _.merge(replOpts, {check: true})));
       })(code, merge(opts, {name: lastNameRun, cm: lastEditorRun || echoCM}), replOpts);
     },
     initial: "",
