@@ -203,14 +203,14 @@ function drawReview(revData, type, abuseData) {
     rev.append(drawReportAbuse(abuseData))
   }
   return rev.append($("<div>").text(prompts[0]).addClass("likertScoreLabel"))
-    .append($("<div>").text(getLikertLabel(revData.review.design))
-                      .addClass("likertScore"))
-    .append($("<p>").text("Justification: " + revData.review.designComments))
-    .append($("<hr>"))
-    .append($("<div>").text(prompts[1]).addClass("likertScoreLabel"))
     .append($("<div>").text(getLikertLabel(revData.review.correctness))
                       .addClass("likertScore"))
-    .append($("<p>").text("Justification: " + revData.review.correctnessComments));
+    .append($("<p>").text("Justification: " + revData.review.correctnessComments))
+    .append($("<hr>"))
+    .append($("<div>").text(prompts[1]).addClass("likertScoreLabel"))
+    .append($("<div>").text(getLikertLabel(revData.review.design))
+                      .addClass("likertScore"))
+    .append($("<p>").text("Justification: " + revData.review.designComments));
 }
 
 var feedbackPrompt = "This review was helpful";
