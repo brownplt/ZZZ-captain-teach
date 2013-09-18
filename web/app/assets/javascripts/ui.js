@@ -802,9 +802,13 @@ function makeHighlightingRunCode(codeRunner) {
             else {
               messageText = checkBlockResult.err;
             }
-            var loc = checkBlockResult.err.trace[0];
-            errorLink = makeScrollingLocationLink(uiOptions.cm, loc);
-            container.append(drawErrorMessageWithLoc(messageText, errorLink));
+            if(checkBlockResult.err.trace) {
+              var loc = checkBlockResult.err.trace[0];
+              errorLink = makeScrollingLocationLink(uiOptions.cm, loc);
+              container.append(drawErrorMessageWithLoc(messageText, errorLink));
+            } else {
+              container.append(drawErrorMessage(messageText));
+            }
             container.addClass("check-block-failed");
           }
           checkBlockResult.results.forEach(function(individualResult) {
