@@ -30,6 +30,7 @@
      ['include mode]
      ['include-run mode]
      ['run mode]
+     ['library mode]
      ['inert mode]
      ['no-run mode]
      [else (error (format "Invalid mode for code component: ~a" mode))])))

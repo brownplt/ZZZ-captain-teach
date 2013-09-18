@@ -141,7 +141,7 @@ function inlineExample(container, resources, args){
 function codeExample(container, resources, args) {
   var code = args.code;
   var codeContainer = jQuery("<div>");
-  var simple = args.mode === "no-run";
+  var simple = (args.mode === "no-run") || (args.mode === "library");
   if (!simple) {
     var resetButton = drawResetButton();
     container.append(resetButton);
@@ -152,13 +152,18 @@ function codeExample(container, resources, args) {
     });
   }
 
+  var run = namedRunner(makeHighlightingRunCode(RUN_CODE), "example");
 
   container.append(codeContainer);
   var cm = makeEditor(codeContainer, {
       simpleEditor: simple,
       initial: code,
-      run: namedRunner(makeHighlightingRunCode(RUN_CODE), "example")
-   });
+      run: run
+    });
+  
+  if(args.mode === "library") {
+    run(code, {cm: cm}, {check: false});
+  }
 
   ASSIGNMENT_PIECES.push({id: resources, editor: cm, mode: args.mode});
 
