@@ -747,6 +747,16 @@ function makeHighlightingRunCode(codeRunner) {
           .append("<br/>");
       }
       function drawException(name, exception, location) {
+        if(typeof exception === "string") {
+          return $('<div>')
+            .addClass("check check-failure")
+            .append($("<p>").text(name))
+            .append($("<p>").text(exception))
+            .append("<br/>")
+            .append($("<span>").text("In check starting at:"))
+            .append("<br/>")
+            .append(makeScrollingLocationLink(uiOptions.cm, location.value));
+        }
         var link = $("<span>");
         var loc = exception.trace[0] || location.value;
         if(loc) {
