@@ -76,11 +76,10 @@ module Resource
   @@triggers = {
     "good" => Proc.new do |data, args|
       feedback_resource = data["feedback"]
-      if ((data["review"]["correctness"].to_f < 0) or
-          (data["review"]["design"].to_f < 0))
+      if (data["review"]["correctness"].to_f < 0)
         save_canned_feedback(
             feedback_resource, 
-            "You may have made a mistake (or been lazy)!  This was a good solution written by the course staff, and you marked it as incorrect or badly designed."
+            "You may have made a mistake!  This was a good solution written by the course staff, and you marked it as incorrect."
           )
       else
         save_canned_feedback(
@@ -92,11 +91,10 @@ module Resource
     end,
     "bad" => Proc.new do |data, args|
       feedback_resource = data["feedback"]
-      if ((data["review"]["correctness"].to_f > 0) or
-          (data["review"]["design"].to_f > 0))
+      if (data["review"]["correctness"].to_f > 0)
         save_canned_feedback(
             feedback_resource, 
-            "You may have made a mistake (or been lazy)!  This was a bad solution written by the course staff, and you marked it as correct or well designed."
+            "You may have made a mistake!  This was a bad solution written by the course staff, and you marked it as correct."
           )
       else
         save_canned_feedback(
