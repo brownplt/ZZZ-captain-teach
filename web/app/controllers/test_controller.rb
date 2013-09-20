@@ -402,7 +402,7 @@ ref = "foo"
 
     activity_id = user_for_test_data[1][:id]
 
-    create_sub_known(ta.id, activity_id, create_data("append() is append()"), "append-checks", "good")
+    create_sub_known(ta.id, activity_id, create_data("append() is append()"), "append-checks", "bad")
     create_sub(submitter1.id, activity_id, create_data("append from submitter1"))
     create_sub(submitter2.id, activity_id, create_data("append from submitter2"))
 
@@ -462,87 +462,6 @@ ref = "foo"
 
   end
 
-  def canned_feedback_test
-
-    def create_sub_known(id, activity_id, data, type, known)
-      u = User.find_by(:id => id)
-      if u.nil?
-        User.create!(:id => id)
-      end
-      r = Resource::mk_resource('b', 'rw', activity_id, {}, id)
-      resp = Resource::save_resource(r, JSON.dump({:file => JSON.dump(data) }))
-      if not resp.instance_of?(Resource::Success)
-        raise Exception.new("Failed to save resource: #{Resource::parse(r)}")
-      end
-      print("resource: #{r}, type: #{type}\n\n")
-      Submitted.create!(
-        :submission_type => type,
-        :activity_id => activity_id,
-        :resource => r,
-        :user_id => id,
-        :submission_time => Time.zone.now,
-        :known => known
-      )
-    end
-
-    def create_sub_type(id, activity_id, data, type)
-      create_sub_known(id, activity_id, data, type, "unknown")
-    end
-
-    def create_sub(id, activity_id, data)
-      create_sub_type(id, activity_id, data, "append-checks")
-    end
-
-    def create_data(append_part)
-      {
-        status: { step: "append-checks", reviewing: true },
-        parts: {
-          "append-checks" => "\n#{append_part}\n",
-          "append-body" => "\n",
-          "Quicksort2" => "\n",
-          "quick-sort-checks" => "\n",
-          "quick-sort-body" => "\n",
-          "Quicksort1" => "\n"
-        }
-      }
-    end
-
-    Resource::set_known_reviews_probability(1)
-
-    def new_user
-      o = Object.new
-      def o.path
-        File.expand_path("sample-assignment.jrny", ASSIGNMENTS_PATH)
-      end
-      u = User.create!(:email => "test-user#{User.count + 1}@test.org")
-      data = AssignmentController.path_to_json(u, o)
-      return [u, data]
-    end
-
-    user_for_test, user_for_test_data = new_user()
-
-    submitter1, submitter1_data = new_user
-    submitter2, submitter2_data = new_user
-    ta, ta_data = new_user
-
-    activity_id = user_for_test_data[1][:id]
-
-    create_sub_known(ta.id, activity_id, create_data("append() is append()"), "append-checks", "good")
-    create_sub(submitter1.id, activity_id, create_data("append from submitter1"))
-    create_sub(submitter2.id, activity_id, create_data("append from submitter2"))
-
-    user_for_test_resources = user_for_test_data[1][:resources]
-    user_for_test_resources["steps"] = user_for_test_data[1][:parts]
-
-    @data = JSON.dump({
-      user_index: "N/A",
-      user: {
-        resources: user_for_test_resources,
-        args: user_for_test_data[1][:args]
-      }
-    })
-
-  end
   private
 
   def run_scribble(name)
