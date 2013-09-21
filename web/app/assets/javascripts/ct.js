@@ -151,9 +151,11 @@ function codeLibrary(container, resources, args) {
       run: run
     });
   
-  run(code, {cm: cm}, {check: false, "allow-shadow": true});
-
   window.ADDITIONAL_IDS = window.ADDITIONAL_IDS.concat(args.ids);
+
+  window.setTimeout(0, function() {
+    run(code, {cm: cm}, {check: false, "allow-shadow": true, "additional-ids": window.ADDITIONAL_IDS});
+  });
 
   return { container: container, activityData: {editor: cm} };
 }
