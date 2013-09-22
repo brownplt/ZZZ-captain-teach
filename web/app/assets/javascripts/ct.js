@@ -138,11 +138,12 @@ function inlineExample(container, resources, args){
   formatCode(elem[0], args.code);
 }
 
+var runningLib = false;
 function codeLibrary(container, resources, args) {
   var code = args.code;
   var codeContainer = jQuery("<div>");
 
-  var run = namedRunner(makeHighlightingRunCode(RUN_CODE), "example");
+  var run = namedRunner(RUN_CODE, "example");
 
   container.append(codeContainer);
   var cm = makeEditor(codeContainer, {
@@ -153,9 +154,27 @@ function codeLibrary(container, resources, args) {
   
   window.ADDITIONAL_IDS = window.ADDITIONAL_IDS.concat(args.ids);
 
-  window.setTimeout(0, function() {
-    run(code, {cm: cm}, {check: false, "allow-shadow": true, "additional-ids": window.ADDITIONAL_IDS});
-  });
+  // TODO(joe): Depending on how rigidly setTimeout() orders things,
+  // this may have a race condition for many libraries
+  function runNextLib() {
+    if(runningLib === false) {
+      runningLib = true;
+      run(code, {
+          cm: cm,
+          handleReturn: function(v) {
+            runningLib = false;
+          }
+        }, {
+          check: false,
+          "allow-shadow": true,
+          "additional-ids": window.ADDITIONAL_IDS
+        });
+    }
+    else {
+      window.setTimeout(runNextLib, 0);
+    }
+  }
+  runNextLib();
 
   return { container: container, activityData: {editor: cm} };
 }
