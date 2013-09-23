@@ -206,7 +206,7 @@
                      (cons 'code code)))))))))
     "")))
 
-(define-syntax-rule (code-library lib-name elt ...)
+(define-syntax-rule (code-library lib-name idents elt ...)
   (let [(code (string-append* (list elt ...)))]
   (element
     (style #f
@@ -219,6 +219,7 @@
                  (cons 'data-args (jsexpr->string
                    (make-hash
                    (list
+                     (cons 'ids (map symbol->string idents))
                      (cons 'mode "include")
                      (cons 'name lib-name)
                      (cons 'code code)))))))))
