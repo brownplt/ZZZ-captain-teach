@@ -6,4 +6,14 @@ namespace :ct do
     end
   end
 
+  desc "Create a directory of code for a given solution and its submissions"
+  task :create_grade_dirs, [:assignment] => [:environment] do |t, args|
+    puts "Args: #{args}\n"
+    a = Assignment.find_by(:id => args[:assignment])
+    a.course.students.each do |u|
+      Grading::assignment_to_dir(u, a)
+    end
+  end
+
 end
+
