@@ -151,32 +151,33 @@ function makeRepl(container) {
 
   var CM = makeEditor(prompt, {
     simpleEditor: true,
-    run: function(code, opts, replOpts){
-      items.unshift(code);
-      pointer = -1;
-      write(jQuery('<span>&gt;&nbsp;</span>'));
-      var echoContainer = $("<div>");
-      var echo = $("<textarea class='repl-echo CodeMirror'>");
-      echoContainer.append(echo);
-      write(echoContainer);
-      var echoCM = CodeMirror.fromTextArea(echo[0], { readOnly: 'nocursor' });
-      echoCM.setValue(code);
-      write(jQuery('<br/>'));
-      breakButton.show();
-      CM.setOption("readOnly", "nocursor");
-      CM.getDoc().eachLine(function (line) {
-        CM.addLineClass(line, 'background', 'cptteach-fixed');
-      });
-      makeHighlightingRunCode(function(src, uiOptions, options) {
-        evaluator.run('interactions',
-                    src,
-                    clear,
-                    enablePrompt(uiOptions.wrappingReturnHandler(output)),
-                    write,
-                    enablePrompt(uiOptions.wrappingOnError(output)),
-                    merge(options, _.merge(replOpts, {check: true})));
-      })(code, merge(opts, {name: lastNameRun, cm: lastEditorRun || echoCM}), replOpts);
-    },
+    run: makeLoggingRunCode(function(code, opts, replOpts){
+        items.unshift(code);
+        pointer = -1;
+        write(jQuery('<span>&gt;&nbsp;</span>'));
+        var echoContainer = $("<div>");
+        var echo = $("<textarea class='repl-echo CodeMirror'>");
+        echoContainer.append(echo);
+        write(echoContainer);
+        var echoCM = CodeMirror.fromTextArea(echo[0], { readOnly: 'nocursor' });
+        echoCM.setValue(code);
+        write(jQuery('<br/>'));
+        breakButton.show();
+        CM.setOption("readOnly", "nocursor");
+        CM.getDoc().eachLine(function (line) {
+          CM.addLineClass(line, 'background', 'cptteach-fixed');
+        });
+        makeHighlightingRunCode(function(src, uiOptions, options) {
+          evaluator.run('interactions',
+                      src,
+                      clear,
+                      enablePrompt(uiOptions.wrappingReturnHandler(output)),
+                      write,
+                      enablePrompt(uiOptions.wrappingOnError(output)),
+                      merge(options, _.merge(replOpts, {check: true})));
+        })(code, merge(opts, {name: lastNameRun, cm: lastEditorRun || echoCM}), replOpts);
+      },
+      "interactions"),
     initial: "",
     cmOptions: {
       extraKeys: {
@@ -403,4 +404,28 @@ function namedRunner(runFun, name) {
   return function(src, uiOptions, langOptions) {
     runFun(src, merge(uiOptions, { name: name }), langOptions);
   };
+}
+
+function makeLoggingRunCode(codeRunner, name) {
+  var toLog = [];
+  function codeLog(src, uiOpts, replOpts) {
+    toLog.push({name: name, url: String(window.location), src: src, name: uiOpts.name, time: String(Date.now())});
+  }
+  function sendLog() {
+    if(toLog.length > 0) {
+      $.ajax("/notification/code_run", {
+        type: "POST",
+        dataType: "json",
+        data: {run_events: JSON.stringify(toLog)}
+      });
+      toLog = [];
+    }
+    window.setTimeout(sendLog, 30000);
+  }
+  sendLog();
+  
+  return namedRunner(function(src, uiOpts, replOpts) {
+    codeLog(src, uiOpts, replOpts);
+    codeRunner(src, uiOpts, replOpts);
+  }, name);
 }

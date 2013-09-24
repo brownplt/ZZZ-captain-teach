@@ -19,6 +19,7 @@ App::Application.routes.draw do
   post 'resource/submit'        => 'resource#submit'
 
   post 'notification/report_abuse' => 'notification#report_abuse'
+  post 'notification/code_run' => 'notification#code_run'
 
   get 'assignment/:uid' => 'assignment#get_assignment', as: :assignment
   get 'grade/:uid/:user_id' => 'assignment#grade_assignment', as: :grade_assignment

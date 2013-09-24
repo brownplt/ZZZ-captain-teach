@@ -11,5 +11,16 @@ class NotificationController < ApplicationController
     end
   end
 
+  def code_run
+    if authenticated?
+      logs = JSON.parse(params[:run_events])
+      logs.each do |l|
+        stored = CodeRunEvent.create!(:data => JSON.dump(l), :user_id => current_user.id)
+      end
+      render :json => {success: true}, :status => 200
+    else
+      application_not_found
+    end
+  end
 
 end

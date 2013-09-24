@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130906021432) do
+ActiveRecord::Schema.define(version: 20130924141033) do
 
   create_table "abuse_records", force: true do |t|
     t.integer  "user_id"
@@ -43,6 +43,13 @@ ActiveRecord::Schema.define(version: 20130906021432) do
   end
 
   add_index "blobs", ["user_id"], name: "index_blobs_on_user_id", using: :btree
+
+  create_table "code_run_events", force: true do |t|
+    t.text     "data"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "user_id"
+  end
 
   create_table "courses", force: true do |t|
     t.string   "title"

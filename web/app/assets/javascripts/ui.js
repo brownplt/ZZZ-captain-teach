@@ -619,6 +619,7 @@ var reviewTabs = ctC("reviewTabs", [TObject, {hasField: "type"}, TFunction],
 
   });
 
+
 function makeHighlightingRunCode(codeRunner) {
 
   return function(src, uiOptions, options) {
@@ -1018,7 +1019,7 @@ function readOnlyEditorFromParts(container,
     container,
     merge({
       initial: "",
-      run: makeHighlightingRunCode(RUN_CODE)
+      run: makeLoggingRunCode(makeHighlightingRunCode(RUN_CODE), "review-editor")
     }, sharedOptions)
   );
   var thisEditorOptions = merge(sharedOptions, {

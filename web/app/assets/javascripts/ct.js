@@ -193,7 +193,7 @@ function codeExample(container, resources, args) {
     });
   }
 
-  var run = namedRunner(makeHighlightingRunCode(RUN_CODE), "example");
+  var run = makeLoggingRunCode(makeHighlightingRunCode(RUN_CODE), "example");
 
   container.append(codeContainer);
   var cm = makeEditor(codeContainer, {
@@ -287,7 +287,7 @@ function steppedAssignment(container, resources, args, options) {
     });
     var sharedOptions = {
       run: options.runButton ?
-        namedRunner(makeHighlightingRunCode(RUN_CODE), args.name) :
+        makeLoggingRunCode(makeHighlightingRunCode(RUN_CODE), args.name) :
         false,
       names: names,
       steps: steps,
