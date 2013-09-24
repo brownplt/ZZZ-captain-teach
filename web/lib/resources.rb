@@ -405,6 +405,7 @@ module Resource
           args["triggers"].each do |t|
             trigger = @@triggers[t]
             this_dict = trigger.call(this_dict, args)
+            this_dict["timestamp"] = DateTime.now
           end
         end
         json_data[key] = this_dict
