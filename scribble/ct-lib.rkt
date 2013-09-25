@@ -361,4 +361,13 @@
 
 
 (define-syntax-rule (journey unique-id)
-  (current-id-prefix unique-id))
+  (begin
+    (current-id-prefix unique-id)
+    (element
+      (style #f
+             (list
+              (alt-tag "div")
+              (attributes
+                (list
+                  (cons 'data-journey-id unique-id)))))
+       "")))

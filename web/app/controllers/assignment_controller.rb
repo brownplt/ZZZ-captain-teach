@@ -98,6 +98,10 @@ class AssignmentController < ApplicationController
       raise Scribble::ScribbleError, scribbled
     end
 
+    main.css("[data-journey-id]").each do |node|
+      main["data-journey-id"] = node["data-journey-id"]
+    end
+
     main.css("[data-ct-node='1']").each do |node|
       if node["data-resources"]
         resources = JSON.parse(node["data-resources"])
@@ -157,17 +161,22 @@ class AssignmentController < ApplicationController
 
   def self.path_to_json(user, path)
     html = Nokogiri::HTML(AssignmentController.path_to_html(user, path))
-    html.css("[data-ct-node='1']").map do |node|
+    tasks = html.css("[data-ct-node='1']").map do |node|
       if not node["data-parts"].nil?
         {
           resources: JSON.parse(node["data-resources"]),
           id: node["data-activity-id"],
           parts: JSON.parse(node["data-parts"]),
-          args: JSON.parse(node["data-args"])
+          args: JSON.parse(node["data-args"]),
+          type: node["data-type"]
         }
       else {}
       end
     end
+    {
+      :tasks => tasks,
+      :id => html.css("[data-journey-id]").first["data-journey-id"]
+    }
   end
 
   def self.path_to_grade_html(user, uid, path)
