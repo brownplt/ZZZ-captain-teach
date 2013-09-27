@@ -920,9 +920,16 @@ function createTabPanel(container, options) {
   var maximize;
   if (options && options.maximizable) {
     var maximize = drawPanelMaximizeButton();
+    maximize.html("&larr;");
     maximize.click(function () {
       if (options.minimize) {
         minimize.toggle();
+      }
+      maximize.toggleClass("button-activated");
+      if (maximize.hasClass("button-activated")) {
+        maximize.html("&rarr;");
+      } else {
+        maximize.html("&larr;");
       }
       container.toggleClass("maximized");
     });
@@ -930,9 +937,16 @@ function createTabPanel(container, options) {
   }
   if (options && options.minimize) {
     var minimize = drawPanelMinimizeButton();
+    minimize.html("&rarr;");
     minimize.click(function () {
       if (options.maximizable) {
         maximize.toggle();
+      }
+      minimize.toggleClass("button-activated");
+      if (minimize.hasClass("button-activated")) {
+        minimize.html("&larr;");
+      } else {
+        minimize.html("&rarr;");
       }
       container.toggleClass("minimized");
       $(options.minimize).toggleClass("maximized");
