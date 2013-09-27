@@ -165,6 +165,7 @@ function codeLibrary(container, resources, args) {
             runningLib = false;
           }
         }, {
+          "cache?": true,
           check: false,
           "allow-shadow": true,
           "additional-ids": window.ADDITIONAL_IDS

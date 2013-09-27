@@ -814,9 +814,14 @@ function makeHighlightingRunCode(codeRunner) {
               messageText = checkBlockResult.err;
             }
             if(checkBlockResult.err.trace) {
-              var loc = checkBlockResult.err.trace[0];
-              errorLink = makeScrollingLocationLink(uiOptions.cm, loc);
-              container.append(drawErrorMessageWithLoc(messageText, errorLink));
+              var loc = checkBlockResult.err.trace[0] || checkBlockResult.err.location;
+              if(loc) {
+                errorLink = makeScrollingLocationLink(uiOptions.cm, loc);
+                container.append(drawErrorMessageWithLoc(messageText, errorLink));
+              }
+              else {
+                container.append(drawErrorMessage(messageText));
+              }
             } else {
               container.append(drawErrorMessage(messageText));
             }
