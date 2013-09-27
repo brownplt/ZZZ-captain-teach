@@ -471,11 +471,11 @@ function drawReportAbuse(abuseData) {
 
 
 function drawPanelMaximizeButton() {
-  return $("<span>").addClass("maximize");
+  return $("<button>").addClass("maximize").addClass("blueButton");
 }
 
 function drawPanelMinimizeButton() {
-  return $("<span>").addClass("minimize");
+  return $("<button>").addClass("minimize").addClass("blueButton");
 }
 
 function drawModal(content, onClose) {
