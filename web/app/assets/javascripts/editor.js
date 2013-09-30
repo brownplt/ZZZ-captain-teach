@@ -41,6 +41,7 @@ function makeEditor(container, options) {
     viewportMargin: Infinity,
     lineNumbers: useLineNumbers,
     matchBrackets: true,
+    lineWrapping: true,
     foldGutter: {
       rangeFinder: CodeMirror.fold.indent
     },
