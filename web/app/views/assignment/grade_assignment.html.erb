@@ -19,7 +19,11 @@ $(function() {
                                               minimize: ".main" });
   PANEL.addTab("Interactions", repl, { cannotClose: true });
   window.REPL = repl;
-  window.RUN_CODE = makeRepl(repl);
+  window.ADDITIONAL_IDS = [];
+  var codeRunner = makeRepl(repl);
+  window.RUN_CODE = function(src, uiOpts, replOpts) {
+    codeRunner(src, uiOpts, merge(replOpts, { "additional-ids": ADDITIONAL_IDS }));
+  };
   ct_transform($(document.body));
 });
 
