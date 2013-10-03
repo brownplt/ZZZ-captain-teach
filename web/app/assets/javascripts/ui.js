@@ -725,8 +725,10 @@ function makeHighlightingRunCode(codeRunner) {
     };}
 
     function highlightingCheckReturn(output) { return function(obj) {
+      var successCount = 0;
       function drawSuccess(name, message, location) {
         var link = $("<span>");
+        successCount += 1;
         if(location.value) {
           highlightLineAt(uiOptions.cm, location.value, 'lineSuccess');
           link = makeScrollingLocationLink(uiOptions.cm, location.value);
@@ -797,16 +799,18 @@ function makeHighlightingRunCode(codeRunner) {
         return true;
       }
 
+      var somethingFailed = false;
       blockResultsJSON.results.map(function(result) {
         result.map(function(checkBlockResult) {
           var container = $("<div>");
           var errorLink;
           var name = checkBlockResult.name;
-          container.append($("<p>").text(name));
+          container.append($("<p>").text(name + ": Avast, there be bugs!"));
           container.addClass("check-block");
           var messageText = "";
           console.log(checkBlockResult);
           if (checkBlockResult.err) {
+            somethingFailed = true;
             if (checkBlockResult.err.message) {
               messageText = checkBlockResult.err.message;
             }
@@ -829,6 +833,7 @@ function makeHighlightingRunCode(codeRunner) {
           }
           checkBlockResult.results.forEach(function(individualResult) {
             if (individualResult.reason) {
+              somethingFailed = true;
               container.append(
                 drawFailure(
                     individualResult.name,
@@ -836,6 +841,7 @@ function makeHighlightingRunCode(codeRunner) {
                     individualResult.location
                   ));
             } else if (individualResult.exception) {
+              somethingFailed = true;
               container.append(
                 drawException(
                     individualResult.name,
@@ -853,11 +859,28 @@ function makeHighlightingRunCode(codeRunner) {
               }
             }
           });
-          output.append(container);
+          if(somethingFailed) {
+            output.append(container);
+          }
         });
       });
+      if(!somethingFailed) {
+        var container = $("<div>")
+          .addClass("check-block")
+          .addClass("check-block-success");
+        var text = "";
+        if(successCount === 1) {
+          text = "Your test passed, mate!";
+        }
+        else {
+          text = "All " + successCount + " tests passed, mate!";
+        }
+        container.append($("<p>").text(text));
+        output.append(container);
+      }
       return true;
     };}
+
 
     var theseUIOptions = merge(uiOptions, {
         wrappingOnError: highlightingOnError

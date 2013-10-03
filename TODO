@@ -1,12 +1,12 @@
 ASAP
 [] Don't depend on user-visible names when creating resource sections for scribble!
 [x] 500 notification emails
-[] Open-response questions
-[] Confused about whether run did anything (for simple examples)
+[x] Open-response questions
+[x] Confused about whether run did anything (for simple examples)
 [] Repl scrolling is awful
-[] notify when reviews show up
+[x] notify when reviews show up
 [x] color for passing tests in fixed region doesn't show up until active
-[] <unprintable-expr> on pretty printer
+[x] <unprintable-expr> on pretty printer
 [] Highlight the part you are reviewing
 [] Highlight the part you are editing
 [] Distinguish review vs. step buttons
@@ -15,7 +15,7 @@ ASAP
    good/bad
 [] = vs. is accident in test cases; do a parse-test before submission?
   - Well-formedness error with a URL for the explanation of construct
-[] Can someone get the same code to review twice?
+[x] Can someone get the same code to review twice?
 [] Reviews need timestamps (any blob stuff needs timestamp)
 
 Late sept

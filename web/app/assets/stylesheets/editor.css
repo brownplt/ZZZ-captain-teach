@@ -72,6 +72,13 @@ div.CodeMirror span.CodeMirror-matchingbracket {
   background-color: #fcc;
 }
 
+.check-block-success {
+  background-color: #cfc;
+}
+
+.repl-output {
+}
+
 .steppedGutter {
     width: 25px;
 }
