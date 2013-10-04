@@ -6,6 +6,7 @@ namespace :ct do
     end
   end
 
+  # bundle exec rake ct:create_grade_dirs[8] RAILS_ENV=production
   desc "Create a directory of code for a given solution and its submissions"
   task :create_grade_dirs, [:assignment] => [:environment] do |t, args|
     puts "Args: #{args}\n"
