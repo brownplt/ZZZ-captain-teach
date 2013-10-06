@@ -15,11 +15,11 @@
 
 
 <h3>Enrollment</h3>
-<ul>
+<ol>
   <% @course.students.each do |u| %>
   <li><%= u.email %></li>
   <% end %>
-</ul>
+</ol>
 
 <div>
   <button onclick="$(this).next().toggle()">Add From List</button>
