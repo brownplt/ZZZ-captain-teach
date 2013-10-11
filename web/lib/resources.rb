@@ -78,12 +78,12 @@ module Resource
       feedback_resource = data["feedback"]
       if (data["review"]["correctness"].to_f < 0)
         save_canned_feedback(
-            feedback_resource, 
+            feedback_resource,
             "You may have made a mistake!  This was a good solution written by the course staff, and you marked it as incorrect."
           )
       else
         save_canned_feedback(
-            feedback_resource, 
+            feedback_resource,
             "Good job!  This was a good solution written by the course staff, and you identified it as such."
           )
       end
@@ -93,12 +93,12 @@ module Resource
       feedback_resource = data["feedback"]
       if (data["review"]["correctness"].to_f > 0)
         save_canned_feedback(
-            feedback_resource, 
+            feedback_resource,
             "You may have made a mistake!  This was a bad solution written by the course staff, and you marked it as correct."
           )
       else
         save_canned_feedback(
-            feedback_resource, 
+            feedback_resource,
             "Good job!  This was a bad solution written by the course staff, and you identified it as such."
           )
       end
@@ -476,7 +476,7 @@ module Resource
 
       data = submissions_to_review.map do |sub|
         if not (sub.known == 'unknown')
-          triggers = ["notify_recipient", sub.known] 
+          triggers = ["notify_recipient", sub.known]
         else
           triggers = ["notify_recipient"]
         end
@@ -540,6 +540,13 @@ module Resource
 
   def submit(type, perm, ref, args, user, _data, resource)
     data = JSON.parse(_data)
+    # NOTE(dbp 2013-10-10): save a new version. This will be what is submitted.
+    to_save = data["to_save"]
+    if to_save.nil?
+      raise Exception, "data to save is nil"
+    end
+    save_resource(resource, JSON.dump(to_save))
+
     maybe_resource_versions = versions(type, perm, ref, args, user, resource)
     if maybe_resource_versions.instance_of?(Normal)
       resource_versions = maybe_resource_versions.data
