@@ -270,7 +270,7 @@ ref = "foo"
     cedricData = AssignmentController.path_to_json(user2, o)
 
     henryPath = henryData[1][:resources]["path"]
-    save(henryPath, {
+    submit(henryPath, {step_type: "append-checks", to_save: {
       status: { step: "append-checks", reviewing: false },
       parts: {
         "append-checks" => "\nappend([1], [2]) is [1,2]\n",
@@ -280,11 +280,10 @@ ref = "foo"
         "quick-sort-body" => "\n",
         "Quicksort1" => "\n"
       }
-    })
-    submit(henryPath, {step_type: "append-checks"})
+    }})
 
     cedricPath = cedricData[1][:resources]["path"]
-    save(cedricPath, {
+    submit(cedricPath, {step_type: "append-checks", to_save: {
       status: { step: "append-checks", reviewing: false },
       parts: {
         "append-checks" => "\nappend([1], [1, 3]) is [1,3]",
@@ -294,8 +293,7 @@ ref = "foo"
         "quick-sort-body" => "\n",
         "Quicksort1" => "\n"
       }
-    })
-    submit(cedricPath, {step_type: "append-checks"})
+    }})
 
     cedricDoReviews = cedricData[1][:parts][0]["do_reviews"]
     result = JSON.parse(lookup(cedricDoReviews))
