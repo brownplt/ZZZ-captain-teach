@@ -126,6 +126,7 @@ module Grading
         path = task[:resources]["path"]
         write_open_response(task, path, user_dir + task[:id] + ".current.txt")
       end
+
       if task[:parts]
         task[:parts].each do |part|
           subs = Submitted.where(:user_id => user.id, :activity_id => task[:id], :submission_type => part["name"])
@@ -148,6 +149,8 @@ module Grading
           write_reviews(task, part["do_reviews"], user_dir + task[:id] + "_at_" + part["name"])
           write_received_reviews(task, part["read_reviews"], user_dir + task[:id] + "_at_" + part["name"])
         end
+      else
+        $stderr.puts "Task did not have any parts: #{task}\n"
       end
     end
   end
