@@ -717,28 +717,52 @@ function functionBuilder(container, resources, args) {
   return {container: container, activityData: {codemirror: cm}};
 }
 
-function numberResponse(container, resources, args) {
-  var input = $("<input type='text'>");
+function textResponse(container, blob, input, pred, transform) {
   var button = $("<button>").prop("disabled", true).text("Submit");
   function drawExisting(response) {
     input.val(response.answer);
     input.prop("disabled", true);
     button.prop("disabled", true);
   }
-  lookupResource(resources.blob, drawExisting, function() {
+  lookupResource(blob, drawExisting, function() {
     input.on("keyup", function(e) {
-      var val = Number(input.val());
-      var okVal = ((val <= args.max) && (val >= args.min));
+      var okVal = pred(input.val());
       button.prop("disabled", !okVal);
     });
     button.on("click", function(e) {
-      var response = { answer: Number(input.val()) };
-      saveResource(resources.blob, response, function() { drawExisting(response); },
+      var response = { answer: transform(input.val()) };
+      saveResource(blob, response, function() { drawExisting(response); },
         function() { ct_error("Failed to save answer: ", answer); });
     });
   })
   container.append(input).append(button);
   return {container: container, activityData: {}};
+
+}
+
+function freeResponse(container, resources, args) {
+  return textResponse(
+      container,
+      resources.blob,
+      $("<textarea>").addClass("freeResponse"),
+      function(val) { return val != ""; },
+      function(val) { return val; }
+  );
+}
+
+function numberResponse(container, resources, args) {
+  return textResponse(
+      container,
+      resources.blob,
+      $("<input type='text'>").addClass("numberResponse"),
+      function(val) {
+        var nval = Number(val);
+        return (val != "") && (nval <= args.max) && (nval >= args.min);
+      },
+      function(val) {
+        return Number(val);
+      }
+  );
 }
 
 function multipleChoice(container, resources, args)  {
@@ -824,6 +848,7 @@ var builders = {
   "code-assignment": codeAssignment,
   "multiple-choice": multipleChoice,
   "number-response": numberResponse,
+  "free-response": freeResponse,
   "code-library": codeLibrary,
   "open-response": openResponse
 };
