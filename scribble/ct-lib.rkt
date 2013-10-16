@@ -88,6 +88,27 @@
                         (cons 'id unique-id)))))))))
       (map choice-html choices)))))
 
+(define-syntax-rule (free-response unique-id elt ...)
+  (begin
+    (let [(prompt (string-join (list elt ...)))]
+    (element
+      (style #f
+             (list
+              (alt-tag "div")
+              (attributes
+                (list
+                  (cons 'data-ct-node "1")
+                  (cons 'data-activity-id (mk-id unique-id))
+                  (cons 'data-resources (single-resource 'blob (mk-resource "b" "rc" unique-id (make-hash))))
+                  (cons 'data-type "free-response")
+                  (cons 'data-args (jsexpr->string
+                    (make-hash
+                      (list
+                        (cons 'prompt prompt)
+                        (cons 'id unique-id)))))))))
+        ""))))
+
+
 (define-syntax-rule (number-response unique-id min-val max-val elt ...)
   (begin
     (let [(prompt (string-join (list elt ...)))]

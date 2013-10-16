@@ -24,6 +24,16 @@
   background-color: red;
 }
 
+.freeResponse {
+  width: 30em;
+  height: 10em;
+  display: block;
+}
+
+.numberResponse {
+  width: 8em;
+}
+
 .reviewText {
   width: 80%;
 }

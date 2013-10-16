@@ -86,7 +86,7 @@ function lookupReview(lookupLink, success, error) {
   });
 }
 
-function submitResource(resource, type, success, failure) {
+function submitResource(resource, type, toSave, success, failure) {
   if (typeof success === 'undefined') { success = function() {}; }
   if (typeof failure === 'undefined') {
     failure = function(xhr, e) {
@@ -94,7 +94,7 @@ function submitResource(resource, type, success, failure) {
     };
   }
   $.ajax(rails_host + "/resource/submit?resource=" + resource, {
-    data: { data: JSON.stringify({step_type: type}) },
+    data: { data: JSON.stringify({step_type: type, to_save: toSave}) },
     success: function(response, _, xhr) {
       success(response);
     },
@@ -151,7 +151,7 @@ function codeLibrary(container, resources, args) {
       initial: code,
       run: run
     });
-  
+
   window.ADDITIONAL_IDS = window.ADDITIONAL_IDS.concat(args.ids);
 
   // TODO(joe): Depending on how rigidly setTimeout() orders things,
@@ -202,7 +202,7 @@ function codeExample(container, resources, args) {
       initial: code,
       run: run
     });
-  
+
   if(args.mode === "library") {
     run(code, {cm: cm}, {check: false, "allow-shadow": true});
   }
@@ -486,24 +486,24 @@ function steppedAssignment(container, resources, args, options) {
         toSave.status = status;
         currentState = status;
 
-        saveResource(resources.path, toSave, function() {
-            editor.disableAll();
-            function afterSubmit() {
-              // NOTE(dbp 2013-08-16): Scroll so the tab panel is
-              // visible.
-              var top = tabs.container.offset().top;
-              if (window.pageYOffset > top) {
-                $("body").animate({
-                  scrollTop: top
-                });
-              }
+        //saveResource(resources.path, toSave, function() {
+        editor.disableAll();
+        function afterSubmit() {
+          // NOTE(dbp 2013-08-16): Scroll so the tab panel is
+          // visible.
+          var top = tabs.container.offset().top;
+          if (window.pageYOffset > top) {
+            $("body").animate({
+              scrollTop: top
+            });
+          }
 
-              reviewTabs(tabs, wrapStepForReview(step), function() { afterReview(step.name, resume); });
-            }
-            submitResource(resources.path, step.name, afterSubmit);
-          }, function() {
-            ct_error("Shouldn't fail to save work: ", resources.path, toSave);
-          });
+          reviewTabs(tabs, wrapStepForReview(step), function() { afterReview(step.name, resume); });
+        }
+        submitResource(resources.path, step.name, toSave, afterSubmit);
+        //}, function() {
+        //  ct_error("Shouldn't fail to save work: ", resources.path, toSave);
+        // });
       }
     });
 
@@ -717,28 +717,52 @@ function functionBuilder(container, resources, args) {
   return {container: container, activityData: {codemirror: cm}};
 }
 
-function numberResponse(container, resources, args) {
-  var input = $("<input type='text'>");
+function textResponse(container, blob, input, pred, transform) {
   var button = $("<button>").prop("disabled", true).text("Submit");
   function drawExisting(response) {
     input.val(response.answer);
     input.prop("disabled", true);
     button.prop("disabled", true);
   }
-  lookupResource(resources.blob, drawExisting, function() {
+  lookupResource(blob, drawExisting, function() {
     input.on("keyup", function(e) {
-      var val = Number(input.val());
-      var okVal = ((val <= args.max) && (val >= args.min));
+      var okVal = pred(input.val());
       button.prop("disabled", !okVal);
     });
     button.on("click", function(e) {
-      var response = { answer: Number(input.val()) };
-      saveResource(resources.blob, response, function() { drawExisting(response); },
+      var response = { answer: transform(input.val()) };
+      saveResource(blob, response, function() { drawExisting(response); },
         function() { ct_error("Failed to save answer: ", answer); });
     });
   })
   container.append(input).append(button);
   return {container: container, activityData: {}};
+
+}
+
+function freeResponse(container, resources, args) {
+  return textResponse(
+      container,
+      resources.blob,
+      $("<textarea>").addClass("freeResponse"),
+      function(val) { return val != ""; },
+      function(val) { return val; }
+  );
+}
+
+function numberResponse(container, resources, args) {
+  return textResponse(
+      container,
+      resources.blob,
+      $("<input type='text'>").addClass("numberResponse"),
+      function(val) {
+        var nval = Number(val);
+        return (val != "") && (nval <= args.max) && (nval >= args.min);
+      },
+      function(val) {
+        return Number(val);
+      }
+  );
 }
 
 function multipleChoice(container, resources, args)  {
@@ -824,6 +848,7 @@ var builders = {
   "code-assignment": codeAssignment,
   "multiple-choice": multipleChoice,
   "number-response": numberResponse,
+  "free-response": freeResponse,
   "code-library": codeLibrary,
   "open-response": openResponse
 };

@@ -791,7 +791,7 @@ function makeHighlightingRunCode(codeRunner) {
             [pyretMaps.get(pyretMaps.toDictionary(obj), "val")],
             function(s) {
               var str = pyretMaps.getPrim(s);
-              output.append(jQuery("<span class='repl-output'>").text(str));
+              output.append(jQuery("<pre class='repl-output'>").text(str));
               output.append(jQuery('<br/>'));
             }, function(e) {
               ct_err("Failed to tostring: ", result);

@@ -83,7 +83,7 @@ class AssignmentController < ApplicationController
       cache_id = "scribbled_#{assignment_id}"
       existing = Rails.cache.read("scribbled_#{assignment_id}")
     end
-    if not (existing.nil?)
+    if (not (existing.nil?)) and (not Rails.env.development?)
       scribbled = existing
     else
       scribbled = Scribble::render(path)

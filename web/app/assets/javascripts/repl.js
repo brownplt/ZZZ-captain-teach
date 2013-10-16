@@ -231,7 +231,7 @@ function makeRepl(container) {
             [result],
             function(s) {
               var str = pyretMaps.getPrim(s);
-              write(jQuery("<span class='repl-output'>").text(str));
+              write(jQuery("<pre class='repl-output'>").text(str));
               write(jQuery('<br/>'));
             }, function(e) {
               ct_err("Failed to tostring: ", result);
