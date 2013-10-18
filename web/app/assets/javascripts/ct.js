@@ -280,6 +280,9 @@ function steppedAssignment(container, resources, args, options) {
 
   function setupAssignment(activityState) {
     ct_log("as: ", activityState);
+    ct_log("Args: ", args);
+    ct_log("Resources: ", resources);
+
     var currentState = activityState.status;
     var names = _.pluck(args.parts, "value");
     var steps = [];

@@ -301,16 +301,16 @@
             (append (list (genstr)) (parts-part-names a-parts))
             (parts-steps a-parts))]
         [(_data-part part-name data-name)
-         (define v-step (cons 'variants (format "~a-variants" part-name)))
-         (define c-step (cons 'data-checks (format "~a-checks" part-name)))
+         (define s-step (cons 'data-body (format "~a-body" part-name)))
+         (define d-step (cons 'data-checks (format "~a-data-definition" part-name)))
          (parts
             (append (list
                       (cons 'code (format "~adata ~a:" maybe-line data-name))
                       (cons 'code "\nwhere:")
                       (cons 'code "\nend"))
                     (parts-code-delimiters a-parts))
-            (append (list v-step c-step (genstr)) (parts-part-names a-parts))
-            (append (list v-step c-step) (parts-steps a-parts)))]
+            (append (list s-step d-step (genstr)) (parts-part-names a-parts))
+            (append (list d-step) (parts-steps a-parts)))]
         [(_fun-part part-name fun-header)
          (define b-step (cons 'body (format "~a-body" part-name)))
          (define c-step (cons 'fun-checks (format "~a-checks" part-name)))
