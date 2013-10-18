@@ -4,6 +4,7 @@
 (require json net/url scribble/core scribble/html-properties racket/string racket/list)
 
 (provide
+  (all-from-out scribble/html-properties)
   (all-from-out scribble/core)
   (all-defined-out))
 
