@@ -236,8 +236,6 @@ function fileUpload(container, resources, args) {
     var message = $("<label>Most recent submission: </label>");
     current.append(message).append("<br/>").append(submission);
     lookupResource(resources.path, function(data) {
-        window.data = data;
-        console.log(data);
         submission.val(JSON.parse(data.file));
         drawModal(current, function() { /* intentional no-op */});
       }, function() {
@@ -254,9 +252,6 @@ function fileUpload(container, resources, args) {
   
   submit.on("click", function(elt) {
     var file = widget[0].files[0];
-    var textType = /text.*/;
-    console.log(file);
-    console.log(file.type);
     var reader = new FileReader();
 
     reader.onload = function(e) {
