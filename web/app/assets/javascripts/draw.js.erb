@@ -489,7 +489,11 @@ function drawModal(content, onClose) {
   $(document).keydown(function(e) {
     if(e.which === 27) { close(); }
   });
-  var contentDiv = $("<p>").text(content);
+  var contentDiv = $("<p>")
+  if(typeof content === "string") { contentDiv.text(content); }
+  else {
+    contentDiv.append(content);
+  }
   container.append(modalClose).append(contentDiv);
   $(document.body).append(container);
 }

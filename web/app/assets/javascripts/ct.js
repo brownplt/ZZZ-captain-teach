@@ -212,6 +212,61 @@ function codeExample(container, resources, args) {
   return { container: container, activityData: {editor: cm} };
 }
 
+function fileUpload(container, resources, args) {
+  var uploadContainer = $("<div>").css({
+        width: "100%",
+        border: "1px solid #111",
+        margin: "1em",
+        padding: "1em"
+      });
+  var name = $("<p>").text(args.name);
+  var submit = $("<button>").text("Submit file").prop("disabled", true);
+
+  var widget = $("<input type='file'>").on("change", function() {
+    submit.prop("disabled", false);
+  });
+
+  var showCurrent = function() {
+    var current = $("<div>");
+    var submission = $("<textarea>").css({
+        height: "20em",
+        width: "100%",
+        overflow: "auto"
+      });
+    var message = $("<label>Most recent submission: </label>");
+    current.append(message).append("<br/>").append(submission);
+    lookupResource(resources.path, function(data) {
+        submission.val(JSON.parse(data.file));
+        drawModal(current, function() { /* intentional no-op */});
+      }, function() {
+        submission.val("(No submission yet)");
+        drawModal(current, function() { /* intentional no-op */});
+      });
+  };
+
+  var seeCurrent = $("<a href='#'>").text("See current submission").
+    on("click", function() {
+      showCurrent();
+      return false;
+    });
+  
+  submit.on("click", function(elt) {
+    var file = widget[0].files[0];
+    var reader = new FileReader();
+
+    reader.onload = function(e) {
+      saveResource(resources.path, reader.result, function() {
+        showCurrent();
+      })
+    }
+
+    reader.readAsText(file);
+  });
+  uploadContainer.append(name).append(widget).append(submit).append("<br>").append(seeCurrent);
+  container.append(uploadContainer);
+  return {};
+}
+
 function openResponse(container, resources, args) {
   var options = {
     tabName: "Response",
@@ -270,9 +325,10 @@ function steppedAssignment(container, resources, args, options) {
     defaultParts[n.value] = "\n";
   });
 
+  var defaultStep = resources.steps.length > 0 ? resources.steps[0].name : "no-step";
   var defaultActivityState = {
     status: {
-      step: resources.steps[0].name,
+      step: defaultStep,
       reviewing: false
     },
     parts: defaultParts
@@ -848,6 +904,7 @@ var builders = {
   "inline-example": inlineExample,
   "code-example": codeExample,
   "function": functionBuilder,
+  "file-upload": fileUpload,
   "code-assignment": codeAssignment,
   "multiple-choice": multipleChoice,
   "number-response": numberResponse,
