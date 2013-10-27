@@ -170,7 +170,13 @@ class AssignmentController < ApplicationController
           args: JSON.parse(node["data-args"]),
           type: node["data-type"]
         }
-      else {}
+      else
+        {
+          resources: JSON.parse(node["data-resources"]),
+          id: node["data-activity-id"],
+          args: JSON.parse(node["data-args"]),
+          type: node["data-type"]
+        }
       end
     end
     {

@@ -11,9 +11,15 @@ namespace :ct do
   task :create_grade_dirs, [:assignment] => [:environment] do |t, args|
     puts "Args: #{args}\n"
     a = Assignment.find_by(:id => args[:assignment])
-    a.course.students.each do |u|
+    User.all.each do |u|
       Grading::assignment_to_dir(u, a)
     end
+  end
+
+  task :get_flat_results, [:assignment] => [:environment] do |t, args|
+    puts "Args: #{args}\n"
+    a = Assignment.find_by(:id => args[:assignment])
+    Grading.assignment_to_file(a)
   end
 
 end

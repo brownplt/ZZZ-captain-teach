@@ -34,6 +34,7 @@ class UserRepo < ActiveRecord::Base
   def init()
     begin
       unless Dir.exists?(self.path)
+        $stderr.puts "No such dir: #{self.path}\n"
         raise NoSuchDirectory.new(self.path)
       end
       @repo = UserRepo._get_repo(self.path)

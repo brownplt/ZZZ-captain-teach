@@ -1,23 +1,38 @@
+require 'csv'
 module Grading
 
   GRADING_DIR="../grades/"
 
+  def lookup_resource_or_error(resource)
+    begin
+      Resource::lookup_resource(resource)
+    rescue
+      nil
+    end
+  end
+
   def get_code_lines(task, resource)
-    maybe_content = Resource::lookup_resource(resource)
+    maybe_content = lookup_resource_or_error(resource)
     if maybe_content.respond_to?(:data)
       content = maybe_content.data
     else
       return
     end
 
+    delims = task[:args]["codeDelimiters"]
+
+    non_instruction_delims = delims.select do |elt|
+      elt["type"] == "code"
+    end
+
     interleave(
-        task[:args]["codeDelimiters"].map do |elt| elt["value"] end,
+        non_instruction_delims.map do |elt| elt["value"] end,
         task[:args]["parts"].map do |p| JSON.parse(content[:file])["parts"][p["value"]] end
       )
   end
 
   def get_open_response_string(task, resource)
-    maybe_content = Resource::lookup_resource(resource)
+    maybe_content = lookup_resource_or_error(resource)
     if maybe_content.respond_to?(:data)
       content = maybe_content.data
     else
@@ -105,6 +120,45 @@ module Grading
     end
   end
 
+  def data_or_no_resp(d, type)
+    if d.respond_to?(:data)
+      JSON.parse(d.data)[type]
+    else
+      "no response"
+    end
+  end
+
+  def assignment_to_file(assignment)
+    FileUtils.mkdir_p(GRADING_DIR)
+    assignment_file = GRADING_DIR + "#{assignment.id}" + ".csv"
+    CSV.open(assignment_file, "wb") do |csv|
+      puts "Opened csv\n"
+      assignment.course.students.each do |user|
+        json = AssignmentController::path_to_json(user, AssignmentController::path_ref_to_path(assignment.path_ref))
+        puts "json: #{json}\n"
+        row = json[:tasks].map do |task|
+          if task[:type] == "multiple-choice"
+            d = Resource::lookup_resource(task[:resources]["blob"])
+            puts "Multiple: #{d}\n"
+            data_or_no_resp(d, "selected")
+          elsif task[:type] == "number-response"
+            d = Resource::lookup_resource(task[:resources]["blob"])
+            puts "Number: #{d}\n"
+            data_or_no_resp(d, "answer")
+          elsif task[:type] == "free-response"
+            d = Resource::lookup_resource(task[:resources]["blob"])
+            puts "Free: #{d}\n"
+            data_or_no_resp(d, "answer")
+          else
+            puts "What is this: #{task}\n"
+          end
+        end
+        row.push(user.id)
+        csv << row
+      end
+    end
+  end
+
   def assignment_to_dir(user, assignment)
     FileUtils.mkdir_p(GRADING_DIR)
     assignment_dir = GRADING_DIR + "#{assignment.id}/"
@@ -118,6 +172,7 @@ module Grading
     journey_dir = user_dir + json[:id]
     FileUtils.mkdir_p(journey_dir)
 
+    had_submission = false
     json[:tasks].each do |task|
       if task[:type] == "code-assignment"
         path = task[:resources]["path"]
@@ -133,6 +188,10 @@ module Grading
 
           if(subs.length > 2)
             $stderr.puts "Multiple submissions for the same ref and user: #{user.to_json}, #{subs}"
+          end
+
+          if subs.length > 0
+            had_submission = true
           end
 
           if subs.length == 0
@@ -153,6 +212,9 @@ module Grading
         $stderr.puts "Task did not have any parts: #{task}\n"
       end
     end
+    if (not had_submission)
+      FileUtils.rm_rf(user_dir)
+    end
   end
 
   def interleave(l1, l2)
@@ -169,6 +231,6 @@ module Grading
     combined
   end
 
-  module_function :assignment_to_dir, :interleave, :write_open_response, :write_code_assignment, :write_reviews, :get_code_lines, :get_open_response_string, :write_received_reviews, :write_review
+  module_function :assignment_to_dir, :interleave, :write_open_response, :write_code_assignment, :write_reviews, :get_code_lines, :get_open_response_string, :write_received_reviews, :write_review, :lookup_resource_or_error, :assignment_to_file, :data_or_no_resp
 
 end
