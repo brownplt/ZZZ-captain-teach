@@ -832,7 +832,7 @@ function makeHighlightingRunCode(codeRunner) {
             container.addClass("check-block-failed");
           }
           checkBlockResult.results.forEach(function(individualResult) {
-            if (individualResult.reason) {
+            if ("reason" in individualResult) {
               somethingFailed = true;
               container.append(
                 drawFailure(
@@ -840,7 +840,7 @@ function makeHighlightingRunCode(codeRunner) {
                     individualResult.reason,
                     individualResult.location
                   ));
-            } else if (individualResult.exception) {
+            } else if ("exception" in individualResult) {
               somethingFailed = true;
               container.append(
                 drawException(
