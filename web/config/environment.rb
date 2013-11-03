@@ -24,8 +24,8 @@ FROM_EMAIL = "joe@cs.brown.edu"
 
 CONTACT_EMAIL = "joe@cs.brown.edu"
 
-WHALESONG_URL = "http://localhost:8080"
-APP_URL = "http://localhost:3000"
+WHALESONG_URL = "http://mizn.org:4000"
+APP_URL = "http://captain-teach.cs.brown.edu"
 
 if(ENCRYPTION)
   CT_KEY = File.read(KEY_FILE).unpack('m')[0]

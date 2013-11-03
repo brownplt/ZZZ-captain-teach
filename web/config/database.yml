@@ -26,7 +26,10 @@ test:
   password: "captain_teach"
 
 production:
-  adapter: sqlite3
-  database: db/production.sqlite3
-  pool: 5
+  adapter: postgresql
+  encoding: utf8
+  database: captain_teach_grading
   timeout: 5000
+  user: joe
+  password: "s.g.c15243"
+  host: db.cs.brown.edu

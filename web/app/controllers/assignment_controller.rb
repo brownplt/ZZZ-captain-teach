@@ -162,6 +162,7 @@ class AssignmentController < ApplicationController
   def self.path_to_json(user, path)
     html = Nokogiri::HTML(AssignmentController.path_to_html(user, path))
     tasks = html.css("[data-ct-node='1']").map do |node|
+      puts "node: #{node}\n"
       if not node["data-parts"].nil?
         {
           resources: JSON.parse(node["data-resources"]),
@@ -170,13 +171,15 @@ class AssignmentController < ApplicationController
           args: JSON.parse(node["data-args"]),
           type: node["data-type"]
         }
-      else
+      elsif node["data-resources"]
         {
           resources: JSON.parse(node["data-resources"]),
           id: node["data-activity-id"],
           args: JSON.parse(node["data-args"]),
           type: node["data-type"]
         }
+      else
+        { }
       end
     end
     {
