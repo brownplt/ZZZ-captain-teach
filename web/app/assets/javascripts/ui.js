@@ -791,7 +791,7 @@ function makeHighlightingRunCode(codeRunner) {
             [pyretMaps.get(pyretMaps.toDictionary(obj), "val")],
             function(s) {
               var str = pyretMaps.getPrim(s);
-              output.append(jQuery("<span class='repl-output'>").text(str));
+              output.append(jQuery("<pre class='repl-output'>").text(str));
               output.append(jQuery('<br/>'));
             }, function(e) {
               ct_err("Failed to tostring: ", result);
@@ -832,7 +832,7 @@ function makeHighlightingRunCode(codeRunner) {
             container.addClass("check-block-failed");
           }
           checkBlockResult.results.forEach(function(individualResult) {
-            if (individualResult.reason) {
+            if ("reason" in individualResult) {
               somethingFailed = true;
               container.append(
                 drawFailure(
@@ -840,7 +840,7 @@ function makeHighlightingRunCode(codeRunner) {
                     individualResult.reason,
                     individualResult.location
                   ));
-            } else if (individualResult.exception) {
+            } else if ("exception" in individualResult) {
               somethingFailed = true;
               container.append(
                 drawException(

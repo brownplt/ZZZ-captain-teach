@@ -4,6 +4,7 @@
 (require json net/url scribble/core scribble/html-properties racket/string racket/list)
 
 (provide
+  (all-from-out scribble/html-properties)
   (all-from-out scribble/core)
   (all-defined-out))
 
@@ -87,6 +88,27 @@
                         (cons 'choices (map choice-data choices))
                         (cons 'id unique-id)))))))))
       (map choice-html choices)))))
+
+(define-syntax-rule (free-response unique-id elt ...)
+  (begin
+    (let [(prompt (string-join (list elt ...)))]
+    (element
+      (style #f
+             (list
+              (alt-tag "div")
+              (attributes
+                (list
+                  (cons 'data-ct-node "1")
+                  (cons 'data-activity-id (mk-id unique-id))
+                  (cons 'data-resources (single-resource 'blob (mk-resource "b" "rc" unique-id (make-hash))))
+                  (cons 'data-type "free-response")
+                  (cons 'data-args (jsexpr->string
+                    (make-hash
+                      (list
+                        (cons 'prompt prompt)
+                        (cons 'id unique-id)))))))))
+        ""))))
+
 
 (define-syntax-rule (number-response unique-id min-val max-val elt ...)
   (begin
@@ -280,16 +302,16 @@
             (append (list (genstr)) (parts-part-names a-parts))
             (parts-steps a-parts))]
         [(_data-part part-name data-name)
-         (define v-step (cons 'variants (format "~a-variants" part-name)))
-         (define c-step (cons 'data-checks (format "~a-checks" part-name)))
+         (define s-step (cons 'data-body (format "~a-body" part-name)))
+         (define d-step (cons 'data-checks (format "~a-data-definition" part-name)))
          (parts
             (append (list
                       (cons 'code (format "~adata ~a:" maybe-line data-name))
                       (cons 'code "\nwhere:")
                       (cons 'code "\nend"))
                     (parts-code-delimiters a-parts))
-            (append (list v-step c-step (genstr)) (parts-part-names a-parts))
-            (append (list v-step c-step) (parts-steps a-parts)))]
+            (append (list s-step d-step (genstr)) (parts-part-names a-parts))
+            (append (list d-step) (parts-steps a-parts)))]
         [(_fun-part part-name fun-header)
          (define b-step (cons 'body (format "~a-body" part-name)))
          (define c-step (cons 'fun-checks (format "~a-checks" part-name)))
@@ -332,6 +354,23 @@
                                                  (append (parts-code-delimiters data) (list (cons 'code "\n")))))
                           (cons 'parts (pairs->json (parts-part-names data)))))))))))
        "")))
+
+(define-syntax-rule (file-upload id a-name)
+  (element
+    (style #f
+      (list
+        (alt-tag "div")
+        (attributes
+          (list
+            (cons 'data-ct-node "1")
+            (cons 'data-activity-id (mk-id id))
+            (cons 'data-resources
+                  (jsexpr->string
+                    (hash
+                      'path (mk-resource "p" "rw" id (make-hash)))))
+            (cons 'data-type "file-upload")
+            (cons 'data-args (jsexpr->string (hash 'name a-name)))))))
+      ""))
 
 (define-syntax-rule (open-response id review-count a-name)
   (element

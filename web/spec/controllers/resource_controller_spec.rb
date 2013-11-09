@@ -434,7 +434,7 @@ describe ResourceController do
 
       post :submit,
         :resource => resource_to_submit,
-        :data => JSON.dump({ step_type: "done" }),
+        :data => JSON.dump({ step_type: "done", to_save: {} }),
         :format => :json
       response.response_code.should(eq(200))
 
@@ -460,7 +460,7 @@ describe ResourceController do
 
       post :submit,
         :resource => resource_to_submit,
-        :data => JSON.dump({ step_type: step_type }),
+        :data => JSON.dump({ step_type: step_type, to_save: {}  }),
         :format => :json
       response.response_code.should(eq(200))
 
@@ -573,7 +573,7 @@ describe ResourceController do
 
       post :submit,
         :resource => resource_to_submit,
-        :data => JSON.dump({ step_type: "done" }),
+        :data => JSON.dump({ step_type: "done", to_save: {}  }),
         :format => :json
       response.response_code.should(eq(200))
 
@@ -587,7 +587,7 @@ describe ResourceController do
 
       post :submit,
         :resource => resource_to_submit,
-        :data => JSON.dump({ step_type: "done" }),
+        :data => JSON.dump({ step_type: "done", to_save: {}  }),
         :format => :json
       response.response_code.should(eq(200))
 
@@ -605,7 +605,7 @@ describe ResourceController do
 
       post :submit,
         :resource => resource_to_submit,
-        :data => JSON.dump({ step_type: "check2" }),
+        :data => JSON.dump({ step_type: "check2", to_save: {}  }),
         :format => :json
 
       b2 = Blob.create!(:user => @second_user, :ref => @activity_id, :data => "{}")
@@ -615,7 +615,7 @@ describe ResourceController do
 
       post :submit,
         :resource => second_resource_to_submit,
-        :data => JSON.dump({ step_type: "check2" }),
+        :data => JSON.dump({ step_type: "check2", to_save: {}  }),
         :format => :json
 
       part_ref = AssignmentController.part_ref(@activity_id, "check2")
@@ -641,7 +641,7 @@ describe ResourceController do
 
       post :submit,
         :resource => resource_to_submit,
-        :data => JSON.dump({ step_type: "check" }),
+        :data => JSON.dump({ step_type: "check", to_save: {}  }),
         :format => :json
       response.response_code.should(eq(200))
 
@@ -653,7 +653,7 @@ describe ResourceController do
 
       post :submit,
         :resource => resource_to_submit,
-        :data => JSON.dump({ step_type: "check" }),
+        :data => JSON.dump({ step_type: "check", to_save: {}  }),
         :format => :json
       response.response_code.should(eq(200))
 
@@ -694,7 +694,7 @@ describe ResourceController do
 
         post :submit,
           :resource => resource_to_submit,
-          :data => JSON.dump({ step_type: part_name }),
+          :data => JSON.dump({ step_type: part_name, to_save: {}  }),
           :format => :json
         response.response_code.should(eq(200))
 
@@ -732,7 +732,7 @@ describe ResourceController do
           args["triggers"] == ["notify_recipient", good_or_bad]
         end
         cr = canned_reviews[0]
-        
+
         post :save,
           :resource => cr,
           :data => JSON.dump({
@@ -741,7 +741,7 @@ describe ResourceController do
           }),
           :format => :json
         response.response_code.should(eq(200))
-        
+
         read_feedback = Resource::mk_resource(
             "inbox-for-read",
             "r",
@@ -786,12 +786,12 @@ describe ResourceController do
 
       post :submit,
         :resource => resource_to_submit,
-        :data => JSON.dump({ step_type: "done" }),
+        :data => JSON.dump({ step_type: "done", to_save: {}  }),
         :format => :json
       response.response_code.should(eq(200))
       post :submit,
         :resource => resource_to_submit,
-        :data => JSON.dump({ step_type: "done again" }),
+        :data => JSON.dump({ step_type: "done again", to_save: {}  }),
         :format => :json
       response.response_code.should(eq(200))
 
@@ -816,7 +816,7 @@ describe ResourceController do
         Resource.mk_resource('b', 'rw', @activity_id, {}, @user.id)
       post :submit,
         :resource => resource_to_submit,
-        :data => JSON.dump({ step_type: "done" }),
+        :data => JSON.dump({ step_type: "done", to_save: {}  }),
         :format => :json
       response.response_code.should(eq(200))
       s = Submitted.first
@@ -831,7 +831,7 @@ describe ResourceController do
         Resource.mk_resource('b', 'rw', @activity_id, {}, @user.id)
       post :submit,
         :resource => resource_to_submit,
-        :data => JSON.dump({ step_type: "done" }),
+        :data => JSON.dump({ step_type: "done", to_save: {}  }),
         :format => :json
 
     end

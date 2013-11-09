@@ -77,6 +77,8 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 }
 
 .repl-output {
+  padding: 0;
+  margin: 0;
 }
 
 .steppedGutter {
