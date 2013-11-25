@@ -252,6 +252,8 @@
 (struct _library-part _part (code))
 (struct _data-part _step (name))
 (struct _fun-part _step (header))
+(struct _single-fun-part _step (header))
+(struct _free-code-part _step ())
 (struct _instructions _part (text))
 
 (struct _name (name))
@@ -264,6 +266,10 @@
   (_data-part part-name (_name-name (findf _name? (list str ...)))))
 (define-syntax-rule (fun-part part-name str ...)
   (_fun-part part-name (_header-header (findf _header? (list str ...)))))
+(define-syntax-rule (single-fun-part part-name str ...)
+  (_single-fun-part part-name (_header-header (findf _header? (list str ...)))))
+(define-syntax-rule (free-code-part part-name)
+  (_free-code-part part-name))
 (define (newline-para-transform str)
   (string-replace str "\n\n" "</p><p>"))
 (define-syntax-rule (instructions str ...)
@@ -323,6 +329,24 @@
                     (parts-code-delimiters a-parts))
             (append (list b-step c-step (genstr)) (parts-part-names a-parts))
             (append (list c-step b-step) (parts-steps a-parts)))]
+        [(_single-fun-part part-name fun-header)
+         (define b-step (cons 'body (format "~a" part-name)))
+         (parts
+            (append (list
+                      (cons 'code (format "~afun ~a:" maybe-line fun-header))
+                      (cons 'code "\nend"))
+                    (parts-code-delimiters a-parts))
+            (append (list b-step (genstr)) (parts-part-names a-parts))
+            (append (list b-step) (parts-steps a-parts)))]
+        [(_free-code-part part-name)
+         (define b-step (cons 'body (format "~a" part-name)))
+         (parts
+            (append (list
+                      (cons 'code (format "~a\n" maybe-line))
+                      (cons 'code "\n"))
+                    (parts-code-delimiters a-parts))
+            (append (list b-step (genstr)) (parts-part-names a-parts))
+            (append (list b-step) (parts-steps a-parts)))]
         [(_instructions _ instr)
          (parts
           (append (list (cons 'instructions instr)) (parts-code-delimiters a-parts))
