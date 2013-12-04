@@ -139,6 +139,7 @@ module Grading
           elsif task[:type] == "code-assignment"
             sub = subs[0]
             write_code_assignment(task, sub.resource, user_dir + task[:id] + "_at_" + part["name"] + ".arr")
+            write_submission_time(sub, user_dir + task[:id] + "_at_" + part["name"] + ".submission-time.txt")
           elsif task[:type] == "open-response"
             sub = subs[0]
             write_open_response(task, sub.resource, user_dir + task[:id] + "_at_" + part["name"] + ".txt")
@@ -149,6 +150,12 @@ module Grading
           write_received_reviews(task, part["read_reviews"], user_dir + task[:id] + "_at_" + part["name"])
         end
       end
+    end
+  end
+
+  def write_submission_time(submission, path)
+    File.open(path, "w") do |f|
+      f.puts submission.submission_time
     end
   end
 
@@ -166,6 +173,6 @@ module Grading
     combined
   end
 
-  module_function :assignment_to_dir, :interleave, :write_open_response, :write_code_assignment, :write_reviews, :get_code_lines, :get_open_response_string, :write_received_reviews, :write_review
+  module_function :assignment_to_dir, :interleave, :write_open_response, :write_code_assignment, :write_reviews, :write_submission_time, :get_code_lines, :get_open_response_string, :write_received_reviews, :write_review
 
 end
