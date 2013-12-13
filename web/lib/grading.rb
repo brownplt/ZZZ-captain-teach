@@ -75,6 +75,15 @@ module Grading
         if maybe_review_text.respond_to?(:data)
           review_text = maybe_review_text.data["review"]
           write_review(path + "-review-written-#{i}.txt", review_text, review_target_text)
+          # also create a file with the submission time
+          submitted = Submitted.find_by(id: r['submission_id'])
+          File.open(path + "-review-submission-time-#{i}.txt", "w") do |ff|
+            if submitted
+              ff.puts submitted.submission_time
+            else
+              ff.puts ''
+            end
+          end
         else
           f.puts "No review found"
         end
@@ -116,15 +125,18 @@ module Grading
     end
     json = AssignmentController::path_to_json(user, AssignmentController::path_ref_to_path(assignment.path_ref))
     journey_dir = user_dir + json[:id]
+    puts "make journey_dir: #{journey_dir}"
     FileUtils.mkdir_p(journey_dir)
 
     json[:tasks].each do |task|
       if task[:type] == "code-assignment"
         path = task[:resources]["path"]
         write_code_assignment(task, path, user_dir + task[:id] + ".current.arr")
+        write_first_viewed_time(user, task, user_dir + task[:id] + ".first-viewed-time.txt")
       elsif task[:type] == "open-response"
         path = task[:resources]["path"]
         write_open_response(task, path, user_dir + task[:id] + ".current.txt")
+        write_first_viewed_time(user, task, user_dir + task[:id] + ".first-viewed-time.txt")
       end
       if task[:parts]
         task[:parts].each do |part|
@@ -138,6 +150,8 @@ module Grading
             $stderr.puts "No submission for #{user.to_json} for #{part["name"]}\n"
           elsif task[:type] == "code-assignment"
             sub = subs[0]
+            # TODO: can use InboxReadEvent.find_by(user: u, ref: ire_ref) to see when they read their reviews
+            ##ire_ref = task[:id] + "-" + part["name"]
             write_code_assignment(task, sub.resource, user_dir + task[:id] + "_at_" + part["name"] + ".arr")
             write_submission_time(sub, user_dir + task[:id] + "_at_" + part["name"] + ".submission-time.txt")
           elsif task[:type] == "open-response"
@@ -151,6 +165,32 @@ module Grading
         end
       end
     end
+  end
+
+  def write_first_viewed_time(user, task, output_filename)
+      user_repo = user.user_repo
+      repo = user_repo.repo
+      path = task[:resources]["path"]
+      # TODO: get first-viewed-time from HTTP logs. for now, it's estimated
+      _type, _perms, ref, _args, _user = Resource::parse(path)
+
+      # find earliest commit-containing-the-ref
+      prev = nil  # contains the oldest commit-containging-the-ref found so far
+      curr = repo.lookup(repo.head.target)  # contains the next commit to check
+      while curr  # no next commit means we've checked all commits, up to the initial commit
+        if user_repo.has_file?(curr.oid, ref)
+          prev = curr
+          curr = curr.parents[0]
+        else
+          break
+        end
+      end
+      puts "border: #{curr}\t#{prev}"
+      File.open(output_filename, 'w') do |f|
+        if prev
+          f.puts prev.time
+        end
+      end
   end
 
   def write_submission_time(submission, path)
@@ -173,6 +213,6 @@ module Grading
     combined
   end
 
-  module_function :assignment_to_dir, :interleave, :write_open_response, :write_code_assignment, :write_reviews, :write_submission_time, :get_code_lines, :get_open_response_string, :write_received_reviews, :write_review
+  module_function :assignment_to_dir, :interleave, :write_open_response, :write_code_assignment, :write_reviews, :write_submission_time, :get_code_lines, :get_open_response_string, :write_received_reviews, :write_review, :write_first_viewed_time
 
 end
