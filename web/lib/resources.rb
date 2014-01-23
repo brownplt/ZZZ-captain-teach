@@ -105,7 +105,6 @@ module Resource
       data
     end,
     "notify_recipient" => Proc.new do |data, args|
-      puts "args: #{args}\n"
       UserMailer.review_email(
           User.find_by(:id => args["blob_user_id"]),
           args["assignment_id"],
@@ -114,6 +113,32 @@ module Resource
       data
     end
   }
+
+  @@review_assigners = {
+    "default" => Proc.new do |ref, type, id, review_count|
+      get_submissions(ref, type, id, review_count)
+    end,
+    "klemmer" => Proc.new do |ref, type, id, review_count|
+      klemmer_submissions(ref, type, id, review_count)
+    end
+  }
+
+  def klemmer_submissions(ref, type, id, review_count)
+    canned_solutions = Submitted.where(
+      :activity_id => ref,
+      :submission_type => type,
+    )
+    .where("known != ?", "unknown")
+    a = canned_solutions.to_a
+    canned_solution = a[rand(a.length())]
+    if not canned_solution.nil?
+      ss = get_any_submissions_other_than(ref, type, id, review_count - 1, canned_solution.id)
+      ss.to_a.insert(0, canned_solution)
+      return ss
+    else
+      return get_student_submissions(ref, type, id, review_count)
+    end
+  end
 
   @@known_reviews_probability = 0.5
 
@@ -127,6 +152,18 @@ module Resource
 
   def assign_canned_review?
     SecureRandom.random_number < @@known_reviews_probability
+  end
+
+  def get_any_submissions_other_than(ref, type, id, count, skip_id)
+    Submitted.where(
+      :activity_id => ref,
+      :submission_type => type,
+    )
+    .order("submission_time ASC")
+    .order("review_count ASC")
+    .where("user_id != ?", id)
+    .where("id != ?", skip_id)
+    .take(count)
   end
 
   def get_student_submissions(ref, type, id, count)
@@ -466,11 +503,11 @@ module Resource
     end
   end
 
-  def assign_reviews(user, ref, type, reviews, assignment_id)
+  def assign_reviews(user, ref, type, reviews, assignment_id, review_assigner)
     if reviews.nil? or reviews == 0
       return
     else
-      submissions_to_review = get_submissions(ref, type, user.id, reviews)
+      submissions_to_review = @@review_assigners[review_assigner].call(ref, type, user.id, reviews)
 
       part_ref = AssignmentController.part_ref(ref, type)
 
@@ -572,7 +609,8 @@ module Resource
             :submission_type => step_type, #TODO(joe): review -- allow client-chosen type?
             :submission_time => Time.zone.now
           )
-          assign_reviews(user, ref, step_type, args["reviews"], args["assignment_id"])
+          review_assigner = args["review_assigner"] || "default"
+          assign_reviews(user, ref, step_type, args["reviews"], args["assignment_id"], review_assigner)
         end
         return Success.new
       end
@@ -605,6 +643,8 @@ module_function :assign_reviews,
   :get_known_reviews_probability,
   :set_known_reviews_probability,
   :get_submissions,
+  :get_any_submissions_other_than,
+  :klemmer_submissions,
   :get_student_submissions,
   :assign_canned_review?,
   :canned_key,

@@ -37,6 +37,43 @@ function studentCodeReview(container, options) {
 }
 
 function writeReviews(container, options) {
+  if(options.type !== "open-response/text-rubric") {
+    writeReviewsLikert(container, options);
+  }
+  else {
+    writeReviewsRubric(container, options);
+  }
+}
+
+function writeReviewsRubric(container, options) {
+  var reviewContainer = drawWriteReviewContainer();
+  var reviewBox = drawRubricTextBox(options.rubric);
+
+  var submitReviewButton = drawSubmitReviewButton()
+    .on("click", function(e) {
+      var currentReviewText = getRubricComments(reviewBox);
+      if(currentReviewText.replace(" ", "") === options.rubric.replace(" ", "")) {
+        ct_alert("It looks like you haven't written anything yet; did you really mean to submit?");
+        return;
+      }
+      if(ct_confirm("Are you sure you want to submit this review?")) {
+        options.reviews.save({
+            review: {
+                done: true,
+                rubricComments: currentReviewText
+              }
+          },
+          function() {
+            drawSavedNotification(container);
+          });
+      }
+    });
+
+  reviewContainer.append(reviewBox).append(submitReviewButton);
+  container.append(reviewContainer);
+}
+
+function writeReviewsLikert(container, options) {
 
   var showReview = drawShowWriteReview();
   var reviewContainer = drawWriteReviewContainer();
@@ -574,6 +611,7 @@ var reviewTabs = ctC("reviewTabs", [TObject, {hasField: "type"}, TFunction],
             reviewDatum.attachWorkToReview(editorContainer, function(reviewsInline) {
               writeReviews(reviewsInline, {
                   type: step.type,
+                  rubric: step.rubric || false,
                   reviews: {
                       save: function(val, f) {
                         reviewDatum.saveReview(val, function(feedback) {
@@ -1083,7 +1121,13 @@ function showReview(editor,
 
   var container = drawReviewContainer();
 
-  var review = drawReview(review, step.type, abuseData.review);
+  var review;
+  if (step.type !== "open-response/text-rubric") {
+    review = drawReview(review, step.type, abuseData.review);
+  }
+  else {
+    review = drawRubricReview(review, step.type, abuseData.review);
+  }
 
   container.append(review);
 

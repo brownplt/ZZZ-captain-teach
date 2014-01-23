@@ -107,6 +107,14 @@ function selectReviewScore(reviewScore, value) {
   reviewScore.find("input[value=" + value + "]").click().prop("checked", true);
 }
 
+function drawRubricTextBox(text) {
+  return $("<textarea>").css({width: "80%", height: "30em"}).val(text);
+}
+
+function getRubricComments(elt) {
+  return elt.val();
+}
+
 function drawShowWriteReview() {
   return $("<button>").css({float: "right"}).text("Review").addClass("writeReview");
 }
@@ -193,6 +201,14 @@ function drawReviewContainer() {
 function getLikertLabel(value) {
   var index = Number(value) + (likertLabels.length / 2)
   return likertLabels[index];
+}
+
+function drawRubricReview(revData, type, abuseData) {
+  var rev = $("<div>").addClass("reviewContents");
+  if(abuseData) {
+    rev.append(drawReportAbuse(abuseData));
+  }
+  return rev.append($("<div>").append($("<pre>").text(revData.review.rubricComments)));
 }
 
 function drawReview(revData, type, abuseData) {

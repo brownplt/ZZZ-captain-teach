@@ -279,6 +279,19 @@ function openResponse(container, resources, args) {
   return steppedAssignment(container, resources, args, options);
 }
 
+function openResponseTextRubric(container, resources, args) {
+  var options = {
+    tabName: "Response",
+    runButton: false,
+    highlight: false,
+    lineWrap: true,
+    overrideSectionName: args.name
+  };
+  args.codeDelimiters = [{type: "code", value: " "}, {type: "code", value: "\n "}];
+  return steppedAssignment(container, resources, args, options);
+}
+
+
 function codeAssignment(container, resources, args) {
   var options = {
     tabName: "Code",
@@ -388,6 +401,7 @@ function steppedAssignment(container, resources, args, options) {
 
     function wrapStepForReview(step) {
       return {
+        rubric: args.rubric || false,
         type: step.type,
         getReviewData: function(f, e) {
           function wrapResult(reviewData) {
@@ -910,7 +924,8 @@ var builders = {
   "number-response": numberResponse,
   "free-response": freeResponse,
   "code-library": codeLibrary,
-  "open-response": openResponse
+  "open-response": openResponse,
+  "open-response/text-rubric": openResponseTextRubric
 };
 
 

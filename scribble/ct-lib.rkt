@@ -366,7 +366,8 @@
                           (make-hash
                            (list (cons 'path
                                        (mk-resource "p" "rw" unique-id
-                                                    (make-hash (list (cons 'reviews review-count)))))
+                                                    (make-hash (list
+                                                                  (cons 'reviews review-count)))))
                                  (cons 'blob (mk-resource "b" "rw" unique-id (make-hash)))))))
                    (cons 'data-parts (jsexpr->string (pairs->json (parts-steps data))))
                    (cons 'data-type "code-assignment")
@@ -395,6 +396,33 @@
             (cons 'data-type "file-upload")
             (cons 'data-args (jsexpr->string (hash 'name a-name)))))))
       ""))
+
+(define-syntax-rule (open-response/text-rubric id review-count a-name rubric-text ...)
+  (begin
+    (define rubric (string-append rubric-text ...))
+    (element
+      (style #f
+             (list
+              (alt-tag "div")
+              (attributes
+                (list
+                  (cons 'data-ct-node "1")
+                  (cons 'data-activity-id (mk-id id))
+                  (cons 'data-resources
+                        (jsexpr->string
+                          (hash
+                            'path (mk-resource "p" "rw" id (make-hash (list
+                                                                  (cons 'review_assigner "klemmer")
+                                                                  (cons 'reviews review-count)))))))
+                  (cons 'data-parts
+                        (jsexpr->string (list (hash 'type "open-response/text-rubric" 'value "open-response/text-rubric"))))
+                  (cons 'data-type "open-response/text-rubric")
+                  (cons 'data-args (jsexpr->string
+                    (hash 'name a-name
+                          'rubric rubric
+                          'parts (list (hash 'type "open-response/text-rubric" 'value "open-response/text-rubric")))))))))
+     "")))
+
 
 (define-syntax-rule (open-response id review-count a-name)
   (element
