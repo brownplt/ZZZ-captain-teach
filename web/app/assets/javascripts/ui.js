@@ -824,15 +824,38 @@ function makeHighlightingRunCode(codeRunner) {
       var blockResultsJSON = pyretMaps.pyretToJSON(obj);
 
       if(blockResultsJSON.results.length === 0) {
+        var blockResultVal = pyretMaps.get(pyretMaps.toDictionary(obj), "val");
         whalesongFFI.callPyretFun(
-            whalesongFFI.getPyretLib("torepr"),
-            [pyretMaps.get(pyretMaps.toDictionary(obj), "val")],
-            function(s) {
-              var str = pyretMaps.getPrim(s);
-              output.append(jQuery("<pre class='repl-output'>").text(str));
-              output.append(jQuery('<br/>'));
-            }, function(e) {
-              ct_err("Failed to tostring: ", result);
+            whalesongFFI.getPyretLib("Image"),
+            [blockResultVal],
+            function(isImage) {
+              if(pyretMaps.pyretToJSON(isImage) === true) {
+                whalesongFFI.callRacketFun(whalesongFFI.getPyretLib("p:p-opaque-val"),
+                    [blockResultVal],
+                    function(imageVal) {
+                      var imageDom = plt.runtime.toDomNode(imageVal, 'display');
+                      output.append(imageDom);
+                      $(imageDom).trigger({type: 'afterAttach'});
+                      $('*', imageDom).trigger({type : 'afterAttach'});
+                      output.append("<br/>");
+
+                    },
+                    function(fail) {
+                      console.error("Failed to get opaque: ", fail); 
+                    });
+              } else {
+                whalesongFFI.callPyretFun(
+                    whalesongFFI.getPyretLib("torepr"),
+                    [pyretMaps.get(pyretMaps.toDictionary(obj), "val")],
+                    function(s) {
+                      var str = pyretMaps.getPrim(s);
+                      output.append(jQuery("<pre class='repl-output'>").text(str));
+                      output.append(jQuery('<br/>'));
+                    }, function(e) {
+                      ct_err("Failed to tostring: ", result);
+                    });
+
+              }
             });
         return true;
       }
