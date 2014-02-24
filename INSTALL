@@ -28,6 +28,7 @@ mkdir source
 cd source
 
 wget http://download.racket-lang.org/installers/5.3.6/racket/racket-5.3.6-bin-x86_64-linux-ubuntu-precise.sh
+# http://download.racket-lang.org/installers/5.93/racket-5.93-i386-linux-ubuntu-precise.sh
 
 
 mkdir ~/bin
