@@ -37,6 +37,43 @@ function studentCodeReview(container, options) {
 }
 
 function writeReviews(container, options) {
+  if(options.type !== "open-response/text-rubric") {
+    writeReviewsLikert(container, options);
+  }
+  else {
+    writeReviewsRubric(container, options);
+  }
+}
+
+function writeReviewsRubric(container, options) {
+  var reviewContainer = drawWriteReviewContainer();
+  var reviewBox = drawRubricTextBox(options.rubric);
+
+  var submitReviewButton = drawSubmitReviewButton()
+    .on("click", function(e) {
+      var currentReviewText = getRubricComments(reviewBox);
+      if(currentReviewText.replace(" ", "") === options.rubric.replace(" ", "")) {
+        ct_alert("It looks like you haven't written anything yet; did you really mean to submit?");
+        return;
+      }
+      if(ct_confirm("Are you sure you want to submit this review?")) {
+        options.reviews.save({
+            review: {
+                done: true,
+                rubricComments: currentReviewText
+              }
+          },
+          function() {
+            drawSavedNotification(container);
+          });
+      }
+    });
+
+  reviewContainer.append(reviewBox).append(submitReviewButton);
+  container.append(reviewContainer);
+}
+
+function writeReviewsLikert(container, options) {
 
   var showReview = drawShowWriteReview();
   var reviewContainer = drawWriteReviewContainer();
@@ -574,6 +611,7 @@ var reviewTabs = ctC("reviewTabs", [TObject, {hasField: "type"}, TFunction],
             reviewDatum.attachWorkToReview(editorContainer, function(reviewsInline) {
               writeReviews(reviewsInline, {
                   type: step.type,
+                  rubric: step.rubric || false,
                   reviews: {
                       save: function(val, f) {
                         reviewDatum.saveReview(val, function(feedback) {
@@ -786,15 +824,38 @@ function makeHighlightingRunCode(codeRunner) {
       var blockResultsJSON = pyretMaps.pyretToJSON(obj);
 
       if(blockResultsJSON.results.length === 0) {
+        var blockResultVal = pyretMaps.get(pyretMaps.toDictionary(obj), "val");
         whalesongFFI.callPyretFun(
-            whalesongFFI.getPyretLib("torepr"),
-            [pyretMaps.get(pyretMaps.toDictionary(obj), "val")],
-            function(s) {
-              var str = pyretMaps.getPrim(s);
-              output.append(jQuery("<span class='repl-output'>").text(str));
-              output.append(jQuery('<br/>'));
-            }, function(e) {
-              ct_err("Failed to tostring: ", result);
+            whalesongFFI.getPyretLib("Image"),
+            [blockResultVal],
+            function(isImage) {
+              if(pyretMaps.pyretToJSON(isImage) === true) {
+                whalesongFFI.callRacketFun(whalesongFFI.getPyretLib("p:p-opaque-val"),
+                    [blockResultVal],
+                    function(imageVal) {
+                      var imageDom = plt.runtime.toDomNode(imageVal, 'display');
+                      output.append(imageDom);
+                      $(imageDom).trigger({type: 'afterAttach'});
+                      $('*', imageDom).trigger({type : 'afterAttach'});
+                      output.append("<br/>");
+
+                    },
+                    function(fail) {
+                      console.error("Failed to get opaque: ", fail); 
+                    });
+              } else {
+                whalesongFFI.callPyretFun(
+                    whalesongFFI.getPyretLib("torepr"),
+                    [pyretMaps.get(pyretMaps.toDictionary(obj), "val")],
+                    function(s) {
+                      var str = pyretMaps.getPrim(s);
+                      output.append(jQuery("<pre class='repl-output'>").text(str));
+                      output.append(jQuery('<br/>'));
+                    }, function(e) {
+                      ct_err("Failed to tostring: ", result);
+                    });
+
+              }
             });
         return true;
       }
@@ -832,7 +893,7 @@ function makeHighlightingRunCode(codeRunner) {
             container.addClass("check-block-failed");
           }
           checkBlockResult.results.forEach(function(individualResult) {
-            if (individualResult.reason) {
+            if ("reason" in individualResult) {
               somethingFailed = true;
               container.append(
                 drawFailure(
@@ -840,7 +901,7 @@ function makeHighlightingRunCode(codeRunner) {
                     individualResult.reason,
                     individualResult.location
                   ));
-            } else if (individualResult.exception) {
+            } else if ("exception" in individualResult) {
               somethingFailed = true;
               container.append(
                 drawException(
@@ -1083,7 +1144,13 @@ function showReview(editor,
 
   var container = drawReviewContainer();
 
-  var review = drawReview(review, step.type, abuseData.review);
+  var review;
+  if (step.type !== "open-response/text-rubric") {
+    review = drawReview(review, step.type, abuseData.review);
+  }
+  else {
+    review = drawRubricReview(review, step.type, abuseData.review);
+  }
 
   container.append(review);
 

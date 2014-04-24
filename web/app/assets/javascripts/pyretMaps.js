@@ -38,7 +38,7 @@ window.pyretMaps = (function() {
   function pyretToJSON(pyretVal) {
     var avoidConstructors = ["p-method", "p-fun", "p-opaque"];
     function avoid(val) {
-      return avoidConstructors.indexOf(pyretVal._constructorName.val) === 0;
+      return avoidConstructors.indexOf(val._constructorName.val) >= 0;
     }
     // TODO(joe 05 Aug 2013): Better list detection (brands?)
     function isList(dict) {
@@ -64,6 +64,9 @@ window.pyretMaps = (function() {
         });
         return ret;
       }
+    }
+    else if (isOpaque(pyretVal)) {
+      return pyretVal;
     }
   }
 

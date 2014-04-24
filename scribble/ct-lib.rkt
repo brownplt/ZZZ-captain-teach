@@ -4,6 +4,7 @@
 (require json net/url scribble/core scribble/html-properties racket/string racket/list)
 
 (provide
+  (all-from-out scribble/html-properties)
   (all-from-out scribble/core)
   (all-defined-out))
 
@@ -87,6 +88,27 @@
                         (cons 'choices (map choice-data choices))
                         (cons 'id unique-id)))))))))
       (map choice-html choices)))))
+
+(define-syntax-rule (free-response unique-id elt ...)
+  (begin
+    (let [(prompt (string-join (list elt ...)))]
+    (element
+      (style #f
+             (list
+              (alt-tag "div")
+              (attributes
+                (list
+                  (cons 'data-ct-node "1")
+                  (cons 'data-activity-id (mk-id unique-id))
+                  (cons 'data-resources (single-resource 'blob (mk-resource "b" "rc" unique-id (make-hash))))
+                  (cons 'data-type "free-response")
+                  (cons 'data-args (jsexpr->string
+                    (make-hash
+                      (list
+                        (cons 'prompt prompt)
+                        (cons 'id unique-id)))))))))
+        ""))))
+
 
 (define-syntax-rule (number-response unique-id min-val max-val elt ...)
   (begin
@@ -230,6 +252,8 @@
 (struct _library-part _part (code))
 (struct _data-part _step (name))
 (struct _fun-part _step (header))
+(struct _single-fun-part _step (header))
+(struct _free-code-part _step ())
 (struct _instructions _part (text))
 
 (struct _name (name))
@@ -242,6 +266,10 @@
   (_data-part part-name (_name-name (findf _name? (list str ...)))))
 (define-syntax-rule (fun-part part-name str ...)
   (_fun-part part-name (_header-header (findf _header? (list str ...)))))
+(define-syntax-rule (single-fun-part part-name str ...)
+  (_single-fun-part part-name (_header-header (findf _header? (list str ...)))))
+(define-syntax-rule (free-code-part part-name)
+  (_free-code-part part-name))
 (define (newline-para-transform str)
   (string-replace str "\n\n" "</p><p>"))
 (define-syntax-rule (instructions str ...)
@@ -280,16 +308,16 @@
             (append (list (genstr)) (parts-part-names a-parts))
             (parts-steps a-parts))]
         [(_data-part part-name data-name)
-         (define v-step (cons 'variants (format "~a-variants" part-name)))
-         (define c-step (cons 'data-checks (format "~a-checks" part-name)))
+         (define s-step (cons 'data-body (format "~a-body" part-name)))
+         (define d-step (cons 'data-checks (format "~a-data-definition" part-name)))
          (parts
             (append (list
                       (cons 'code (format "~adata ~a:" maybe-line data-name))
                       (cons 'code "\nwhere:")
                       (cons 'code "\nend"))
                     (parts-code-delimiters a-parts))
-            (append (list v-step c-step (genstr)) (parts-part-names a-parts))
-            (append (list v-step c-step) (parts-steps a-parts)))]
+            (append (list s-step d-step (genstr)) (parts-part-names a-parts))
+            (append (list d-step) (parts-steps a-parts)))]
         [(_fun-part part-name fun-header)
          (define b-step (cons 'body (format "~a-body" part-name)))
          (define c-step (cons 'fun-checks (format "~a-checks" part-name)))
@@ -301,6 +329,24 @@
                     (parts-code-delimiters a-parts))
             (append (list b-step c-step (genstr)) (parts-part-names a-parts))
             (append (list c-step b-step) (parts-steps a-parts)))]
+        [(_single-fun-part part-name fun-header)
+         (define b-step (cons 'body (format "~a" part-name)))
+         (parts
+            (append (list
+                      (cons 'code (format "~afun ~a:" maybe-line fun-header))
+                      (cons 'code "\nend"))
+                    (parts-code-delimiters a-parts))
+            (append (list b-step (genstr)) (parts-part-names a-parts))
+            (append (list b-step) (parts-steps a-parts)))]
+        [(_free-code-part part-name)
+         (define b-step (cons 'body (format "~a" part-name)))
+         (parts
+            (append (list
+                      (cons 'code (format "~a\n" maybe-line))
+                      (cons 'code "\n"))
+                    (parts-code-delimiters a-parts))
+            (append (list b-step (genstr)) (parts-part-names a-parts))
+            (append (list b-step) (parts-steps a-parts)))]
         [(_instructions _ instr)
          (parts
           (append (list (cons 'instructions instr)) (parts-code-delimiters a-parts))
@@ -320,7 +366,8 @@
                           (make-hash
                            (list (cons 'path
                                        (mk-resource "p" "rw" unique-id
-                                                    (make-hash (list (cons 'reviews review-count)))))
+                                                    (make-hash (list
+                                                                  (cons 'reviews review-count)))))
                                  (cons 'blob (mk-resource "b" "rw" unique-id (make-hash)))))))
                    (cons 'data-parts (jsexpr->string (pairs->json (parts-steps data))))
                    (cons 'data-type "code-assignment")
@@ -332,6 +379,50 @@
                                                  (append (parts-code-delimiters data) (list (cons 'code "\n")))))
                           (cons 'parts (pairs->json (parts-part-names data)))))))))))
        "")))
+
+(define-syntax-rule (file-upload id a-name)
+  (element
+    (style #f
+      (list
+        (alt-tag "div")
+        (attributes
+          (list
+            (cons 'data-ct-node "1")
+            (cons 'data-activity-id (mk-id id))
+            (cons 'data-resources
+                  (jsexpr->string
+                    (hash
+                      'path (mk-resource "p" "rw" id (make-hash)))))
+            (cons 'data-type "file-upload")
+            (cons 'data-args (jsexpr->string (hash 'name a-name)))))))
+      ""))
+
+(define-syntax-rule (open-response/text-rubric id review-count a-name rubric-text ...)
+  (begin
+    (define rubric (string-append rubric-text ...))
+    (element
+      (style #f
+             (list
+              (alt-tag "div")
+              (attributes
+                (list
+                  (cons 'data-ct-node "1")
+                  (cons 'data-activity-id (mk-id id))
+                  (cons 'data-resources
+                        (jsexpr->string
+                          (hash
+                            'path (mk-resource "p" "rw" id (make-hash (list
+                                                                  (cons 'review_assigner "klemmer")
+                                                                  (cons 'reviews review-count)))))))
+                  (cons 'data-parts
+                        (jsexpr->string (list (hash 'type "open-response/text-rubric" 'value "open-response/text-rubric"))))
+                  (cons 'data-type "open-response/text-rubric")
+                  (cons 'data-args (jsexpr->string
+                    (hash 'name a-name
+                          'rubric rubric
+                          'parts (list (hash 'type "open-response/text-rubric" 'value "open-response/text-rubric")))))))))
+     "")))
+
 
 (define-syntax-rule (open-response id review-count a-name)
   (element

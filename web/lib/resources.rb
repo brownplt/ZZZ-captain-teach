@@ -76,14 +76,19 @@ module Resource
   @@triggers = {
     "good" => Proc.new do |data, args|
       feedback_resource = data["feedback"]
-      if (data["review"]["correctness"].to_f < 0)
+      if (data["review"]["correctness"].nil?)
         save_canned_feedback(
-            feedback_resource, 
+            feedback_resource,
+            "This was a correct solution written by the course staff."
+          )
+      elsif (data["review"]["correctness"].to_f < 0)
+        save_canned_feedback(
+            feedback_resource,
             "You may have made a mistake!  This was a good solution written by the course staff, and you marked it as incorrect."
           )
       else
         save_canned_feedback(
-            feedback_resource, 
+            feedback_resource,
             "Good job!  This was a good solution written by the course staff, and you identified it as such."
           )
       end
@@ -91,21 +96,25 @@ module Resource
     end,
     "bad" => Proc.new do |data, args|
       feedback_resource = data["feedback"]
-      if (data["review"]["correctness"].to_f > 0)
+      if (data["review"]["correctness"].nil?)
         save_canned_feedback(
-            feedback_resource, 
+            feedback_resource,
+            "This was an incorrect solution written by the course staff."
+          )
+      elsif (data["review"]["correctness"].to_f > 0)
+        save_canned_feedback(
+            feedback_resource,
             "You may have made a mistake!  This was a bad solution written by the course staff, and you marked it as correct."
           )
       else
         save_canned_feedback(
-            feedback_resource, 
+            feedback_resource,
             "Good job!  This was a bad solution written by the course staff, and you identified it as such."
           )
       end
       data
     end,
     "notify_recipient" => Proc.new do |data, args|
-      puts "args: #{args}\n"
       UserMailer.review_email(
           User.find_by(:id => args["blob_user_id"]),
           args["assignment_id"],
@@ -114,6 +123,32 @@ module Resource
       data
     end
   }
+
+  @@review_assigners = {
+    "default" => Proc.new do |ref, type, id, review_count|
+      get_submissions(ref, type, id, review_count)
+    end,
+    "klemmer" => Proc.new do |ref, type, id, review_count|
+      klemmer_submissions(ref, type, id, review_count)
+    end
+  }
+
+  def klemmer_submissions(ref, type, id, review_count)
+    canned_solutions = Submitted.where(
+      :activity_id => ref,
+      :submission_type => type,
+    )
+    .where("known != ?", "unknown")
+    a = canned_solutions.to_a
+    canned_solution = a[rand(a.length())]
+    if not canned_solution.nil?
+      ss = get_any_submissions_other_than(ref, type, id, review_count - 1, canned_solution.id)
+      ss.to_a.insert(0, canned_solution)
+      return ss
+    else
+      return get_student_submissions(ref, type, id, review_count)
+    end
+  end
 
   @@known_reviews_probability = 0.5
 
@@ -127,6 +162,18 @@ module Resource
 
   def assign_canned_review?
     SecureRandom.random_number < @@known_reviews_probability
+  end
+
+  def get_any_submissions_other_than(ref, type, id, count, skip_id)
+    Submitted.where(
+      :activity_id => ref,
+      :submission_type => type,
+    )
+    .order("submission_time ASC")
+    .order("review_count ASC")
+    .where("user_id != ?", id)
+    .where("id != ?", skip_id)
+    .take(count)
   end
 
   def get_student_submissions(ref, type, id, count)
@@ -466,17 +513,17 @@ module Resource
     end
   end
 
-  def assign_reviews(user, ref, type, reviews, assignment_id)
+  def assign_reviews(user, ref, type, reviews, assignment_id, review_assigner)
     if reviews.nil? or reviews == 0
       return
     else
-      submissions_to_review = get_submissions(ref, type, user.id, reviews)
+      submissions_to_review = @@review_assigners[review_assigner].call(ref, type, user.id, reviews)
 
       part_ref = AssignmentController.part_ref(ref, type)
 
       data = submissions_to_review.map do |sub|
         if not (sub.known == 'unknown')
-          triggers = ["notify_recipient", sub.known] 
+          triggers = ["notify_recipient", sub.known]
         else
           triggers = ["notify_recipient"]
         end
@@ -540,6 +587,13 @@ module Resource
 
   def submit(type, perm, ref, args, user, _data, resource)
     data = JSON.parse(_data)
+    # NOTE(dbp 2013-10-10): save a new version. This will be what is submitted.
+    to_save = data["to_save"]
+    if to_save.nil?
+      raise Exception, "data to save is nil"
+    end
+    save_resource(resource, JSON.dump(to_save))
+
     maybe_resource_versions = versions(type, perm, ref, args, user, resource)
     if maybe_resource_versions.instance_of?(Normal)
       resource_versions = maybe_resource_versions.data
@@ -565,7 +619,8 @@ module Resource
             :submission_type => step_type, #TODO(joe): review -- allow client-chosen type?
             :submission_time => Time.zone.now
           )
-          assign_reviews(user, ref, step_type, args["reviews"], args["assignment_id"])
+          review_assigner = args["review_assigner"] || "default"
+          assign_reviews(user, ref, step_type, args["reviews"], args["assignment_id"], review_assigner)
         end
         return Success.new
       end
@@ -598,6 +653,8 @@ module_function :assign_reviews,
   :get_known_reviews_probability,
   :set_known_reviews_probability,
   :get_submissions,
+  :get_any_submissions_other_than,
+  :klemmer_submissions,
   :get_student_submissions,
   :assign_canned_review?,
   :canned_key,

@@ -107,6 +107,14 @@ function selectReviewScore(reviewScore, value) {
   reviewScore.find("input[value=" + value + "]").click().prop("checked", true);
 }
 
+function drawRubricTextBox(text) {
+  return $("<textarea>").css({width: "80%", height: "30em"}).val(text);
+}
+
+function getRubricComments(elt) {
+  return elt.val();
+}
+
 function drawShowWriteReview() {
   return $("<button>").css({float: "right"}).text("Review").addClass("writeReview");
 }
@@ -193,6 +201,14 @@ function drawReviewContainer() {
 function getLikertLabel(value) {
   var index = Number(value) + (likertLabels.length / 2)
   return likertLabels[index];
+}
+
+function drawRubricReview(revData, type, abuseData) {
+  var rev = $("<div>").addClass("reviewContents");
+  if(abuseData) {
+    rev.append(drawReportAbuse(abuseData));
+  }
+  return rev.append($("<div>").append($("<pre>").text(revData.review.rubricComments)));
 }
 
 function drawReview(revData, type, abuseData) {
@@ -489,7 +505,11 @@ function drawModal(content, onClose) {
   $(document).keydown(function(e) {
     if(e.which === 27) { close(); }
   });
-  var contentDiv = $("<p>").text(content);
+  var contentDiv = $("<p>")
+  if(typeof content === "string") { contentDiv.text(content); }
+  else {
+    contentDiv.append(content);
+  }
   container.append(modalClose).append(contentDiv);
   $(document.body).append(container);
 }
